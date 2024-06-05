@@ -1,0 +1,8 @@
+.list-group {
+    width: 25%;
+    float: left;
+}
+
+#courseListTitle {
+    margin-top: 10px;
+}

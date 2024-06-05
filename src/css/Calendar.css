@@ -1,0 +1,8 @@
+#Calendar{
+    margin-top: -43px;
+    padding-left: 50%;
+}
+
+.fc .fc-day-today {
+    background-color: transparent !important;
+  }
