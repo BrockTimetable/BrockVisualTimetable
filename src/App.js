@@ -1,15 +1,11 @@
-import { DepartmentSearchComponent, NavbarComponent, TermSelectComponent, CalendarComponent, CourseListComponent} from './components'
+import { NavbarComponent, InputFormComponent, CalendarComponent } from './components'
 import './css/App.css';
 function App() {
   return (
     <>
         <NavbarComponent></NavbarComponent>
-        <TermSelectComponent></TermSelectComponent>
-        <DepartmentSearchComponent></DepartmentSearchComponent>
-        <div id = "contentArea">
-          <CourseListComponent></CourseListComponent>
-          <CalendarComponent></CalendarComponent>
-        </div>
+        <InputFormComponent></InputFormComponent>
+        <CalendarComponent></CalendarComponent>
     </>
   );
 }
