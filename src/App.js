@@ -1,11 +1,15 @@
-import { NavbarComponent, InputFormComponent, CalendarComponent } from './components'
+import React, { useState } from 'react';
+import { NavbarComponent, InputFormComponent, CalendarComponent } from './components';
 import './css/App.css';
+
 function App() {
+  const [timetables, setTimetables] = useState([]);
+
   return (
     <>
-        <NavbarComponent></NavbarComponent>
-        <InputFormComponent></InputFormComponent>
-        <CalendarComponent></CalendarComponent>
+      <NavbarComponent />
+      <InputFormComponent setTimetables={setTimetables} />
+      <CalendarComponent timetables={timetables} />
     </>
   );
 }
