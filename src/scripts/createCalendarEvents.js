@@ -41,7 +41,7 @@ export const createCalendarEvents = (timetable, getDaysOfWeek) => {
           startRecur: secondaryComponents.tut.startDate,
           endRecur: secondaryComponents.tut.endDate,
           description: "",
-          color: "green"
+          color: "red"
         });
       }
       if (secondaryComponents.sem) {

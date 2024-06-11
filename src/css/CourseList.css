@@ -6,3 +6,12 @@
 #courseListTitle {
     margin-top: 10px;
 }
+
+.list-group-item {
+    margin-top: 3px;
+    border-width: 0cm;
+}
+
+.list-group-item:hover {
+    background-color: rgb(126, 48, 48)
+}
