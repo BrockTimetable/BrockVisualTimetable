@@ -182,6 +182,12 @@ export const generateTimetables = () => {
   const allCourseCombinations = courses.map(course => generateSingleCourseCombinations(course, timeSlots));
   console.log('All valid single course combinations:', allCourseCombinations);
 
+  if (allCourseCombinations.some(combinations => combinations.length === 0)) {
+    console.log('No valid timetable found due to missing combinations for some courses.');
+    validTimetables.push({ courses: [] });
+    return
+  }
+
   const allPossibleTimetables = cartesianProduct(allCourseCombinations);
   console.log('All possible timetables before validation:', allPossibleTimetables);
 
