@@ -139,6 +139,36 @@ const generateSingleCourseCombinations = (course, timeSlots) => {
   return singleCourseCombinations;
 };
 
+const isTimetableValid = (timetable) => {
+  const occupiedSlots = {};
+
+  for (const course of timetable) {
+    const components = [course.mainComponent, course.secondaryComponents.lab, course.secondaryComponents.tutorial, course.secondaryComponents.seminar].filter(Boolean);
+    for (const component of components) {
+      const { days, time, duration } = component.schedule;
+      if (!time) continue;
+      const startSlot = timeToSlot(time.split("-")[0].trim());
+      const endSlot = timeToSlot(time.split("-")[1].trim());
+      const daysArray = days.split(' ').filter(day => day);
+
+      if (!occupiedSlots[duration]) {
+        occupiedSlots[duration] = { M: [], T: [], W: [], R: [], F: [] };
+      }
+
+      for (const day of daysArray) {
+        for (let i = startSlot; i < endSlot; i++) {
+          if (occupiedSlots[duration][day].includes(i)) {
+            return false;
+          }
+          occupiedSlots[duration][day].push(i);
+        }
+      }
+    }
+  }
+
+  return true;
+};
+
 export const generateTimetables = () => {
   validTimetables = [];
   const courseData = getCourseData();
@@ -146,13 +176,15 @@ export const generateTimetables = () => {
   const timeSlots = getTimeSlots();
 
   const allCourseCombinations = courses.map(course => generateSingleCourseCombinations(course, timeSlots));
-
   console.log('All valid single course combinations:', allCourseCombinations);
 
-  allCourseCombinations.forEach(courseCombinations => {
-    courseCombinations.forEach(courseCombination => {
-      validTimetables.push({ courses: [courseCombination] });
-    });
+  const allPossibleTimetables = cartesianProduct(allCourseCombinations);
+  console.log('All possible timetables before validation:', allPossibleTimetables);
+
+  allPossibleTimetables.forEach(timetable => {
+    if (isTimetableValid(timetable)) {
+      validTimetables.push({ courses: timetable });
+    }
   });
 
   console.log('Generated timetables:', validTimetables);
