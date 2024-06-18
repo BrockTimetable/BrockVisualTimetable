@@ -54,7 +54,8 @@ export default function CalendarComponent({ timetables }) {
         slotMinTime="08:00:00"
         slotMaxTime="23:00:00"
         slotDuration="00:20:00"
-        allDaySlot={false}
+        allDaySlot={true}
+        allDayText='ONLINE'
         eventContent={renderEventContent}
       />
     </div>
