@@ -7,10 +7,11 @@ import CourseListComponent from './InputFormComponents/CourseListComponent';
 import { storeCourseData, removeCourseData } from '../scripts/courseData';
 import { getCourse } from '../scripts/fetchData';
 import { generateTimetables, getValidTimetables } from '../scripts/generateTimetables';
+import { addPinnedComponent, clearCoursePins, getPinnedComponents } from '../scripts/pinnedComponents'
 
 export default function InputFormComponent({ setTimetables }) {
   const [term, setTerm] = useState('NOVALUE');
-  const [courseCode, setCourseCode] = useState('');
+  let [courseCode, setCourseCode] = useState('');
   const [timetableType, setTimetableType] = useState('NOVALUE');
   const [addedCourses, setAddedCourses] = useState([]);
 
@@ -23,7 +24,7 @@ export default function InputFormComponent({ setTimetables }) {
   };
 
   const handleCourseCodeChange = (e) => {
-    setCourseCode(e.target.value);
+    setCourseCode(String(e.target.value).toUpperCase().trim());
   };
 
   const addCourse = async () => {
@@ -31,16 +32,33 @@ export default function InputFormComponent({ setTimetables }) {
       alert('Please enter a valid course code and select a term');
       return;
     }
-    
-    if (addedCourses.includes(courseCode)) {
+
+    const split = courseCode.split(" ");
+    if (split.length != 3 || !split[2].includes("D")){
+      alert('Incorrect Course Code Format!\n\nMust use: XXXX #X## D#\n\nExample: COSC 1P02 D2');
+      return;
+    }
+
+    const cleanCourseCode = split[0] + split[1];
+    const duration = split[2].substring(1);
+    let alreadyAdded = false;
+    addedCourses.forEach(course => {
+      if (course.startsWith(cleanCourseCode.substring(0,4) + " " + cleanCourseCode.substring(4))){
+        alreadyAdded = true;
+        return;
+      }
+    });
+
+    if (alreadyAdded){
       alert('Course already added');
       return;
     }
 
     try {
-      const courseData = await getCourse(courseCode, timetableType, term);
+      const courseData = await getCourse(cleanCourseCode, timetableType, term);
       storeCourseData(courseData);
       setAddedCourses([...addedCourses, courseCode]);
+      addPinnedComponent(cleanCourseCode + " DURATION " + duration);
       generateTimetables(); 
       setTimetables(getValidTimetables()); 
     } catch (error) {
@@ -49,9 +67,12 @@ export default function InputFormComponent({ setTimetables }) {
   };
 
   const removeCourse = (course) => {
+    const split = course.split(" ");
+    const cleanCourseCode = split[0] + split[1];
     setAddedCourses(addedCourses.filter(c => c !== course));
-    removeCourseData(course);
-    generateTimetables(); 
+    removeCourseData(cleanCourseCode);
+    clearCoursePins(cleanCourseCode);
+    generateTimetables();
     setTimetables(getValidTimetables()); 
   };
 
