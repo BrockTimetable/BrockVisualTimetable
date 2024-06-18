@@ -142,25 +142,29 @@ const generateSingleCourseCombinations = (course, timeSlots) => {
 const isTimetableValid = (timetable) => {
   const occupiedSlots = {};
 
+  const overlap = (start1, end1, start2, end2) => {
+    return (start1 < end2 && start2 < end1);
+  };
+
   for (const course of timetable) {
     const components = [course.mainComponent, course.secondaryComponents.lab, course.secondaryComponents.tutorial, course.secondaryComponents.seminar].filter(Boolean);
     for (const component of components) {
-      const { days, time, duration } = component.schedule;
+      const { days, time, startDate, endDate } = component.schedule;
       if (!time) continue;
       const startSlot = timeToSlot(time.split("-")[0].trim());
       const endSlot = timeToSlot(time.split("-")[1].trim());
       const daysArray = days.split(' ').filter(day => day);
 
-      if (!occupiedSlots[duration]) {
-        occupiedSlots[duration] = { M: [], T: [], W: [], R: [], F: [] };
-      }
-
       for (const day of daysArray) {
         for (let i = startSlot; i < endSlot; i++) {
-          if (occupiedSlots[duration][day].includes(i)) {
-            return false;
+          if (!occupiedSlots[day]) occupiedSlots[day] = {};
+          for (const [existingStartDate, existingEndDate] of Object.keys(occupiedSlots[day]).map(d => d.split('-').map(Number))) {
+            if (overlap(startDate, endDate, existingStartDate, existingEndDate) && occupiedSlots[day][`${existingStartDate}-${existingEndDate}`].includes(i)) {
+              return false;
+            }
           }
-          occupiedSlots[duration][day].push(i);
+          if (!occupiedSlots[day][`${startDate}-${endDate}`]) occupiedSlots[day][`${startDate}-${endDate}`] = [];
+          occupiedSlots[day][`${startDate}-${endDate}`].push(i);
         }
       }
     }
