@@ -1,10 +1,11 @@
 import React from 'react';
-import Button from 'react-bootstrap/Button';
+import Button from '@mui/material/Button';
+import Box from '@mui/material/Box';
 
 export default function AddButtonComponent({ onAddCourse }) {
   return (
-    <Button variant='success' onClick={onAddCourse}>
-      Add
-    </Button>
+    <Box sx={{ minWidth: 120 }} m={2}>
+      <Button variant="contained" onClick={onAddCourse} >Add Course</Button>
+    </Box>
   );
 }

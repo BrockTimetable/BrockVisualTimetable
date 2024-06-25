@@ -1,4 +1,4 @@
-#Calendar{
+#Calendar {
     margin-top: -150px;
     margin-left: 50%;
     padding-right: 3%;
@@ -6,19 +6,20 @@
 
 .fc .fc-day-today {
     background-color: transparent !important;
-  }
+}
 
-  #calendarNavBar {
+#calendarNavBar {
     display: flex;
     justify-content: center;
-    align-items: center; 
+    align-items: center;
     height: 50px;
     background-color: rgb(33, 33, 34);
     border-radius: 30px;
     margin-bottom: 10px;
 }
 
-#calPrev, #calNext {
-    margin: 0 1%; 
+#calPrev,
+#calNext {
+    margin: 0 1%;
     max-height: 40px;
 }

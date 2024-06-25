@@ -8,6 +8,7 @@ import { storeCourseData, removeCourseData } from '../scripts/courseData';
 import { getCourse } from '../scripts/fetchData';
 import { generateTimetables, getValidTimetables } from '../scripts/generateTimetables';
 import { addPinnedComponent, clearCoursePins, getPinnedComponents } from '../scripts/pinnedComponents'
+import Box from '@mui/material/Box';
 
 export default function InputFormComponent({ setTimetables }) {
   const [term, setTerm] = useState('NOVALUE');
@@ -23,11 +24,13 @@ export default function InputFormComponent({ setTimetables }) {
     setTerm(selectedTerm);
   };
 
-  const handleCourseCodeChange = (e) => {
-    setCourseCode(String(e.target.value).toUpperCase().trim());
+  const handleCourseCodeChange = (e, value) => {
+    console.log('event:', e, 'value:',value)
+    setCourseCode(value);
   };
 
   const addCourse = async () => {
+    console.log(courseCode)
     if (!courseCode || term === 'NOVALUE') {
       alert('Please enter a valid course code and select a term');
       return;
@@ -78,11 +81,13 @@ export default function InputFormComponent({ setTimetables }) {
 
   return (
     <>
-      <TimeTableSelectComponent onTableChange={handleTableChange} />
-      <TermSelectComponent onTermChange={handleTermChange} />
-      <CourseSearchComponent onCourseCodeChange={handleCourseCodeChange} />
-      <AddButtonComponent onAddCourse={addCourse} />
-      <CourseListComponent courses={addedCourses} onRemoveCourse={removeCourse} />
+      <Box sx={{ minWidth: 120 }} m={2}>
+        <TimeTableSelectComponent onTableChange={handleTableChange} />
+        <TermSelectComponent onTermChange={handleTermChange} />
+        <CourseSearchComponent onCourseCodeChange={handleCourseCodeChange} />
+        <AddButtonComponent onAddCourse={addCourse} />
+        <CourseListComponent courses={addedCourses} onRemoveCourse={removeCourse} />
+      </Box>
     </>
   );
 }

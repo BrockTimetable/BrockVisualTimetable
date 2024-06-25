@@ -1,29 +1,29 @@
 body {
     background-color: #121212;
     color: #ffffff;
-  }
+}
 
-  .container {
+.container {
     max-width: 100%;
     padding: 0;
-  }
-  
-  .navbar {
+}
+
+.navbar {
     background-color: #333333;
-  }
+}
 
-  .navbar-brand {
+.navbar-brand {
     padding-left: 10px;
-  }
+}
 
-  .defaultLabel {
+.defaultLabel {
     margin-top: 10px;
 }
 
 .defaultButton {
-  margin-top: 10px;
+    margin-top: 10px;
 }
 
 #contentArea {
-  padding-top: 2%;
+    padding-top: 2%;
 }
