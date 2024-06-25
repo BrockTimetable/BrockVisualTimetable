@@ -3,12 +3,13 @@ import { NavbarComponent, InputFormComponent, CalendarComponent } from './compon
 import './css/App.css';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
+import useMediaQuery from '@mui/material/useMediaQuery';
 
 function App() {
   const [timetables, setTimetables] = useState([]);
 
-  //const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
-  const prefersDarkMode = false;
+  const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
+  //const prefersDarkMode = false;
 
   const theme = React.useMemo(
     () =>
