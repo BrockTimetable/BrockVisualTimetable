@@ -17,7 +17,7 @@ export default function CalendarComponent({ timetables }) {
     if (timetables.length > 0) {
       const timetable = timetables[currentTimetableIndex];
       const newEvents = createCalendarEvents(timetable, getDaysOfWeek);
-      console.log('New events:', newEvents); // Debugging log
+      //console.log('New events:', newEvents); // Debugging log
       setEvents(newEvents);
     }
   };
@@ -53,7 +53,7 @@ export default function CalendarComponent({ timetables }) {
         events={events}
         slotMinTime="08:00:00"
         slotMaxTime="23:00:00"
-        slotDuration="00:20:00"
+        slotDuration="00:30:00"
         allDaySlot={true}
         allDayText='ONLINE'
         eventContent={renderEventContent}

@@ -25,12 +25,10 @@ export default function InputFormComponent({ setTimetables }) {
   };
 
   const handleCourseCodeChange = (e, value) => {
-    console.log('event:', e, 'value:',value)
     setCourseCode(value);
   };
 
   const addCourse = async () => {
-    console.log(courseCode)
     if (!courseCode || term === 'NOVALUE') {
       alert('Please enter a valid course code and select a term');
       return;

@@ -7,15 +7,22 @@ import CssBaseline from '@mui/material/CssBaseline';
 function App() {
   const [timetables, setTimetables] = useState([]);
 
-  const darkTheme = createTheme({
-    palette: {
-      mode: 'dark',
-    },
-  });
+  //const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
+  const prefersDarkMode = false;
+
+  const theme = React.useMemo(
+    () =>
+      createTheme({
+        palette: {
+          mode: prefersDarkMode ? 'dark' : 'light'
+        },
+      }),
+    [prefersDarkMode],
+  );
 
   return (
     <>
-    <ThemeProvider theme={darkTheme}>
+    <ThemeProvider theme={theme}>
       <CssBaseline />
       <NavbarComponent />
       <InputFormComponent setTimetables={setTimetables} />
