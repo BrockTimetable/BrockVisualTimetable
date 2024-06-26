@@ -1,6 +1,7 @@
-import React, { useState, useEffect} from "react";
+import React, { useState, useEffect } from "react";
 import FullCalendar from "@fullcalendar/react";
 import timeGridPlugin from "@fullcalendar/timegrid";
+import interactionPlugin from "@fullcalendar/interaction"; // for selectable
 import Button from "@mui/material/Button";
 import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
@@ -10,13 +11,12 @@ import { useTheme } from "@mui/material/styles";
 import "../css/Calendar.css";
 import { createCalendarEvents, getDaysOfWeek } from "../scripts/createCalendarEvents";
 
-
 export default function CalendarComponent({ timetables }) {
-    const calendarRef = React.useRef(null)
+    const calendarRef = React.useRef(null);
     const [events, setEvents] = useState([]);
     const [currentTimetableIndex, setCurrentTimetableIndex] = useState(0);
     const [calendarTerm, setCalendarTerm] = useState(true);
-    const [calendarTermButtonText, setCalendarTermButtonText] = useState('VIEW WINTER');
+    const [calendarTermButtonText, setCalendarTermButtonText] = useState("VIEW WINTER");
     const theme = useTheme();
 
     useEffect(() => {
@@ -37,7 +37,7 @@ export default function CalendarComponent({ timetables }) {
         // currently hardcoded fall and winter dates, so it won't work for other terms/years
         calendarApi.gotoDate(calendarTerm ? "2025-01-06" : "2024-09-10");
         setCalendarTerm(!calendarTerm);
-        setCalendarTermButtonText(calendarTermButtonText === 'VIEW WINTER' ? 'VIEW FALL' : 'VIEW WINTER');
+        setCalendarTermButtonText(calendarTermButtonText === "VIEW WINTER" ? "VIEW FALL" : "VIEW WINTER");
     };
 
     const handleEventClick = (clickInfo) => {
@@ -52,25 +52,57 @@ export default function CalendarComponent({ timetables }) {
         setCurrentTimetableIndex((currentTimetableIndex - 1 + timetables.length) % timetables.length);
     };
 
+    const handleSelect = (selectInfo) => {
+        alert(
+            "Selected: " +
+                selectInfo.startStr +
+                " to " +
+                selectInfo.endStr +
+                "\nPlaceholder function for blocking out time."
+        );
+    };
+
+    // FullCalendar does not allow you to select the same time across multiple days (select only returns
+    // a single day). By default you can select multiple days, but it will select ALL the time from the
+    // start to the end date.  This function limits you to selecting a time in a single day.
+
+    // At some point, I would like to come back to this to allow users to select multiple days, but only
+    // a specific time range within those days.  This would be useful for selecting a time range that
+    // spans multiple days, but only during a specific time range each day.
+    const handleSelectAllow = (selectionInfo) => {
+        let startDate = selectionInfo.start;
+        let endDate = selectionInfo.end;
+        endDate.setSeconds(endDate.getSeconds() - 1); // allow full day selection
+        if (startDate.getDate() === endDate.getDate()) {
+            return true;
+        } else {
+            return false;
+        }
+    };
+
     return (
         <div id="Calendar">
-            <div id="calendarNavBar">
-            </div>
-            <Box id="calendarNavBar" style={{backgroundColor: theme.palette.divider}}>
+            <Box id="calendarNavBar" style={{ backgroundColor: theme.palette.divider }}>
                 <Box m={2}>
-                    <Button variant="contained" onClick={handlePrevious}><NavigateBeforeIcon/></Button>
+                    <Button variant="contained" onClick={handlePrevious} disabled={timetables.length <= 1}>
+                        <NavigateBeforeIcon />
+                    </Button>
                 </Box>
                 {currentTimetableIndex + 1} of {timetables.length}
                 <Box m={2}>
-                    <Button variant="contained" onClick={handleNext}><NavigateNextIcon /></Button>
+                    <Button variant="contained" onClick={handleNext} disabled={timetables.length <= 1}>
+                        <NavigateNextIcon />
+                    </Button>
                 </Box>
                 <Box sx={{ marginLeft: 0 }}>
-                    <Button variant="contained" onClick={handleCalendarViewClick}>{calendarTermButtonText}</Button>
+                    <Button variant="outlined" onClick={handleCalendarViewClick}>
+                        {calendarTermButtonText}
+                    </Button>
                 </Box>
             </Box>
             <FullCalendar
                 ref={calendarRef}
-                plugins={[timeGridPlugin]}
+                plugins={[timeGridPlugin, interactionPlugin]}
                 initialView="timeGridWeek"
                 weekends={false}
                 headerToolbar={false}
@@ -86,6 +118,10 @@ export default function CalendarComponent({ timetables }) {
                 allDayText="ONLINE"
                 eventContent={renderEventContent}
                 eventClick={handleEventClick}
+                selectable={true}
+                selectMinDistance={25}
+                select={handleSelect}
+                selectAllow={handleSelectAllow}
             />
         </div>
     );
