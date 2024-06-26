@@ -34,7 +34,7 @@ function App() {
                     </Grid>
                     <Grid item xs={12} md={6} lg={6}>
                         <Box sx={{ minWidth: 120 }} m={2}>
-                            <CalendarComponent timetables={timetables} />
+                            <CalendarComponent timetables={timetables} setTimetables={setTimetables}/>
                         </Box>
                     </Grid>
                     <Grid item xs={12} md={12} lg={3}>

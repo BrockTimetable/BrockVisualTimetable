@@ -60,9 +60,13 @@ const cartesianProduct = (arrays) => {
 };
 
 const filterPinned = (components, courseCode, componentType) => {
+  components.forEach(function (component) {
+    component.pinned = false;
+  });
+
   const pinnedComponents = getPinnedComponents();
   const coursePinnedComponents = pinnedComponents.filter(p => {
-    const [course, type, id] = p.split(" ");
+    const [course, type, ] = p.split(" ");
     return course === courseCode && type === componentType;
   });
 
@@ -73,7 +77,11 @@ const filterPinned = (components, courseCode, componentType) => {
   return components.filter(component => {
     return coursePinnedComponents.some(pinned => {
       const [, , id] = pinned.split(" ");
-      return component.id === id;
+      if (component.id === id) {
+        component.pinned = true;
+        return true;
+      }
+      return false;
     });
   });
 };

@@ -11,7 +11,10 @@ import { useTheme } from "@mui/material/styles";
 import "../css/Calendar.css";
 import { createCalendarEvents, getDaysOfWeek } from "../scripts/createCalendarEvents";
 
-export default function CalendarComponent({ timetables }) {
+import { generateTimetables, getValidTimetables } from '../scripts/generateTimetables';
+import { addPinnedComponent, getPinnedComponents, removePinnedComponent } from '../scripts/pinnedComponents'
+
+export default function CalendarComponent({ timetables, setTimetables }) {
     const calendarRef = React.useRef(null);
     const [events, setEvents] = useState([]);
     const [currentTimetableIndex, setCurrentTimetableIndex] = useState(0);
@@ -40,8 +43,24 @@ export default function CalendarComponent({ timetables }) {
         setCalendarTermButtonText(calendarTermButtonText === "VIEW WINTER" ? "VIEW FALL" : "VIEW WINTER");
     };
 
-    const handleEventClick = (clickInfo) => {
-        alert("Event: " + clickInfo.event.title + "\nPlaceholder function for pinning classes.");
+    const handleEventClick = (clickInfo) => {        
+        const split = clickInfo.event.title.split(" ");
+        const courseCode = split[0];
+        if (split[1] === "LEC" || split[1] === "ASY" || split[1] === "BLD") {
+            split[1] = "MAIN";
+        }
+
+        const pinnedComponents = getPinnedComponents();
+        if (pinnedComponents.includes(courseCode + " " + split[1] + " " + clickInfo.event.id)) {
+            removePinnedComponent(courseCode + " " + split[1] + " " + clickInfo.event.id);
+        } else {
+            addPinnedComponent(courseCode + " " + split[1] + " " + clickInfo.event.id);
+        }
+        console.log(getPinnedComponents());
+
+        setCurrentTimetableIndex(0);
+        generateTimetables();
+        setTimetables(getValidTimetables());
     };
 
     const handleNext = () => {
