@@ -10,9 +10,10 @@ import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
 import IconButton from '@mui/material/IconButton';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { Margin, Padding } from "@mui/icons-material";
+import { useTheme } from "@mui/material/styles";
 
 export default function CourseListComponent({ course, removeCourse }) {
+    const theme = useTheme();
 
     // Default value for courses
     const [open, setOpen] = React.useState(false);
@@ -31,9 +32,10 @@ export default function CourseListComponent({ course, removeCourse }) {
             <ListItemButton
                 //onClick={() => onRemoveCourse(course)}
                 onClick={handleClick}
+                style={{backgroundColor: theme.palette.divider}}
             >
                 <ListItemText primary={course} />
-                <IconButton edge="false" aria-label="delete" onClick={handleRemoveClick}>
+                <IconButton edge={false} aria-label="delete" onClick={handleRemoveClick}>
                     <DeleteIcon />
                 </IconButton>
                 <IconButton edge="end" aria-label="delete">
@@ -41,7 +43,7 @@ export default function CourseListComponent({ course, removeCourse }) {
                 </IconButton>
             </ListItemButton>
             <Collapse in={open} timeout="auto" unmountOnExit>
-                <List component="div" disablePadding>
+                <List component="div" disablePadding >
                     <ListItem>
                         <ListItemText primary="Prof. Name" secondary="Course Instructor"/>
                     </ListItem>
@@ -50,6 +52,7 @@ export default function CourseListComponent({ course, removeCourse }) {
                     </ListItem>
                 </List>
             </Collapse>
+            <hr style={{margin: 0}}></hr>
         </Box>
     );
 }

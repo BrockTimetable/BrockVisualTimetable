@@ -5,6 +5,7 @@ import Button from "@mui/material/Button";
 import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 import Box from "@mui/material/Box";
+import { useTheme } from "@mui/material/styles";
 
 import "../css/Calendar.css";
 import { createCalendarEvents, getDaysOfWeek } from "../scripts/createCalendarEvents";
@@ -16,7 +17,7 @@ export default function CalendarComponent({ timetables }) {
     const [currentTimetableIndex, setCurrentTimetableIndex] = useState(0);
     const [calendarTerm, setCalendarTerm] = useState(true);
     const [calendarTermButtonText, setCalendarTermButtonText] = useState('VIEW WINTER');
-
+    const theme = useTheme();
 
     useEffect(() => {
         updateCalendarEvents();
@@ -54,6 +55,8 @@ export default function CalendarComponent({ timetables }) {
     return (
         <div id="Calendar">
             <div id="calendarNavBar">
+            </div>
+            <Box id="calendarNavBar" style={{backgroundColor: theme.palette.divider}}>
                 <Box m={2}>
                     <Button variant="contained" onClick={handlePrevious}><NavigateBeforeIcon/></Button>
                 </Box>
@@ -64,7 +67,7 @@ export default function CalendarComponent({ timetables }) {
                 <Box sx={{ marginLeft: 0 }}>
                     <Button variant="contained" onClick={handleCalendarViewClick}>{calendarTermButtonText}</Button>
                 </Box>
-            </div>
+            </Box>
             <FullCalendar
                 ref={calendarRef}
                 plugins={[timeGridPlugin]}

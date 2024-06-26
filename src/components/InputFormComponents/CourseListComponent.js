@@ -20,40 +20,9 @@ export default function CourseListComponent({ courses = [], onRemoveCourse }) {
                 }
             >
                 {courses.map((course) => (
-                    <CourseListItemComponent course={course} removeCourse={onRemoveCourse} />
+                    <CourseListItemComponent course={course} removeCourse={onRemoveCourse} key={course}/>
                 ))}
             </List>
         </Box>
     );
 }
-
-/*
-<Grid item xs={12} md={6}>
-  <Typography sx={{ mt: 4, mb: 2 }} variant="h6" component="div">
-    Avatar with text and icon
-  </Typography>
-  <Demo>
-    <List dense={dense}>
-      {generate(
-        <ListItem
-          secondaryAction={
-            <IconButton edge="end" aria-label="delete">
-              <DeleteIcon />
-            </IconButton>
-          }
-        >
-          <ListItemAvatar>
-            <Avatar>
-              <FolderIcon />
-            </Avatar>
-          </ListItemAvatar>
-          <ListItemText
-            primary="Single-line item"
-            secondary={secondary ? 'Secondary text' : null}
-          />
-        </ListItem>,
-      )}
-    </List>
-  </Demo>
-</Grid>
-  */

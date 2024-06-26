@@ -94,20 +94,20 @@ const generateSingleCourseCombinations = (course, timeSlots) => {
   if (durationFilter) {
     const duration = durationFilter.split(" ")[2];
     validMainComponents = filterByDuration(validMainComponents, duration);
-    console.log(`Duration Filter for ${course.courseCode}: ${duration}`);
+    //console.log(`Duration Filter for ${course.courseCode}: ${duration}`);
   }
 
-  console.log(`Valid Main Components before pinning for ${course.courseCode}:`, validMainComponents);
+  //console.log(`Valid Main Components before pinning for ${course.courseCode}:`, validMainComponents);
 
   validMainComponents = filterPinned(validMainComponents, course.courseCode, "MAIN");
   const validLabs = filterPinned(filterComponentsAgainstTimeSlots(course.labs, timeSlots), course.courseCode, "LAB");
   const validTutorials = filterPinned(filterComponentsAgainstTimeSlots(course.tutorials, timeSlots), course.courseCode, "TUT");
   const validSeminars = filterPinned(filterComponentsAgainstTimeSlots(course.seminars, timeSlots), course.courseCode, "SEM");
 
-  console.log(`Valid Main Components for ${course.courseCode}:`, validMainComponents);
-  console.log(`Valid Labs for ${course.courseCode}:`, validLabs);
-  console.log(`Valid Tutorials for ${course.courseCode}:`, validTutorials);
-  console.log(`Valid Seminars for ${course.courseCode}:`, validSeminars);
+  //console.log(`Valid Main Components for ${course.courseCode}:`, validMainComponents);
+  //console.log(`Valid Labs for ${course.courseCode}:`, validLabs);
+  //console.log(`Valid Tutorials for ${course.courseCode}:`, validTutorials);
+  //console.log(`Valid Seminars for ${course.courseCode}:`, validSeminars);
 
   const singleCourseCombinations = [];
 
@@ -180,16 +180,16 @@ export const generateTimetables = () => {
   const timeSlots = getTimeSlots();
 
   const allCourseCombinations = courses.map(course => generateSingleCourseCombinations(course, timeSlots));
-  console.log('All valid single course combinations:', allCourseCombinations);
+  //console.log('All valid single course combinations:', allCourseCombinations);
 
   if (allCourseCombinations.some(combinations => combinations.length === 0)) {
-    console.log('No valid timetable found due to missing combinations for some courses.');
+    //console.log('No valid timetable found due to missing combinations for some courses.');
     validTimetables.push({ courses: [] });
     return
   }
 
   const allPossibleTimetables = cartesianProduct(allCourseCombinations);
-  console.log('All possible timetables before validation:', allPossibleTimetables);
+  //console.log('All possible timetables before validation:', allPossibleTimetables);
 
   allPossibleTimetables.forEach(timetable => {
     if (isTimetableValid(timetable)) {
@@ -197,7 +197,7 @@ export const generateTimetables = () => {
     }
   });
 
-  console.log('Generated timetables:', validTimetables);
+  //console.log('Generated timetables:', validTimetables);
 };
 
 export const getValidTimetables = () => validTimetables;
