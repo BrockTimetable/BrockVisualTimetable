@@ -1,5 +1,4 @@
 import React from 'react';
-import Form from 'react-bootstrap/Form';
 import '../../css/TermSelect.css';
 
 import Box from '@mui/material/Box';
@@ -9,7 +8,7 @@ import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
 
 export default function TermSelectComponent({ onTermChange }) {
-  const [term, setTerm] = React.useState('NOVALUE');
+  const [term, setTerm] = React.useState('');
 
   function handleTermChange (event){
     const selectedTerm = event.target.value;
@@ -22,13 +21,15 @@ export default function TermSelectComponent({ onTermChange }) {
     <>
       <Box sx={{ minWidth: 120 }} m={2} display={'inline'}>
       <FormControl>
-        <InputLabel>Term</InputLabel>
+        <InputLabel id='term-select-label'>Term</InputLabel>
         <Select
+          labelId='term-select-label'
           value={term}
           label="Term"
           onChange={handleTermChange}
+          sx={{ width: 125 }}
         >
-          <MenuItem value={'NOVALUE'}>Select Term</MenuItem>
+          <MenuItem value={''}>Select Term</MenuItem>
           <MenuItem value={'FW'}>Fall/Winter</MenuItem>
           <MenuItem value={'SP'}>Spring</MenuItem>
           <MenuItem value={'SU'}>Summer</MenuItem>

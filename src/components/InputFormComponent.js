@@ -29,13 +29,19 @@ export default function InputFormComponent({ setTimetables }) {
   };
 
   const addCourse = async () => {
-    if (!courseCode || term === 'NOVALUE') {
-      alert('Please enter a valid course code and select a term');
+    
+    if (!timetableType || timetableType === 'NOVALUE' || timetableType === '') {
+      alert('Please select a timetable.');
+      return;
+    }
+
+    if (!term || term === 'NOVALUE' || term === '') {
+      alert('Please select a term.');
       return;
     }
 
     const split = courseCode.split(" ");
-    if (split.length != 3 || !split[2].includes("D")){
+    if (split.length !== 3 || !split[2].includes("D")){
       alert('Incorrect Course Code Format!\n\nMust use: XXXX #X## D#\n\nExample: COSC 1P02 D2');
       return;
     }

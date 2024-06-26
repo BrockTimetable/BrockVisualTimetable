@@ -35,10 +35,11 @@ export default function CalendarComponent({ timetables, setTimetables }) {
         }
     };
 
-    const handleCalendarViewClick = (event) => {
+    const handleCalendarViewClick = () => {
         const calendarApi = calendarRef.current.getApi();
+        const year = new Date().getFullYear();
         // currently hardcoded fall and winter dates, so it won't work for other terms/years
-        calendarApi.gotoDate(calendarTerm ? "2025-01-06" : "2024-09-10");
+        calendarApi.gotoDate(calendarTerm ? (year+1) + "-01-20" : year+"-09-20");
         setCalendarTerm(!calendarTerm);
         setCalendarTermButtonText(calendarTermButtonText === "VIEW WINTER" ? "VIEW FALL" : "VIEW WINTER");
     };

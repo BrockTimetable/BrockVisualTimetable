@@ -40,18 +40,10 @@ export default function CourseSearchComponent({onCourseCodeChange}) {
         freeSolo
         onInputChange={courseCodeChangeHandler}
         options={courses}
-        sx={{ width: 300 }}
+        sx={{ width: 250 }}
         renderInput={(params) => <TextField {...params} label="Add a course" />}
         />
       </Box>
     </>
   );
 }
-
-/*
-<h3 className='defaultLabel'>Step 3 Add a Course (W/Duration):</h3>
-      <Form.Control
-        onChange={onCourseCodeChange}
-        placeholder='Example: COSC 1P02 D1'
-      />
-      */
