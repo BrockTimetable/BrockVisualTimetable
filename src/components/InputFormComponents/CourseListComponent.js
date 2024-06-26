@@ -14,7 +14,7 @@ export default function CourseListComponent({ courses = [], onRemoveCourse }) {
                 component="nav"
                 aria-labelledby="nested-list-subheader"
                 subheader={
-                    <ListSubheader component="div" id="nested-list-subheader">
+                    <ListSubheader component="div">
                         Added Courses (Click to see more details):
                     </ListSubheader>
                 }

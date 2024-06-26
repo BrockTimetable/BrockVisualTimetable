@@ -7,18 +7,18 @@ let validTimetables = [];
 const timeToSlot = (time) => {
   let hours;
   let minutes = 0;
-  if (time.length == 3) { 
+  if (time.length === 3) { 
     hours = parseInt(time.substring(0, 1));
-    if (time.substring(1, 2) == "3") { 
+    if (time.substring(1, 2) === "3") { 
       minutes = 30;
     }
   } else {
     hours = parseInt(time.substring(0, 2));
-    if (time.substring(2, 3) == "3") {
+    if (time.substring(2, 3) === "3") {
       minutes = 30;
     }
   }
-  if (minutes == 30) {
+  if (minutes === 30) {
     return (hours - 8) * 2 + 1;
   } else {
     return (hours - 8) * 2;
@@ -79,7 +79,7 @@ const filterPinned = (components, courseCode, componentType) => {
 };
 
 const filterByDuration = (components, duration) => {
-  return components.filter(component => component.schedule.duration == duration);
+  return components.filter(component => component.schedule.duration === duration);
 };
 
 const generateSingleCourseCombinations = (course, timeSlots) => {
