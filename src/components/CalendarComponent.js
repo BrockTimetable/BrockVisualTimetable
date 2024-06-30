@@ -47,7 +47,7 @@ export default function CalendarComponent({ timetables, setTimetables }) {
     const handleEventClick = (clickInfo) => {        
         const split = clickInfo.event.title.split(" ");
         const courseCode = split[0];
-        if (split[1] === "LEC" || split[1] === "ASY" || split[1] === "BLD") {
+        if (split[1] !== "TUT" && split[1] !== "LAB" && split[1] !== "SEM") {
             split[1] = "MAIN";
         }
 

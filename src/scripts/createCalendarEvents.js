@@ -4,7 +4,7 @@ export const createCalendarEvents = (timetable, getDaysOfWeek) => {
     const addAllDayEvent = (course, component, color = 'default') => {
         newEvents.push({
             id: component.id,
-            title: `${course.courseCode} ${component.type} ${component.sectionNumber}`,
+            title: `${course.courseCode} ${component.type} ${component.sectionNumber} ${component.pinned ? '📌' : ''}`,
             daysOfWeek: getDaysOfWeek("M T W R F"),
             allDay: true,
             startRecur: formatDate(component.schedule.startDate),
@@ -18,7 +18,7 @@ export const createCalendarEvents = (timetable, getDaysOfWeek) => {
         console.log(component)
         newEvents.push({
             id: component.id,
-            title: `${course.courseCode} ${component.type} ${component.sectionNumber} ${component.pinned ? '📍' : ''}`,
+            title: `${course.courseCode} ${component.type} ${component.sectionNumber} ${component.pinned ? '📌' : ''}`,
             daysOfWeek: getDaysOfWeek(component.schedule.days),
             startTime: formatTime(component.schedule.time.split('-')[0]),
             endTime: formatTime(component.schedule.time.split('-')[1]),
