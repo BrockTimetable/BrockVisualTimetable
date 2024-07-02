@@ -15,6 +15,7 @@ import { createCalendarEvents, getDaysOfWeek } from "../scripts/createCalendarEv
 
 import { generateTimetables, getValidTimetables } from '../scripts/generateTimetables';
 import { addPinnedComponent, getPinnedComponents, removePinnedComponent } from '../scripts/pinnedComponents'
+import { setBlockedTimeSlots } from "../scripts/timeSlots";
 
 export default function CalendarComponent({ timetables, setTimetables }) {
     const calendarRef = React.useRef(null);
@@ -82,14 +83,42 @@ export default function CalendarComponent({ timetables, setTimetables }) {
     };
 
     const handleSelect = (selectInfo) => {
+        const startDateTime = new Date(selectInfo.startStr);
+        const endDateTime = new Date(selectInfo.endStr);
+        const startDay = startDateTime.toLocaleString('en-US', { weekday: 'short' }); 
+        const slotStart = (startDateTime.getHours() - 8) * 2 + (startDateTime.getMinutes() / 30);
+        const slotEnd = (endDateTime.getHours() - 8) * 2 + (endDateTime.getMinutes() / 30);
+        
+        const dayMapping = {
+            Mon: 'M', Tue: 'T', Wed: 'W', Thu: 'R', Fri: 'F'
+        };
+    
+        if (dayMapping[startDay]) {
+            const slotsToBlock = [];
+            for (let i = slotStart; i <= slotEnd; i++) {
+                slotsToBlock.push(i);
+            }
+            
+            const blockedSlots = {
+                [dayMapping[startDay.substring(0, 3)]]: slotsToBlock
+            };
+    
+            setBlockedTimeSlots(blockedSlots);
+        }
+
+        setCurrentTimetableIndex(0);
+        generateTimetables();
+        setTimetables(getValidTimetables());
+
         alert(
             "Selected: " +
-                selectInfo.startStr +
-                " to " +
-                selectInfo.endStr +
-                "\nPlaceholder function for blocking out time."
+            selectInfo.startStr +
+            " to " +
+            selectInfo.endStr +
+            "\nSlots blocked successfully."
         );
     };
+
 
     // FullCalendar does not allow you to select the same time across multiple days (select only returns
     // a single day). By default you can select multiple days, but it will select ALL the time from the

@@ -29,6 +29,10 @@ export const createCalendarEvents = (timetable, getDaysOfWeek) => {
         });
     };
 
+    if (!timetable.courses) {
+        return null;
+    }
+
     timetable.courses.forEach(course => {
         const mainComponent = course.mainComponent;
         if (mainComponent) {

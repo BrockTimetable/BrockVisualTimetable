@@ -11,4 +11,16 @@ const initializeTimeSlots = () => {
 
 export const getTimeSlots = () => timeSlots;
 
+export const setBlockedTimeSlots = (blockedSlots) => {
+  for (let day in blockedSlots) {
+      if (timeSlots[day]) {
+          for (let slot of blockedSlots[day]) {
+              if (slot >= 0 && slot < timeSlots[day].length) {
+                  timeSlots[day][slot] = true;
+              }
+          }
+      }
+  }
+};
+
 initializeTimeSlots();
