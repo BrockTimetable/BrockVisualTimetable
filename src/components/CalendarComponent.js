@@ -5,6 +5,8 @@ import interactionPlugin from "@fullcalendar/interaction"; // for selectable
 import Button from "@mui/material/Button";
 import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
+import NavigateFirstIcon from "@mui/icons-material/FirstPage";
+import NavigateLastIcon from "@mui/icons-material/LastPage";
 import Box from "@mui/material/Box";
 import { useTheme } from "@mui/material/styles";
 
@@ -72,6 +74,13 @@ export default function CalendarComponent({ timetables, setTimetables }) {
         setCurrentTimetableIndex((currentTimetableIndex - 1 + timetables.length) % timetables.length);
     };
 
+    const handleFirst = () => {
+        setCurrentTimetableIndex((0));
+    };
+    const handleLast = () => {
+        setCurrentTimetableIndex((timetables.length - 1));
+    };
+
     const handleSelect = (selectInfo) => {
         alert(
             "Selected: " +
@@ -103,18 +112,28 @@ export default function CalendarComponent({ timetables, setTimetables }) {
     return (
         <div id="Calendar">
             <Box id="calendarNavBar" style={{ backgroundColor: theme.palette.divider }}>
-                <Box m={2}>
+                <Box marginRight={1}>
+                    <Button variant="contained" onClick={handleFirst} disabled={timetables.length <= 1}>
+                        <NavigateFirstIcon />
+                    </Button>
+                </Box>
+                <Box marginRight={2}>
                     <Button variant="contained" onClick={handlePrevious} disabled={timetables.length <= 1}>
                         <NavigateBeforeIcon />
                     </Button>
                 </Box>
                 {currentTimetableIndex + 1} of {timetables.length}
-                <Box m={2}>
+                <Box marginLeft={2} >
                     <Button variant="contained" onClick={handleNext} disabled={timetables.length <= 1}>
                         <NavigateNextIcon />
                     </Button>
                 </Box>
-                <Box sx={{ marginLeft: 0 }}>
+                <Box marginLeft={1}>
+                    <Button variant="contained" onClick={handleLast} disabled={timetables.length <= 1}>
+                        <NavigateLastIcon />
+                    </Button>
+                </Box>
+                <Box marginLeft={2}>
                     <Button variant="outlined" onClick={handleCalendarViewClick}>
                         {calendarTermButtonText}
                     </Button>
