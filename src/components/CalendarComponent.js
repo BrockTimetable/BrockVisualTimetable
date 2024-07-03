@@ -95,7 +95,7 @@ export default function CalendarComponent({ timetables, setTimetables }) {
     
         if (dayMapping[startDay]) {
             const slotsToBlock = [];
-            for (let i = slotStart; i <= slotEnd; i++) {
+            for (let i = slotStart; i <= slotEnd - 1; i++) {
                 slotsToBlock.push(i);
             }
             
