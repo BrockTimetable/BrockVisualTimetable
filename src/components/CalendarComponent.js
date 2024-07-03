@@ -16,6 +16,7 @@ import { createCalendarEvents, getDaysOfWeek } from "../scripts/createCalendarEv
 import { generateTimetables, getValidTimetables } from '../scripts/generateTimetables';
 import { addPinnedComponent, getPinnedComponents, removePinnedComponent } from '../scripts/pinnedComponents'
 import { setBlockedTimeSlots } from "../scripts/timeSlots";
+import { getCourseData } from "../scripts/courseData";
 
 export default function CalendarComponent({ timetables, setTimetables }) {
     const calendarRef = React.useRef(null);
@@ -30,11 +31,16 @@ export default function CalendarComponent({ timetables, setTimetables }) {
     }, [currentTimetableIndex, timetables]);
 
     const updateCalendarEvents = () => {
-        if (timetables.length > 0) {
+        if (timetables.length > 0 && timetables[0].courses.length > 0) {
             const timetable = timetables[currentTimetableIndex];
             const newEvents = createCalendarEvents(timetable, getDaysOfWeek);
             //console.log('New events:', newEvents); // Debugging log
             setEvents(newEvents);
+        }else{
+            setEvents(null);
+            if (Object.keys(getCourseData()).length > 0){
+                alert("No valid can be timetables generated!\n\nThis is likely caused by one of the following reasons:\n\n1.Adding a course that is not being offered in that duration.\n2.Adding courses that always overlap with another course\n3.Blocking out all possible timeslots that a course is offered in.\n\nTry unblocking/unpinning some components or removing the last course you have added.");
+            }
         }
     };
 
