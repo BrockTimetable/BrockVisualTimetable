@@ -11,11 +11,10 @@ import Box from "@mui/material/Box";
 import { useTheme } from "@mui/material/styles";
 
 import "../css/Calendar.css";
-import { createCalendarEvents, getDaysOfWeek } from "../scripts/createCalendarEvents";
-
+import { createCalendarEvents, getDaysOfWeek, getTimeBlockEvents, addTimeBlockEvent, removeTimeBlockEvent } from "../scripts/createCalendarEvents";
 import { generateTimetables, getValidTimetables } from '../scripts/generateTimetables';
 import { addPinnedComponent, getPinnedComponents, removePinnedComponent } from '../scripts/pinnedComponents'
-import { setBlockedTimeSlots } from "../scripts/timeSlots";
+import { setBlockedTimeSlots, setOpenTimeSlots } from "../scripts/timeSlots";
 import { getCourseData } from "../scripts/courseData";
 
 export default function CalendarComponent({ timetables, setTimetables }) {
@@ -34,10 +33,11 @@ export default function CalendarComponent({ timetables, setTimetables }) {
         if (timetables.length > 0 && timetables[0].courses.length > 0) {
             const timetable = timetables[currentTimetableIndex];
             const newEvents = createCalendarEvents(timetable, getDaysOfWeek);
-            //console.log('New events:', newEvents); // Debugging log
+            //console.log('New events:', newEvents); //Main Debugging log
             setEvents(newEvents);
         }else{
-            setEvents(null);
+            const newEvents = createCalendarEvents(null, getDaysOfWeek);
+            setEvents(newEvents)
             if (Object.keys(getCourseData()).length > 0){
                 alert("No valid can be timetables generated!\n\nThis is likely caused by one of the following reasons:\n\n1.Adding a course that is not being offered in that duration.\n2.Adding courses that always overlap with another course\n3.Blocking out all possible timeslots that a course is offered in.\n\nTry unblocking/unpinning some components or removing the last course you have added.");
             }
@@ -53,21 +53,40 @@ export default function CalendarComponent({ timetables, setTimetables }) {
         setCalendarTermButtonText(calendarTermButtonText === "VIEW WINTER" ? "VIEW FALL" : "VIEW WINTER");
     };
 
-    const handleEventClick = (clickInfo) => {        
-        const split = clickInfo.event.title.split(" ");
-        const courseCode = split[0];
-        if (split[1] !== "TUT" && split[1] !== "LAB" && split[1] !== "SEM") {
-            split[1] = "MAIN";
-        }
+    const handleEventClick = (clickInfo) => {      
+        if (clickInfo.event.title != "TIME BLOCKED"){
+            const split = clickInfo.event.title.split(" ");
+            const courseCode = split[0];
+            if (split[1] !== "TUT" && split[1] !== "LAB" && split[1] !== "SEM") {
+                split[1] = "MAIN";
+            }
 
-        const pinnedComponents = getPinnedComponents();
-        if (pinnedComponents.includes(courseCode + " " + split[1] + " " + clickInfo.event.id)) {
-            removePinnedComponent(courseCode + " " + split[1] + " " + clickInfo.event.id);
-        } else {
-            addPinnedComponent(courseCode + " " + split[1] + " " + clickInfo.event.id);
-        }
-        console.log(getPinnedComponents());
+            const pinnedComponents = getPinnedComponents();
+            if (pinnedComponents.includes(courseCode + " " + split[1] + " " + clickInfo.event.id)) {
+                removePinnedComponent(courseCode + " " + split[1] + " " + clickInfo.event.id);
+            } else {
+                addPinnedComponent(courseCode + " " + split[1] + " " + clickInfo.event.id);
+            }
+        }else{
+            const blockId = clickInfo.event.id.split("-")[1];
+            const blockEvent = getTimeBlockEvents().find(block => block.id === blockId);
 
+            if (blockEvent) {
+                const slotStart = (parseInt(blockEvent.startTime.split(':')[0]) - 8) * 2 + (parseInt(blockEvent.startTime.split(':')[1]) / 30);
+                const slotEnd = (parseInt(blockEvent.endTime.split(':')[0]) - 8) * 2 + (parseInt(blockEvent.endTime.split(':')[1]) / 30);
+                const slotsToUnblock = [];
+                
+                for (let i = slotStart; i < slotEnd; i++) {
+                    slotsToUnblock.push(i);
+                }
+    
+                const unblockedSlots = {
+                    [blockEvent.daysOfWeek.trim()]: slotsToUnblock
+                };
+                setOpenTimeSlots(unblockedSlots);
+                removeTimeBlockEvent(blockId);
+            }
+        }
         setCurrentTimetableIndex(0);
         generateTimetables();
         setTimetables(getValidTimetables());
@@ -110,19 +129,21 @@ export default function CalendarComponent({ timetables, setTimetables }) {
             };
     
             setBlockedTimeSlots(blockedSlots);
-        }
 
+            const blockId = Date.now().toString();
+            const block = {
+            id: blockId,
+            daysOfWeek: dayMapping[startDay] + " ",
+            startTime: startDateTime.toTimeString().slice(0, 5),
+            endTime: endDateTime.toTimeString().slice(0, 5),
+            startRecur: new Date().toISOString().split('T')[0],
+            endRecur: '9999-12-31'
+            };
+            addTimeBlockEvent(block);
+        }
         setCurrentTimetableIndex(0);
         generateTimetables();
         setTimetables(getValidTimetables());
-
-        alert(
-            "Selected: " +
-            selectInfo.startStr +
-            " to " +
-            selectInfo.endStr +
-            "\nSlots blocked successfully."
-        );
     };
 
 

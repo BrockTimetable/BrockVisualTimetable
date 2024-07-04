@@ -23,4 +23,16 @@ export const setBlockedTimeSlots = (blockedSlots) => {
   }
 };
 
+export const setOpenTimeSlots = (blockedSlots) => {
+    for (let day in blockedSlots) {
+        if (timeSlots[day]) {
+            for (let slot of blockedSlots[day]) {
+                if (slot >= 0 && slot < timeSlots[day].length) {
+                    timeSlots[day][slot] = false;
+                }
+            }
+        }
+    }
+  };
+
 initializeTimeSlots();

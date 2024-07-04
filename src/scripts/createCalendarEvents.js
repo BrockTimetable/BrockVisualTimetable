@@ -1,3 +1,5 @@
+let timeBlockEvents = [];
+
 export const createCalendarEvents = (timetable, getDaysOfWeek) => {
     const newEvents = [];
 
@@ -15,7 +17,6 @@ export const createCalendarEvents = (timetable, getDaysOfWeek) => {
     };
 
     const addTimedEvent = (course, component, color = 'default') => {
-        console.log(component)
         newEvents.push({
             id: component.id,
             title: `${course.courseCode} ${component.type} ${component.sectionNumber} ${component.pinned ? '📌' : ''}`,
@@ -29,8 +30,29 @@ export const createCalendarEvents = (timetable, getDaysOfWeek) => {
         });
     };
 
+    const addTimeBlockEvent = (block) => {
+        newEvents.push({
+            id: `block-${block.id}`,
+            title: 'TIME BLOCKED',
+            daysOfWeek: getDaysOfWeek(block.daysOfWeek),
+            startTime: block.startTime,
+            endTime: block.endTime,
+            startRecur: block.startRecur,
+            endRecur: '9999-12-31', 
+            color: 'grey'
+        });
+    };
+
+    timeBlockEvents.forEach(block => {
+        addTimeBlockEvent(block);
+    });
+
+    if (!timetable){
+        return newEvents;
+    }
+
     if (!timetable.courses) {
-        return null;
+        return newEvents;
     }
 
     timetable.courses.forEach(course => {
@@ -103,4 +125,16 @@ const formatDate = (timestamp) => {
   const month = ('0' + (date.getUTCMonth() + 1)).slice(-2);
   const day = ('0' + date.getUTCDate()).slice(-2);
   return `${year}-${month}-${day}`;
+};
+
+export const getTimeBlockEvents = () => {
+    return timeBlockEvents;
+};
+
+export const addTimeBlockEvent = (block) => {
+    timeBlockEvents.push(block);
+};
+
+export const removeTimeBlockEvent = (blockId) => {
+    timeBlockEvents = timeBlockEvents.filter(block => block.id !== blockId);
 };
