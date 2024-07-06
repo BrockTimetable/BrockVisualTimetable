@@ -123,21 +123,48 @@ export default function CalendarComponent({ timetables, setTimetables }) {
             for (let i = slotStart; i <= slotEnd - 1; i++) {
                 slotsToBlock.push(i);
             }
-            
-            const blockedSlots = {
-                [dayMapping[startDay.substring(0, 3)]]: slotsToBlock
-            };
-    
-            setBlockedTimeSlots(blockedSlots);
 
+            const existingBlocks = getTimeBlockEvents();
+            let combinedSlotStart = slotStart;
+            let combinedSlotEnd = slotEnd;
+            let blocksToRemove = [];
+    
+            for (let block of existingBlocks) {
+                if (block.daysOfWeek.trim() === dayMapping[startDay]) {
+                    const existingStartParts = block.startTime.split(':');
+                    const existingSlotStart = (parseInt(existingStartParts[0]) - 8) * 2 + (parseInt(existingStartParts[1]) / 30);
+                    const existingEndParts = block.endTime.split(':');
+                    const existingSlotEnd = (parseInt(existingEndParts[0]) - 8) * 2 + (parseInt(existingEndParts[1]) / 30);
+    
+                    if (!(slotStart >= existingSlotEnd || slotEnd <= existingSlotStart)) {
+                        combinedSlotStart = Math.min(combinedSlotStart, existingSlotStart);
+                        combinedSlotEnd = Math.max(combinedSlotEnd, existingSlotEnd);
+                        blocksToRemove.push(block.id);
+                    }
+                }
+            }
+    
+            const combinedSlots = [];
+            for (let i = combinedSlotStart; i < combinedSlotEnd; i++) {
+                combinedSlots.push(i);
+            }
+    
+            const combinedSlotsObject = { [dayMapping[startDay]]: combinedSlots };
+    
+            setBlockedTimeSlots(combinedSlotsObject);
+    
+            for (let blockId of blocksToRemove) {
+                removeTimeBlockEvent(blockId);
+            }
+    
             const blockId = Date.now().toString();
             const block = {
-            id: blockId,
-            daysOfWeek: dayMapping[startDay] + " ",
-            startTime: startDateTime.toTimeString().slice(0, 5),
-            endTime: endDateTime.toTimeString().slice(0, 5),
-            startRecur: new Date().toISOString().split('T')[0],
-            endRecur: '9999-12-31'
+                id: blockId,
+                daysOfWeek: dayMapping[startDay],
+                startTime: `${Math.floor(combinedSlotStart / 2) + 8}:${combinedSlotStart % 2 === 0 ? '00' : '30'}`,
+                endTime: `${Math.floor(combinedSlotEnd / 2) + 8}:${combinedSlotEnd % 2 === 0 ? '00' : '30'}`,
+                startRecur: new Date().toISOString().split('T')[0],
+                endRecur: '9999-12-31'
             };
             addTimeBlockEvent(block);
         }
