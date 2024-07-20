@@ -7,11 +7,11 @@ Brock Visual TimeTable is a tool created by Brock students for Brock students. T
 ![ezgif-3-2129ecbf0a](https://github.com/user-attachments/assets/4067707b-43ca-4c12-a94a-54e061a6dda7)
 
 ### Key Features:
-* Conflict-Free Scheduling: Automatically generates timetables without class overlaps, ensuring all options are viable.
+* **Conflict-Free Scheduling:** Automatically generates timetables without class overlaps, ensuring all options are viable.
 
-* Custom Time Blocking: Enables students to block out preferred no-class times for personal commitments or leisure.
+* **Custom Time Blocking:** Enables students to block out preferred no-class times for personal commitments or leisure.
 
-* Class Pinning: Allows students to 'pin' essential classes, ensuring they appear in all generated timetable options.
+* **Class Pinning:** Allows students to 'pin' essential classes, ensuring they appear in all generated timetable options.
 
 ## How To Contribute
 Whether you are another CS student or simply would love to help out, your contributions are welcome & encouraged.
