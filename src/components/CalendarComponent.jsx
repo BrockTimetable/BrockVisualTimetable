@@ -3,6 +3,10 @@ import FullCalendar from "@fullcalendar/react";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction"; // for selectable
 import Button from "@mui/material/Button";
+import FormControl from '@mui/material/FormControl';
+import Select from "@mui/material/Select";
+import InputLabel from '@mui/material/InputLabel';
+import MenuItem from '@mui/material/MenuItem';
 import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 import NavigateFirstIcon from "@mui/icons-material/FirstPage";
@@ -54,7 +58,7 @@ export default function CalendarComponent({ timetables, setTimetables }) {
     };
 
     const handleEventClick = (clickInfo) => {      
-        if (clickInfo.event.title != "TIME BLOCKED"){
+        if (clickInfo.event.title !== "TIME BLOCKED"){
             const split = clickInfo.event.title.split(" ");
             const courseCode = split[0];
             if (split[1] !== "TUT" && split[1] !== "LAB" && split[1] !== "SEM") {
@@ -195,6 +199,7 @@ export default function CalendarComponent({ timetables, setTimetables }) {
     return (
         <div id="Calendar">
             <Box id="calendarNavBar" style={{ backgroundColor: theme.palette.divider }}>
+            <Box marginLeft={25}/>
                 <Box marginRight={1}>
                     <Button variant="contained" onClick={handleFirst} disabled={timetables.length <= 1}>
                         <NavigateFirstIcon />
@@ -217,9 +222,19 @@ export default function CalendarComponent({ timetables, setTimetables }) {
                     </Button>
                 </Box>
                 <Box marginLeft={2}>
-                    <Button variant="outlined" onClick={handleCalendarViewClick}>
-                        {calendarTermButtonText}
-                    </Button>
+                    <FormControl sx={{width:200}}size="small" >
+                        <InputLabel id="duration-select-label">Select Duration</InputLabel>
+                        <Select
+                        labelId="duration-select-label"
+                        id="duration-select"
+                        label="Duration"
+                        value={calendarTermButtonText}
+                        onChange={handleCalendarViewClick}>
+                        <MenuItem>September-April D1</MenuItem>
+                        <MenuItem>September-December D2</MenuItem>
+                        <MenuItem>January-April D3</MenuItem>
+                        </Select>
+                    </FormControl>
                 </Box>
             </Box>
             <FullCalendar
