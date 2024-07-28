@@ -17,54 +17,57 @@ import { useTheme } from "@mui/material/styles";
 import "../css/Calendar.css";
 import { createCalendarEvents, getDaysOfWeek, getTimeBlockEvents, addTimeBlockEvent, removeTimeBlockEvent } from "../scripts/createCalendarEvents";
 import { generateTimetables, getValidTimetables } from '../scripts/generateTimetables';
-import { addPinnedComponent, getPinnedComponents, removePinnedComponent } from '../scripts/pinnedComponents'
+import { addPinnedComponent, getPinnedComponents, removePinnedComponent } from '../scripts/pinnedComponents';
 import { setBlockedTimeSlots, setOpenTimeSlots } from "../scripts/timeSlots";
 import { getCourseData } from "../scripts/courseData";
 
-export default function CalendarComponent({ timetables, setTimetables }) {
+export default function CalendarComponent({ timetables, setTimetables, selectedDuration, setSelectedDuration, durations }) {
     const calendarRef = React.useRef(null);
     const [events, setEvents] = useState([]);
     const [currentTimetableIndex, setCurrentTimetableIndex] = useState(0);
-    const [selectedDuration, setSelectedDuration] = useState("");
     const theme = useTheme();
 
     useEffect(() => {
         updateCalendarEvents();
     }, [currentTimetableIndex, timetables]);
 
+    useEffect(() => {
+        if (selectedDuration) {
+            handleCalendarViewClick(selectedDuration);
+        }
+    }, [selectedDuration]);
     const updateCalendarEvents = () => {
         if (timetables.length > 0 && timetables[0].courses.length > 0) {
             const timetable = timetables[currentTimetableIndex];
             const newEvents = createCalendarEvents(timetable, getDaysOfWeek);
             //console.log('New events:', newEvents); //Main Debugging log
             setEvents(newEvents);
-        }else{
+        } else {
             const newEvents = createCalendarEvents(null, getDaysOfWeek);
-            setEvents(newEvents)
-            if (Object.keys(getCourseData()).length > 0){
-                alert("No valid can be timetables generated!\n\nThis is likely caused by one of the following reasons:\n\n1.Adding a course that is not being offered in that duration.\n2.Adding courses that always overlap with another course\n3.Blocking out all possible timeslots that a course is offered in.\n\nTry unblocking/unpinning some components or removing the last course you have added.");
+            setEvents(newEvents);
+            if (Object.keys(getCourseData()).length > 0) {
+                alert("No valid timetables can be generated!\n\nThis is likely caused by one of the following reasons:\n\n1. Adding a course that is not being offered in that duration.\n2. Adding courses that always overlap with another course.\n3. Blocking out all possible timeslots that a course is offered in.\n\nTry unblocking/unpinning some components or removing the last course you have added.");
             }
         }
     };
 
-    const handleCalendarViewClick = (event) => {
-        setSelectedDuration(event.target.value);
+    const handleCalendarViewClick = (durationLabel) => {
         const calendarApi = calendarRef.current.getApi();
-        const year = new Date().getFullYear();
-        switch (event.target.value) {
-            case "September-December D2":
-                calendarApi.gotoDate(year + "-09-20");
-                break;
-            case "January-April D3":
-                calendarApi.gotoDate((year + 1) + "-01-20");
-                break;
-            default:
-                calendarApi.gotoDate(year + "-09-20");
-        }
-    };    
+
+        const [startUnix, endUnix, duration] = durationLabel.split("-");
+        const startDate = new Date(startUnix * 1000);
+
+        if (startDate.getDay() != 1) {
+            startDate.setDate(startDate.getDate() + 7)
+        }     
+
+        calendarApi.gotoDate(startDate);
+
+        setSelectedDuration(durationLabel);
+    };
 
     const handleEventClick = (clickInfo) => {      
-        if (clickInfo.event.title !== "TIME BLOCKED"){
+        if (clickInfo.event.title !== "TIME BLOCKED") {
             const split = clickInfo.event.title.split(" ");
             const courseCode = split[0];
             if (split[1] !== "TUT" && split[1] !== "LAB" && split[1] !== "SEM") {
@@ -77,7 +80,7 @@ export default function CalendarComponent({ timetables, setTimetables }) {
             } else {
                 addPinnedComponent(courseCode + " " + split[1] + " " + clickInfo.event.id);
             }
-        }else{
+        } else {
             const blockId = clickInfo.event.id.split("-")[1];
             const blockEvent = getTimeBlockEvents().find(block => block.id === blockId);
 
@@ -183,18 +186,10 @@ export default function CalendarComponent({ timetables, setTimetables }) {
         setTimetables(getValidTimetables());
     };
 
-
-    // FullCalendar does not allow you to select the same time across multiple days (select only returns
-    // a single day). By default you can select multiple days, but it will select ALL the time from the
-    // start to the end date.  This function limits you to selecting a time in a single day.
-
-    // At some point, I would like to come back to this to allow users to select multiple days, but only
-    // a specific time range within those days.  This would be useful for selecting a time range that
-    // spans multiple days, but only during a specific time range each day.
     const handleSelectAllow = (selectionInfo) => {
         let startDate = selectionInfo.start;
         let endDate = selectionInfo.end;
-        endDate.setSeconds(endDate.getSeconds() - 1); // allow full day selection
+        endDate.setSeconds(endDate.getSeconds() - 1);
         if (startDate.getDate() === endDate.getDate()) {
             return true;
         } else {
@@ -228,17 +223,25 @@ export default function CalendarComponent({ timetables, setTimetables }) {
                     </Button>
                 </Box>
                 <Box marginLeft={2}>
-                    <FormControl sx={{width:200}}size="small" >
+                    <FormControl sx={{ width: 200 }} size="small">
                         <InputLabel id="duration-select-label">Select Duration</InputLabel>
                         <Select
-                        labelId="duration-select-label"
-                        id="duration-select"
-                        label="Duration"
-                        value={selectedDuration}
-                        onChange={handleCalendarViewClick}>
-                        <MenuItem value="September-April D1">September-April D1</MenuItem>
-                        <MenuItem value="September-December D2">September-December D2</MenuItem>
-                        <MenuItem value="January-April D3">January-April D3</MenuItem>
+                            labelId="duration-select-label"
+                            id="duration-select"
+                            label="Duration"
+                            value={selectedDuration}
+                            onChange={(e) => setSelectedDuration(e.target.value)}
+                        >
+                            {durations.map((duration, index) => (
+                                <MenuItem key={index} value={duration}>
+                                {(() => {
+                                    const [startUnix, endUnix, dur] = duration.split("-");
+                                    const startMonth = new Date(parseInt(startUnix, 10) * 1000).toLocaleString('default', { month: 'short' });
+                                    const endMonth = new Date(parseInt(endUnix, 10) * 1000).toLocaleString('default', { month: 'short' });
+                                    return `${startMonth} - ${endMonth} (D${dur})`;
+                                })()}
+                            </MenuItem>                            
+                            ))}
                         </Select>
                     </FormControl>
                 </Box>
