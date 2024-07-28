@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import FullCalendar from "@fullcalendar/react";
 import timeGridPlugin from "@fullcalendar/timegrid";
-import interactionPlugin from "@fullcalendar/interaction"; // for selectable
+import interactionPlugin from "@fullcalendar/interaction";
 import Button from "@mui/material/Button";
 import FormControl from '@mui/material/FormControl';
 import Select from "@mui/material/Select";
@@ -25,8 +25,7 @@ export default function CalendarComponent({ timetables, setTimetables }) {
     const calendarRef = React.useRef(null);
     const [events, setEvents] = useState([]);
     const [currentTimetableIndex, setCurrentTimetableIndex] = useState(0);
-    const [calendarTerm, setCalendarTerm] = useState(true);
-    const [calendarTermButtonText, setCalendarTermButtonText] = useState("VIEW WINTER");
+    const [selectedDuration, setSelectedDuration] = useState("");
     const theme = useTheme();
 
     useEffect(() => {
@@ -48,14 +47,21 @@ export default function CalendarComponent({ timetables, setTimetables }) {
         }
     };
 
-    const handleCalendarViewClick = () => {
+    const handleCalendarViewClick = (event) => {
+        setSelectedDuration(event.target.value);
         const calendarApi = calendarRef.current.getApi();
         const year = new Date().getFullYear();
-        // currently hardcoded fall and winter dates, so it won't work for other terms/years
-        calendarApi.gotoDate(calendarTerm ? (year+1) + "-01-20" : year+"-09-20");
-        setCalendarTerm(!calendarTerm);
-        setCalendarTermButtonText(calendarTermButtonText === "VIEW WINTER" ? "VIEW FALL" : "VIEW WINTER");
-    };
+        switch (event.target.value) {
+            case "September-December D2":
+                calendarApi.gotoDate(year + "-09-20");
+                break;
+            case "January-April D3":
+                calendarApi.gotoDate((year + 1) + "-01-20");
+                break;
+            default:
+                calendarApi.gotoDate(year + "-09-20");
+        }
+    };    
 
     const handleEventClick = (clickInfo) => {      
         if (clickInfo.event.title !== "TIME BLOCKED"){
@@ -228,11 +234,11 @@ export default function CalendarComponent({ timetables, setTimetables }) {
                         labelId="duration-select-label"
                         id="duration-select"
                         label="Duration"
-                        value={calendarTermButtonText}
+                        value={selectedDuration}
                         onChange={handleCalendarViewClick}>
-                        <MenuItem>September-April D1</MenuItem>
-                        <MenuItem>September-December D2</MenuItem>
-                        <MenuItem>January-April D3</MenuItem>
+                        <MenuItem value="September-April D1">September-April D1</MenuItem>
+                        <MenuItem value="September-December D2">September-December D2</MenuItem>
+                        <MenuItem value="January-April D3">January-April D3</MenuItem>
                         </Select>
                     </FormControl>
                 </Box>
