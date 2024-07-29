@@ -1,24 +1,29 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { NavbarComponent, InputFormComponent, CalendarComponent } from "./components";
 import "./css/App.css";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
-import useMediaQuery from "@mui/material/useMediaQuery";
 import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
+import ColorModeContext from './components/ColorModeContext'; // Importing the context
 
 function App() {
     const [timetables, setTimetables] = useState([]);
     const [selectedDuration, setSelectedDuration] = useState("");
     const [durations, setDurations] = useState([]);
+    const [mode, setMode] = useState('light');
 
-    const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
+    const colorMode = useMemo(() => ({
+        toggleColorMode: () => {
+            setMode((prevMode) => (prevMode === 'light' ? 'dark' : 'light'));
+        },
+    }), []);
 
-    const theme = React.useMemo(
+    const theme = useMemo(
         () =>
             createTheme({
                 palette: {
-                    mode: prefersDarkMode ? "dark" : "light",
+                    mode: mode,
                     primary: {
                         main: '#cc0000',
                     },
@@ -27,11 +32,11 @@ function App() {
                     },
                 },
             }),
-        [prefersDarkMode]
+        [mode]
     );
 
     return (
-        <>
+        <ColorModeContext.Provider value={colorMode}>
             <ThemeProvider theme={theme}>
                 <CssBaseline />
                 <NavbarComponent />
@@ -61,7 +66,7 @@ function App() {
                     </Grid>
                 </Grid>
             </ThemeProvider>
-        </>
+        </ColorModeContext.Provider>
     );
 }
 
