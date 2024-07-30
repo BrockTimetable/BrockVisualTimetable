@@ -3,6 +3,7 @@ import { getTimeSlots } from './timeSlots';
 import { getPinnedComponents } from './pinnedComponents';
 
 let validTimetables = [];
+const maxComboThreshold = 25000; // Maximum number of possible combinations that can be generated. (Around 25k seems to work well on higher-end machines but more testing needed across different device)
 
 const timeToSlot = (time) => {
   let hours;
@@ -51,12 +52,24 @@ const filterComponentsAgainstTimeSlots = (components, timeSlots) => {
   });
 };
 
-// Cartesian product function
+// Cartesian product function with early exit
 //https://stackoverflow.com/questions/12303989/cartesian-product-of-multiple-arrays-in-javascript
-const cartesianProduct = (arrays) => {
-  return arrays.reduce((acc, curr) => {
-    return acc.flatMap(d => curr.length > 0 ? curr.map(e => [...d, e]) : [d]);
-  }, [[]]);
+const cartesianProduct = (arrays, limit) => {
+  let result = [[]];
+  for (const array of arrays) {
+    const temp = [];
+    for (const item of array) {
+      for (const combination of result) {
+        temp.push([...combination, item]);
+        if (temp.length >= limit) {
+          alert("The generated schedule results are truncated because the input is too broad. To ensure all results are considered pin down some courses!");
+          return temp;
+        }
+      }
+    }
+    result = temp;
+  }
+  return result;
 };
 
 const filterPinned = (components, courseCode, componentType) => {
@@ -133,7 +146,7 @@ const generateSingleCourseCombinations = (course, timeSlots) => {
       validLabsForMainComponent.length > 0 ? validLabsForMainComponent : [null],
       validTutorialsForMainComponent.length > 0 ? validTutorialsForMainComponent : [null],
       validSeminarsForMainComponent.length > 0 ? validSeminarsForMainComponent : [null]
-    ]);
+    ], maxComboThreshold);
 
     combinations.forEach(([lab, tutorial, seminar]) => {
       singleCourseCombinations.push({
@@ -181,6 +194,34 @@ const isTimetableValid = (timetable) => {
   return true;
 };
 
+const generateCombinationsIteratively = (courseCombinations, maxCombinations) => {
+  let results = [];
+  let count = 0;
+
+  const generate = (prefix, arrays) => {
+    if (arrays.length === 0) {
+      results.push(prefix);
+      count++;
+      if (count >= maxCombinations) {
+        alert("The generated schedule results are truncated because the input is too broad. To ensure all results are considered pin down some courses!");
+        return false;
+      }
+      return true;
+    }
+
+    const [first, ...rest] = arrays;
+    for (const item of first) {
+      if (!generate([...prefix, item], rest)) {
+        return false; 
+      }
+    }
+    return true;
+  };
+
+  generate([], courseCombinations);
+  return results;
+};
+
 export const generateTimetables = () => {
   validTimetables = [];
   const courseData = getCourseData();
@@ -193,10 +234,10 @@ export const generateTimetables = () => {
   if (allCourseCombinations.some(combinations => combinations.length === 0)) {
     //console.log('No valid timetable found due to missing combinations for some courses.');
     validTimetables.push({ courses: [] });
-    return
+    return;
   }
 
-  const allPossibleTimetables = cartesianProduct(allCourseCombinations);
+  let allPossibleTimetables = generateCombinationsIteratively(allCourseCombinations, maxComboThreshold);
   //console.log('All possible timetables before validation:', allPossibleTimetables);
 
   allPossibleTimetables.forEach(timetable => {
