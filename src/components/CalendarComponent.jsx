@@ -176,7 +176,7 @@ export default function CalendarComponent({ timetables, setTimetables, selectedD
                 daysOfWeek: dayMapping[startDay],
                 startTime: `${Math.floor(combinedSlotStart / 2) + 8}:${combinedSlotStart % 2 === 0 ? '00' : '30'}`,
                 endTime: `${Math.floor(combinedSlotEnd / 2) + 8}:${combinedSlotEnd % 2 === 0 ? '00' : '30'}`,
-                startRecur: new Date().toISOString().split('T')[0],
+                startRecur: '1970-01-01',
                 endRecur: '9999-12-31'
             };
             addTimeBlockEvent(block);
