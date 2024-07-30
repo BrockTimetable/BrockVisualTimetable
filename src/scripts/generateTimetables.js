@@ -40,7 +40,7 @@ const filterComponentsAgainstTimeSlots = (components, timeSlots) => {
     if (!time) return true;
     const startSlot = timeToSlot(time.split("-")[0].trim());
     const endSlot = timeToSlot(time.split("-")[1].trim());
-    const daysArray = days.split(' ').filter(day => day);
+    const daysArray = days.replace(/\s/g, "").split("");
 
     for (let day of daysArray) {
       if (!isSlotAvailable(day, startSlot, endSlot, timeSlots)) {
