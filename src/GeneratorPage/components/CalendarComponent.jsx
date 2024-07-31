@@ -64,7 +64,7 @@ export default function CalendarComponent({ timetables, setTimetables, selectedD
             setCourseDetails([]);
             setEvents(newEvents);
             if (Object.keys(getCourseData()).length > 0) {
-                enqueueSnackbar(<MultiLineSnackbar message='No valid timetables can be generated!' />, { variant: 'error' });
+                enqueueSnackbar(<MultiLineSnackbar message='No valid timetables can be generated!' />, { variant: 'warning' });
             }
         }
     };
