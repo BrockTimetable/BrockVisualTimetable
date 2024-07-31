@@ -4,7 +4,7 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import HomePage from './HomePage';
 import GeneratorPage from './GeneratorPage';
 import { ThemeProvider, createTheme } from "@mui/material/styles";
-import ColorModeContext from './SiteWide/components/ColorModeContext';
+import ColorModeContext from './SiteWide/contexts/ColorModeContext';
 
 const App = () => {
   const [mode, setMode] = useState('light');

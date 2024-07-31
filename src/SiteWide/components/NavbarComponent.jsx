@@ -7,17 +7,15 @@ import IconButton from '@mui/material/IconButton';
 import Brightness4Icon from '@mui/icons-material/Brightness4';
 import Brightness7Icon from '@mui/icons-material/Brightness7';
 import { useTheme } from '@mui/material/styles';
-import ColorModeContext from './ColorModeContext';
-import { useNavigate } from 'react-router-dom';
+import ColorModeContext from '../contexts/ColorModeContext';
 
 export default function NavbarComponent() {
   const theme = useTheme();
   const colorMode = useContext(ColorModeContext);
 
-  const navigate = useNavigate();
 
     const handleClick = () => {
-        navigate('/');
+      window.location.href = 'https://www.brocktimetable.com';
     };
 
   return (

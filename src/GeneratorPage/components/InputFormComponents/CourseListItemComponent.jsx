@@ -12,10 +12,9 @@ import IconButton from '@mui/material/IconButton';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { useTheme } from "@mui/material/styles";
 
-export default function CourseListComponent({ course, removeCourse }) {
+export default function CourseListComponent({ course, courseDetail, removeCourse }) {
     const theme = useTheme();
 
-    // Default value for courses
     const [open, setOpen] = React.useState(false);
 
     const handleClick = () => {
@@ -32,7 +31,7 @@ export default function CourseListComponent({ course, removeCourse }) {
             <ListItemButton
                 //onClick={() => onRemoveCourse(course)}
                 onClick={handleClick}
-                style={{backgroundColor: theme.palette.divider}}
+                style={{ backgroundColor: theme.palette.divider }}
             >
                 <ListItemText primary={course} />
                 <IconButton edge={false} aria-label="delete" onClick={handleRemoveClick}>
@@ -45,14 +44,20 @@ export default function CourseListComponent({ course, removeCourse }) {
             <Collapse in={open} timeout="auto" unmountOnExit>
                 <List component="div" disablePadding >
                     <ListItem>
-                        <ListItemText primary="Prof. Name" secondary="Course Instructor"/>
+                        <ListItemText primary={courseDetail ? courseDetail.instructor : "N/A"} secondary="Course Instructor" />
                     </ListItem>
                     <ListItem>
-                        <ListItemText primary="Placeholder 1" secondary="Placeholder 2"/>
+                        <ListItemText primary={courseDetail ? "Section: " + courseDetail.section : "N/A"} secondary="Section Number" />
+                    </ListItem>
+                    <ListItem>
+                        <ListItemText primary={courseDetail ? `${courseDetail.startDate}` : "N/A"} secondary="Start Date" />
+                    </ListItem>
+                    <ListItem>
+                        <ListItemText primary={courseDetail ? `${courseDetail.endDate}` : "N/A"} secondary="End Date" />
                     </ListItem>
                 </List>
             </Collapse>
-            <hr style={{margin: 0}}></hr>
+            <hr style={{ margin: 0 }}></hr>
         </Box>
     );
 }

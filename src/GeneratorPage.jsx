@@ -1,8 +1,9 @@
-import React, { useState, useMemo } from "react";
+import React, { useState } from "react";
 import { NavbarComponent, InputFormComponent, CalendarComponent } from "./GeneratorPage/components";
 import CssBaseline from "@mui/material/CssBaseline";
 import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
+import { CourseDetailsProvider } from "./GeneratorPage/contexts/CourseDetailsContext";
 
 function GeneratorPage() {
     const [timetables, setTimetables] = useState([]);
@@ -10,7 +11,7 @@ function GeneratorPage() {
     const [durations, setDurations] = useState([]);
 
     return (
-        <>
+        <CourseDetailsProvider>
             <CssBaseline />
             <NavbarComponent />
             <Grid container spacing={2}>
@@ -38,7 +39,7 @@ function GeneratorPage() {
                     </Box>
                 </Grid>
             </Grid>
-        </>
+        </CourseDetailsProvider>
     );
 }
 

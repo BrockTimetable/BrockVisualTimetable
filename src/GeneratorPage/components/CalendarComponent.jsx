@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import FullCalendar from "@fullcalendar/react";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
@@ -20,12 +20,14 @@ import { generateTimetables, getValidTimetables } from '../scripts/generateTimet
 import { addPinnedComponent, getPinnedComponents, removePinnedComponent } from '../scripts/pinnedComponents';
 import { setBlockedTimeSlots, setOpenTimeSlots } from "../scripts/timeSlots";
 import { getCourseData } from "../scripts/courseData";
+import { CourseDetailsContext } from "../contexts/CourseDetailsContext";
 
 export default function CalendarComponent({ timetables, setTimetables, selectedDuration, setSelectedDuration, durations }) {
     const calendarRef = React.useRef(null);
     const [events, setEvents] = useState([]);
     const [currentTimetableIndex, setCurrentTimetableIndex] = useState(0);
     const theme = useTheme();
+    const { setCourseDetails } = useContext(CourseDetailsContext);
 
     useEffect(() => {
         updateCalendarEvents();
@@ -41,9 +43,22 @@ export default function CalendarComponent({ timetables, setTimetables, selectedD
             const timetable = timetables[currentTimetableIndex];
             const newEvents = createCalendarEvents(timetable, getDaysOfWeek);
             //console.log('New events:', newEvents); //Main Debugging log
+
+            const courseDetails = newEvents
+                .filter(event => event.description)
+                .map(event => ({
+                    name: event.title.split(" ")[0],
+                    instructor: event.description,
+                    section: event.title.trim().split(" ").pop(),
+                    startDate: event.startRecur,
+                    endDate: event.endRecur
+                }));
+            
+            setCourseDetails(courseDetails);
             setEvents(newEvents);
         } else {
             const newEvents = createCalendarEvents(null, getDaysOfWeek);
+            setCourseDetails([]);
             setEvents(newEvents);
             if (Object.keys(getCourseData()).length > 0) {
                 alert("No valid timetables can be generated!\n\nThis is likely caused by one of the following reasons:\n\n1. Adding a course that is not being offered in that duration.\n2. Adding courses that always overlap with another course.\n3. Blocking out all possible timeslots that a course is offered in.\n\nTry unblocking/unpinning some components or removing the last course you have added.");
