@@ -1,13 +1,12 @@
 import React, { useState, useMemo } from "react";
-import { NavbarComponent, InputFormComponent, CalendarComponent } from "./components";
-import "./css/App.css";
+import { NavbarComponent, InputFormComponent, CalendarComponent } from "./GeneratorPage/components";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
 import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
-import ColorModeContext from './components/ColorModeContext'; // Importing the context
+import ColorModeContext from './SiteWide/components/ColorModeContext';
 
-function App() {
+function GeneratorPage() {
     const [timetables, setTimetables] = useState([]);
     const [selectedDuration, setSelectedDuration] = useState("");
     const [durations, setDurations] = useState([]);
@@ -70,4 +69,4 @@ function App() {
     );
 }
 
-export default App;
+export default GeneratorPage;

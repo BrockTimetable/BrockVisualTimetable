@@ -1,4 +1,4 @@
-export { default as NavbarComponent } from './NavbarComponent';
+export { default as NavbarComponent } from '../../SiteWide/components/NavbarComponent';
 
 export { default as CalendarComponent } from './CalendarComponent';
 
