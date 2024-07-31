@@ -13,6 +13,8 @@ import NavigateFirstIcon from "@mui/icons-material/FirstPage";
 import NavigateLastIcon from "@mui/icons-material/LastPage";
 import Box from "@mui/material/Box";
 import { useTheme } from "@mui/material/styles";
+import { useSnackbar } from 'notistack';
+import MultiLineSnackbar from "../../SiteWide/components/MultiLineSnackbar";
 
 import "../css/Calendar.css";
 import { createCalendarEvents, getDaysOfWeek, getTimeBlockEvents, addTimeBlockEvent, removeTimeBlockEvent } from "../scripts/createCalendarEvents";
@@ -23,6 +25,7 @@ import { getCourseData } from "../scripts/courseData";
 import { CourseDetailsContext } from "../contexts/CourseDetailsContext";
 
 export default function CalendarComponent({ timetables, setTimetables, selectedDuration, setSelectedDuration, durations }) {
+    const { enqueueSnackbar } = useSnackbar();
     const calendarRef = React.useRef(null);
     const [events, setEvents] = useState([]);
     const [currentTimetableIndex, setCurrentTimetableIndex] = useState(0);
@@ -61,7 +64,7 @@ export default function CalendarComponent({ timetables, setTimetables, selectedD
             setCourseDetails([]);
             setEvents(newEvents);
             if (Object.keys(getCourseData()).length > 0) {
-                alert("No valid timetables can be generated!\n\nThis is likely caused by one of the following reasons:\n\n1. Adding a course that is not being offered in that duration.\n2. Adding courses that always overlap with another course.\n3. Blocking out all possible timeslots that a course is offered in.\n\nTry unblocking/unpinning some components or removing the last course you have added.");
+                enqueueSnackbar(<MultiLineSnackbar message='No valid timetables can be generated!' />, { variant: 'error' });
             }
         }
     };
@@ -239,7 +242,7 @@ export default function CalendarComponent({ timetables, setTimetables, selectedD
                 </Box>
                 <Box marginLeft={2}>
                     <FormControl sx={{ width: 200 }} size="small">
-                        <InputLabel id="duration-select-label">Select Duration</InputLabel>
+                        <InputLabel id="duration-select-label">Duration</InputLabel>
                         <Select
                             labelId="duration-select-label"
                             id="duration-select"

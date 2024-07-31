@@ -5,6 +5,7 @@ import HomePage from './HomePage';
 import GeneratorPage from './GeneratorPage';
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import ColorModeContext from './SiteWide/contexts/ColorModeContext';
+import CustomSnackbarProvider from './SiteWide/components/SnackbarProvider';
 
 const App = () => {
   const [mode, setMode] = useState('light');
@@ -43,7 +44,7 @@ const App = () => {
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
-  <React.StrictMode>
+  <CustomSnackbarProvider maxSnack={3} anchorOrigin={{vertical: 'top', horizontal: 'center'}}>
     <App />
-  </React.StrictMode>
+  </CustomSnackbarProvider>,
 );

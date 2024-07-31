@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import CourseSearchComponent from './InputFormComponents/CourseSearchComponent';
 import TermSelectComponent from './InputFormComponents/TermSelectComponent';
 import TimeTableSelectComponent from './InputFormComponents/TimeTableSelectComponent';
@@ -9,8 +9,11 @@ import { getCourse } from '../scripts/fetchData';
 import { generateTimetables, getValidTimetables } from '../scripts/generateTimetables';
 import { addPinnedComponent, clearCoursePins, getPinnedComponents } from '../scripts/pinnedComponents';
 import Box from '@mui/material/Box';
+import { useSnackbar } from 'notistack';
+import MultiLineSnackbar from '../../SiteWide/components/MultiLineSnackbar';
 
 export default function InputFormComponent({ setTimetables, setSelectedDuration, setDurations }) {
+  const { enqueueSnackbar } = useSnackbar();
   const [term, setTerm] = useState('NOVALUE');
   let [courseCode, setCourseCode] = useState('');
   const [timetableType, setTimetableType] = useState('NOVALUE');
@@ -30,18 +33,18 @@ export default function InputFormComponent({ setTimetables, setSelectedDuration,
 
   const addCourse = async () => {
     if (!timetableType || timetableType === 'NOVALUE' || timetableType === '') {
-      alert('Please select a timetable.');
+      enqueueSnackbar(<MultiLineSnackbar message='Please select a timetable.' />, { variant: 'warning' });
       return;
     }
 
     if (!term || term === 'NOVALUE' || term === '') {
-      alert('Please select a term.');
+      enqueueSnackbar(<MultiLineSnackbar message='Please select a term.' />, { variant: 'warning' });
       return;
     }
 
     const split = courseCode.split(" ");
     if (split.length !== 3 || !split[2].includes("D")) {
-      alert('Incorrect Course Code Format!\n\nMust use: XXXX #X## D#\n\nExample: COSC 1P02 D2');
+      enqueueSnackbar(<MultiLineSnackbar message='Invalid course code!  Example: "COSC 1P02 D2"' />, { variant: 'warning' });
       return;
     }
 
@@ -56,7 +59,7 @@ export default function InputFormComponent({ setTimetables, setSelectedDuration,
     });
 
     if (alreadyAdded) {
-      alert('Course already added');
+      enqueueSnackbar(<MultiLineSnackbar message='Course already added' />, { variant: 'info' });
       return;
     }
 
@@ -73,9 +76,9 @@ export default function InputFormComponent({ setTimetables, setSelectedDuration,
       for (let key in courseData.sections) {
         let section = courseData.sections[key];
         if (section.schedule.duration === duration) {
-            durationStartDate = section.schedule.startDate;
-            durationEndDate = section.schedule.endDate;
-            break;
+          durationStartDate = section.schedule.startDate;
+          durationEndDate = section.schedule.endDate;
+          break;
         }
       }
 
@@ -93,6 +96,7 @@ export default function InputFormComponent({ setTimetables, setSelectedDuration,
       }
     } catch (error) {
       console.error('Error fetching course data:', error);
+      enqueueSnackbar(<MultiLineSnackbar message='Error fetching course data.' />, { variant: 'error' });
     }
   };
 

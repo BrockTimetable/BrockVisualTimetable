@@ -1,6 +1,7 @@
 import { getCourseData } from './courseData';
 import { getTimeSlots } from './timeSlots';
 import { getPinnedComponents } from './pinnedComponents';
+import eventBus from '../../SiteWide/Buses/eventBus';
 
 let validTimetables = [];
 const maxComboThreshold = 25000; // Maximum number of possible combinations that can be generated. (Around 25k seems to work well on higher-end machines but more testing needed across different device)
@@ -62,7 +63,10 @@ const cartesianProduct = (arrays, limit) => {
       for (const combination of result) {
         temp.push([...combination, item]);
         if (temp.length >= limit) {
-          alert("The generated schedule results are truncated because the input is too broad. To ensure all results are considered pin down some courses!");
+          eventBus.emit('snackbar', {
+            message: "The generated schedule results are truncated because the input is too broad. To ensure all results are considered pin down some courses!",
+            variant: 'warning'
+          });
           return temp;
         }
       }
@@ -203,7 +207,10 @@ const generateCombinationsIteratively = (courseCombinations, maxCombinations) =>
       results.push(prefix);
       count++;
       if (count >= maxCombinations) {
-        alert("The generated schedule results are truncated because the input is too broad. To ensure all results are considered pin down some courses!");
+        eventBus.emit('snackbar', {
+          message: "The generated schedule results are truncated because the input is too broad. To ensure all results are considered pin down some courses!",
+          variant: 'warning'
+        });
         return false;
       }
       return true;
