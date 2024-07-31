@@ -63,7 +63,6 @@ export default function InputFormComponent({ setTimetables, setSelectedDuration,
     try {
       const courseData = await getCourse(cleanCourseCode, timetableType, term);
       storeCourseData(courseData);
-      console.log(courseData);
       setAddedCourses([...addedCourses, courseCode]);
       addPinnedComponent(cleanCourseCode + " DURATION " + duration);
       generateTimetables();
