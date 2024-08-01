@@ -57,6 +57,7 @@ export default function CalendarComponent({
     const [truncationDialogOpen, setTruncationDialogOpen] = useState(false);
     const [noTimetablesGenerated, setNoTimetablesGenerated] = useState(false);
     const [noTimetablesDialogOpen, setNoTimetablesDialogOpen] = useState(false);
+    const [noCourses, setNoCourses] = useState(true);
 
     useEffect(() => {
         updateCalendarEvents();
@@ -70,7 +71,6 @@ export default function CalendarComponent({
 
     useEffect(() => {
         const handleTruncation = (status) => {
-            console.log("Received truncation event", status);
             setIsTruncated(status);
         };
         eventBus.on("truncation", handleTruncation);
@@ -81,6 +81,7 @@ export default function CalendarComponent({
 
     const updateCalendarEvents = () => {
         if (timetables.length > 0 && timetables[0].courses.length > 0) {
+            setNoCourses(false);
             const timetable = timetables[currentTimetableIndex];
             const newEvents = createCalendarEvents(timetable, getDaysOfWeek);
             //console.log('New events:', newEvents); //Main Debugging log
@@ -98,6 +99,7 @@ export default function CalendarComponent({
             setCourseDetails(courseDetails);
             setEvents(newEvents);
         } else {
+            setNoCourses(true);
             const newEvents = createCalendarEvents(null, getDaysOfWeek);
             setCourseDetails([]);
             setEvents(newEvents);
@@ -314,7 +316,8 @@ export default function CalendarComponent({
                     </Box>
                 </Box>
                 <Box id="durationFormBox" marginRight={2}>
-                    <FormControl sx={{ width: 160 }} size="small">
+                    { !noCourses && (
+                        <FormControl sx={{ width: 160 }} size="small">
                         <InputLabel id="duration-select-label">Duration</InputLabel>
                         <Select
                             labelId="duration-select-label"
@@ -341,6 +344,7 @@ export default function CalendarComponent({
                             ))}
                         </Select>
                     </FormControl>
+                    )}
                 </Box>
             </Box>
 
