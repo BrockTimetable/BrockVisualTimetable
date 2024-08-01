@@ -88,13 +88,19 @@ export default function CalendarComponent({
 
             const courseDetails = newEvents
                 .filter((event) => event.description)
-                .map((event) => ({
-                    name: event.title.split(" ")[0],
-                    instructor: event.description,
-                    section: event.title.trim().split(" ").pop(),
-                    startDate: event.startRecur,
-                    endDate: event.endRecur,
-                }));
+                .map((event) => {
+                    let titleArray = event.title.trim().split(" ");
+                    if (titleArray[titleArray.length - 1] === "📌") {
+                        titleArray.pop();
+                    }
+                    return {
+                        name: titleArray[0],
+                        instructor: event.description,
+                        section: titleArray.pop(),
+                        startDate: event.startRecur,
+                        endDate: event.endRecur,
+                    };
+                });
 
             setCourseDetails(courseDetails);
             setEvents(newEvents);
