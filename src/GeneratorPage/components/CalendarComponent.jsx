@@ -277,6 +277,21 @@ export default function CalendarComponent({
         setNoTimetablesDialogOpen(false);
     };
 
+    function sortByBracketContent(arr) {
+        return arr.sort((a, b) => {
+            // Find the index of the first open bracket '('
+            const indexA = a.indexOf('(');
+            const indexB = b.indexOf('(');
+            
+            // Extract the substrings following the open bracket
+            const substringA = a.slice(indexA);
+            const substringB = b.slice(indexB);
+            
+            // Compare the extracted substrings
+            return substringA.localeCompare(substringB);
+        });
+    }
+
     return (
         <div id="Calendar">
             <Box id="calendarNavBar" style={{ backgroundColor: theme.palette.divider }}>
@@ -326,7 +341,7 @@ export default function CalendarComponent({
                             value={selectedDuration}
                             onChange={(e) => setSelectedDuration(e.target.value)}
                         >
-                            {durations.map((duration, index) => (
+                            {sortByBracketContent(durations).map((duration, index) => (
                                 <MenuItem key={index} value={duration}>
                                     {(() => {
                                         const [startUnix, endUnix, dur] = duration.split("-");
