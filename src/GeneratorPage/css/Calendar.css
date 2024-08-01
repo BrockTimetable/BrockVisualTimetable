@@ -8,12 +8,37 @@
 
 #calendarNavBar {
     display: flex;
-    justify-content: center;
     align-items: center;
     height: 50px;
     border-radius: 30px;
     margin-bottom: 10px;
 }
+
+#infoButtonBox {
+    flex: 1;
+    display: flex;
+    justify-content: flex-start;
+}
+
+#calendarNavButtons {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    white-space: nowrap;
+}
+
+#calendarTimetableNumber {
+    width: 13ch;
+    text-align: center;
+}
+
+#durationFormBox {
+    flex: 1;
+    display: flex;
+    justify-content: flex-end;
+}
+
 
 #calPrev,
 #calNext {
@@ -23,5 +48,4 @@
 
 .fc-col-header-cell-cushion {
     text-decoration: none;
-
 }

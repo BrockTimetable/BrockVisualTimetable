@@ -3,34 +3,60 @@ import FullCalendar from "@fullcalendar/react";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import Button from "@mui/material/Button";
-import FormControl from '@mui/material/FormControl';
+import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
-import InputLabel from '@mui/material/InputLabel';
-import MenuItem from '@mui/material/MenuItem';
+import InputLabel from "@mui/material/InputLabel";
+import MenuItem from "@mui/material/MenuItem";
 import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 import NavigateFirstIcon from "@mui/icons-material/FirstPage";
 import NavigateLastIcon from "@mui/icons-material/LastPage";
 import Box from "@mui/material/Box";
 import { useTheme } from "@mui/material/styles";
-import { useSnackbar } from 'notistack';
+import { useSnackbar } from "notistack";
 import MultiLineSnackbar from "../../SiteWide/components/MultiLineSnackbar";
+import IconButton from "@mui/material/IconButton";
+import InfoIcon from "@mui/icons-material/Info";
+import CancelIcon from '@mui/icons-material/Cancel';
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import DialogContentText from "@mui/material/DialogContentText";
+import DialogTitle from "@mui/material/DialogTitle";
 
 import "../css/Calendar.css";
-import { createCalendarEvents, getDaysOfWeek, getTimeBlockEvents, addTimeBlockEvent, removeTimeBlockEvent } from "../scripts/createCalendarEvents";
-import { generateTimetables, getValidTimetables } from '../scripts/generateTimetables';
-import { addPinnedComponent, getPinnedComponents, removePinnedComponent } from '../scripts/pinnedComponents';
+import {
+    createCalendarEvents,
+    getDaysOfWeek,
+    getTimeBlockEvents,
+    addTimeBlockEvent,
+    removeTimeBlockEvent,
+} from "../scripts/createCalendarEvents";
+import { generateTimetables, getValidTimetables } from "../scripts/generateTimetables";
+import { addPinnedComponent, getPinnedComponents, removePinnedComponent } from "../scripts/pinnedComponents";
 import { setBlockedTimeSlots, setOpenTimeSlots } from "../scripts/timeSlots";
 import { getCourseData } from "../scripts/courseData";
 import { CourseDetailsContext } from "../contexts/CourseDetailsContext";
+import eventBus from "../../SiteWide/Buses/eventBus";
+import { Typography } from "@mui/material";
 
-export default function CalendarComponent({ timetables, setTimetables, selectedDuration, setSelectedDuration, durations }) {
+export default function CalendarComponent({
+    timetables,
+    setTimetables,
+    selectedDuration,
+    setSelectedDuration,
+    durations,
+}) {
     const { enqueueSnackbar } = useSnackbar();
     const calendarRef = React.useRef(null);
     const [events, setEvents] = useState([]);
     const [currentTimetableIndex, setCurrentTimetableIndex] = useState(0);
     const theme = useTheme();
     const { setCourseDetails } = useContext(CourseDetailsContext);
+    const [isTruncated, setIsTruncated] = useState(false);
+    const [truncationDialogOpen, setTruncationDialogOpen] = useState(false);
+    const [noTimetablesGenerated, setNoTimetablesGenerated] = useState(false);
+    const [noTimetablesDialogOpen, setNoTimetablesDialogOpen] = useState(false);
 
     useEffect(() => {
         updateCalendarEvents();
@@ -41,6 +67,18 @@ export default function CalendarComponent({ timetables, setTimetables, selectedD
             handleCalendarViewClick(selectedDuration);
         }
     }, [selectedDuration]);
+
+    useEffect(() => {
+        const handleTruncation = (status) => {
+            console.log("Received truncation event", status);
+            setIsTruncated(status);
+        };
+        eventBus.on("truncation", handleTruncation);
+        return () => {
+            eventBus.off("truncation", handleTruncation);
+        };
+    }, []);
+
     const updateCalendarEvents = () => {
         if (timetables.length > 0 && timetables[0].courses.length > 0) {
             const timetable = timetables[currentTimetableIndex];
@@ -48,15 +86,15 @@ export default function CalendarComponent({ timetables, setTimetables, selectedD
             //console.log('New events:', newEvents); //Main Debugging log
 
             const courseDetails = newEvents
-                .filter(event => event.description)
-                .map(event => ({
+                .filter((event) => event.description)
+                .map((event) => ({
                     name: event.title.split(" ")[0],
                     instructor: event.description,
                     section: event.title.trim().split(" ").pop(),
                     startDate: event.startRecur,
-                    endDate: event.endRecur
+                    endDate: event.endRecur,
                 }));
-            
+
             setCourseDetails(courseDetails);
             setEvents(newEvents);
         } else {
@@ -64,7 +102,12 @@ export default function CalendarComponent({ timetables, setTimetables, selectedD
             setCourseDetails([]);
             setEvents(newEvents);
             if (Object.keys(getCourseData()).length > 0) {
-                enqueueSnackbar(<MultiLineSnackbar message='No valid timetables can be generated!' />, { variant: 'warning' });
+                enqueueSnackbar(<MultiLineSnackbar message="No valid timetables can be generated!" />, {
+                    variant: "error",
+                });
+                setNoTimetablesGenerated(true);
+            } else {
+                setNoTimetablesGenerated(false);
             }
         }
     };
@@ -76,15 +119,15 @@ export default function CalendarComponent({ timetables, setTimetables, selectedD
         const startDate = new Date(startUnix * 1000);
 
         if (startDate.getDay() != 1) {
-            startDate.setDate(startDate.getDate() + 7)
-        }     
+            startDate.setDate(startDate.getDate() + 7);
+        }
 
         calendarApi.gotoDate(startDate);
 
         setSelectedDuration(durationLabel);
     };
 
-    const handleEventClick = (clickInfo) => {      
+    const handleEventClick = (clickInfo) => {
         if (clickInfo.event.title !== "TIME BLOCKED") {
             const split = clickInfo.event.title.split(" ");
             const courseCode = split[0];
@@ -100,19 +143,23 @@ export default function CalendarComponent({ timetables, setTimetables, selectedD
             }
         } else {
             const blockId = clickInfo.event.id.split("-")[1];
-            const blockEvent = getTimeBlockEvents().find(block => block.id === blockId);
+            const blockEvent = getTimeBlockEvents().find((block) => block.id === blockId);
 
             if (blockEvent) {
-                const slotStart = (parseInt(blockEvent.startTime.split(':')[0]) - 8) * 2 + (parseInt(blockEvent.startTime.split(':')[1]) / 30);
-                const slotEnd = (parseInt(blockEvent.endTime.split(':')[0]) - 8) * 2 + (parseInt(blockEvent.endTime.split(':')[1]) / 30);
+                const slotStart =
+                    (parseInt(blockEvent.startTime.split(":")[0]) - 8) * 2 +
+                    parseInt(blockEvent.startTime.split(":")[1]) / 30;
+                const slotEnd =
+                    (parseInt(blockEvent.endTime.split(":")[0]) - 8) * 2 +
+                    parseInt(blockEvent.endTime.split(":")[1]) / 30;
                 const slotsToUnblock = [];
-                
+
                 for (let i = slotStart; i < slotEnd; i++) {
                     slotsToUnblock.push(i);
                 }
-    
+
                 const unblockedSlots = {
-                    [blockEvent.daysOfWeek.trim()]: slotsToUnblock
+                    [blockEvent.daysOfWeek.trim()]: slotsToUnblock,
                 };
                 setOpenTimeSlots(unblockedSlots);
                 removeTimeBlockEvent(blockId);
@@ -132,23 +179,27 @@ export default function CalendarComponent({ timetables, setTimetables, selectedD
     };
 
     const handleFirst = () => {
-        setCurrentTimetableIndex((0));
+        setCurrentTimetableIndex(0);
     };
     const handleLast = () => {
-        setCurrentTimetableIndex((timetables.length - 1));
+        setCurrentTimetableIndex(timetables.length - 1);
     };
 
     const handleSelect = (selectInfo) => {
         const startDateTime = new Date(selectInfo.startStr);
         const endDateTime = new Date(selectInfo.endStr);
-        const startDay = startDateTime.toLocaleString('en-US', { weekday: 'short' }); 
-        const slotStart = (startDateTime.getHours() - 8) * 2 + (startDateTime.getMinutes() / 30);
-        const slotEnd = (endDateTime.getHours() - 8) * 2 + (endDateTime.getMinutes() / 30);
-        
+        const startDay = startDateTime.toLocaleString("en-US", { weekday: "short" });
+        const slotStart = (startDateTime.getHours() - 8) * 2 + startDateTime.getMinutes() / 30;
+        const slotEnd = (endDateTime.getHours() - 8) * 2 + endDateTime.getMinutes() / 30;
+
         const dayMapping = {
-            Mon: 'M', Tue: 'T', Wed: 'W', Thu: 'R', Fri: 'F'
+            Mon: "M",
+            Tue: "T",
+            Wed: "W",
+            Thu: "R",
+            Fri: "F",
         };
-    
+
         if (dayMapping[startDay]) {
             const slotsToBlock = [];
             for (let i = slotStart; i <= slotEnd - 1; i++) {
@@ -159,14 +210,16 @@ export default function CalendarComponent({ timetables, setTimetables, selectedD
             let combinedSlotStart = slotStart;
             let combinedSlotEnd = slotEnd;
             let blocksToRemove = [];
-    
+
             for (let block of existingBlocks) {
                 if (block.daysOfWeek.trim() === dayMapping[startDay]) {
-                    const existingStartParts = block.startTime.split(':');
-                    const existingSlotStart = (parseInt(existingStartParts[0]) - 8) * 2 + (parseInt(existingStartParts[1]) / 30);
-                    const existingEndParts = block.endTime.split(':');
-                    const existingSlotEnd = (parseInt(existingEndParts[0]) - 8) * 2 + (parseInt(existingEndParts[1]) / 30);
-    
+                    const existingStartParts = block.startTime.split(":");
+                    const existingSlotStart =
+                        (parseInt(existingStartParts[0]) - 8) * 2 + parseInt(existingStartParts[1]) / 30;
+                    const existingEndParts = block.endTime.split(":");
+                    const existingSlotEnd =
+                        (parseInt(existingEndParts[0]) - 8) * 2 + parseInt(existingEndParts[1]) / 30;
+
                     if (!(slotStart >= existingSlotEnd || slotEnd <= existingSlotStart)) {
                         combinedSlotStart = Math.min(combinedSlotStart, existingSlotStart);
                         combinedSlotEnd = Math.max(combinedSlotEnd, existingSlotEnd);
@@ -174,28 +227,28 @@ export default function CalendarComponent({ timetables, setTimetables, selectedD
                     }
                 }
             }
-    
+
             const combinedSlots = [];
             for (let i = combinedSlotStart; i < combinedSlotEnd; i++) {
                 combinedSlots.push(i);
             }
-    
+
             const combinedSlotsObject = { [dayMapping[startDay]]: combinedSlots };
-    
+
             setBlockedTimeSlots(combinedSlotsObject);
-    
+
             for (let blockId of blocksToRemove) {
                 removeTimeBlockEvent(blockId);
             }
-    
+
             const blockId = Date.now().toString();
             const block = {
                 id: blockId,
                 daysOfWeek: dayMapping[startDay],
-                startTime: `${Math.floor(combinedSlotStart / 2) + 8}:${combinedSlotStart % 2 === 0 ? '00' : '30'}`,
-                endTime: `${Math.floor(combinedSlotEnd / 2) + 8}:${combinedSlotEnd % 2 === 0 ? '00' : '30'}`,
-                startRecur: '1970-01-01',
-                endRecur: '9999-12-31'
+                startTime: `${Math.floor(combinedSlotStart / 2) + 8}:${combinedSlotStart % 2 === 0 ? "00" : "30"}`,
+                endTime: `${Math.floor(combinedSlotEnd / 2) + 8}:${combinedSlotEnd % 2 === 0 ? "00" : "30"}`,
+                startRecur: "1970-01-01",
+                endRecur: "9999-12-31",
             };
             addTimeBlockEvent(block);
         }
@@ -215,33 +268,53 @@ export default function CalendarComponent({ timetables, setTimetables, selectedD
         }
     };
 
+    const handleCloseTruncationDialog = () => {
+        setTruncationDialogOpen(false);
+    };
+    const handleCloseNoTimetablesDialog = () => {
+        setNoTimetablesDialogOpen(false);
+    };
+
     return (
         <div id="Calendar">
             <Box id="calendarNavBar" style={{ backgroundColor: theme.palette.divider }}>
-            <Box marginLeft={25}/>
-                <Box marginRight={1}>
-                    <Button variant="contained" onClick={handleFirst} disabled={timetables.length <= 1}>
-                        <NavigateFirstIcon />
-                    </Button>
+                <Box id="infoButtonBox" marginLeft={1}>
+                    {isTruncated && (
+                        <IconButton color="warning" onClick={() => setTruncationDialogOpen(true)}>
+                            <InfoIcon />
+                        </IconButton>
+                    )}
+                    {noTimetablesGenerated && (
+                        <IconButton color="error" onClick={() => setNoTimetablesDialogOpen(true)}>
+                            <CancelIcon />
+                        </IconButton>
+                    )}
                 </Box>
-                <Box marginRight={2}>
-                    <Button variant="contained" onClick={handlePrevious} disabled={timetables.length <= 1}>
-                        <NavigateBeforeIcon />
-                    </Button>
+                <Box id="calendarNavButtons">
+                    <Box marginRight={1}>
+                        <Button variant="contained" onClick={handleFirst} disabled={timetables.length <= 1}>
+                            <NavigateFirstIcon />
+                        </Button>
+                    </Box>
+                    <Box marginRight={2}>
+                        <Button variant="contained" onClick={handlePrevious} disabled={timetables.length <= 1}>
+                            <NavigateBeforeIcon />
+                        </Button>
+                    </Box>
+                    <Box id="calendarTimetableNumber">{currentTimetableIndex + 1} of {timetables.length}</Box>
+                    <Box marginLeft={2}>
+                        <Button variant="contained" onClick={handleNext} disabled={timetables.length <= 1}>
+                            <NavigateNextIcon />
+                        </Button>
+                    </Box>
+                    <Box marginLeft={1}>
+                        <Button variant="contained" onClick={handleLast} disabled={timetables.length <= 1}>
+                            <NavigateLastIcon />
+                        </Button>
+                    </Box>
                 </Box>
-                {currentTimetableIndex + 1} of {timetables.length}
-                <Box marginLeft={2} >
-                    <Button variant="contained" onClick={handleNext} disabled={timetables.length <= 1}>
-                        <NavigateNextIcon />
-                    </Button>
-                </Box>
-                <Box marginLeft={1}>
-                    <Button variant="contained" onClick={handleLast} disabled={timetables.length <= 1}>
-                        <NavigateLastIcon />
-                    </Button>
-                </Box>
-                <Box marginLeft={2}>
-                    <FormControl sx={{ width: 200 }} size="small">
+                <Box id="durationFormBox" marginRight={2}>
+                    <FormControl sx={{ width: 160 }} size="small">
                         <InputLabel id="duration-select-label">Duration</InputLabel>
                         <Select
                             labelId="duration-select-label"
@@ -252,18 +325,25 @@ export default function CalendarComponent({ timetables, setTimetables, selectedD
                         >
                             {durations.map((duration, index) => (
                                 <MenuItem key={index} value={duration}>
-                                {(() => {
-                                    const [startUnix, endUnix, dur] = duration.split("-");
-                                    const startMonth = new Date(parseInt(startUnix, 10) * 1000).toLocaleString('default', { month: 'short' });
-                                    const endMonth = new Date(parseInt(endUnix, 10) * 1000).toLocaleString('default', { month: 'short' });
-                                    return `${startMonth} - ${endMonth} (D${dur})`;
-                                })()}
-                            </MenuItem>                            
+                                    {(() => {
+                                        const [startUnix, endUnix, dur] = duration.split("-");
+                                        const startMonth = new Date(parseInt(startUnix, 10) * 1000).toLocaleString(
+                                            "default",
+                                            { month: "short" }
+                                        );
+                                        const endMonth = new Date(parseInt(endUnix, 10) * 1000).toLocaleString(
+                                            "default",
+                                            { month: "short" }
+                                        );
+                                        return `${startMonth} - ${endMonth} (D${dur})`;
+                                    })()}
+                                </MenuItem>
                             ))}
                         </Select>
                     </FormControl>
                 </Box>
             </Box>
+
             <FullCalendar
                 ref={calendarRef}
                 plugins={[timeGridPlugin, interactionPlugin]}
@@ -287,6 +367,59 @@ export default function CalendarComponent({ timetables, setTimetables, selectedD
                 select={handleSelect}
                 selectAllow={handleSelectAllow}
             />
+            <Dialog
+                open={truncationDialogOpen}
+                onClose={handleCloseTruncationDialog}
+                aria-labelledby="alert-dialog-title"
+                aria-describedby="alert-dialog-description"
+                id="truncation-dialog"
+            >
+                <DialogTitle id="alert-dialog-title">{"Truncated Results"}</DialogTitle>
+                <DialogContent>
+                    <DialogContentText id="alert-dialog-description">
+                        The generated schedule results are truncated because the input is too broad. Some results may not be shown.
+                        To ensure all results are considered pin down some courses!
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleCloseTruncationDialog} color="primary">
+                        Close
+                    </Button>
+                </DialogActions>
+            </Dialog>
+            <Dialog
+                open={noTimetablesDialogOpen}
+                onClose={handleCloseTruncationDialog}
+                aria-labelledby="alert-dialog-title"
+                aria-describedby="alert-dialog-description"
+                id="no-timetables-generated-dialog"
+            >
+                <DialogTitle id="alert-dialog-title">{"No Timetables Generated"}</DialogTitle>
+                <DialogContent>
+                    
+                    <DialogContentText sx={{height: "5ch"}}>
+                        This is likely caused by one of the following reasons:
+                    </DialogContentText>
+                    <DialogContentText>
+                        1. Adding a course that is not being offered in that duration.
+                    </DialogContentText>
+                    <DialogContentText>
+                        2. Adding courses that always overlap with another course.
+                    </DialogContentText>
+                    <DialogContentText sx={{height: "5ch"}}>
+                        3. Blocking out all possible timeslots that a course is offered in.
+                    </DialogContentText>
+                    <DialogContentText >
+                        Try unblocking/unpinning some components or removing the last course you have added.
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleCloseNoTimetablesDialog} color="primary">
+                        Close
+                    </Button>
+                </DialogActions>
+            </Dialog>
+
         </div>
     );
 }

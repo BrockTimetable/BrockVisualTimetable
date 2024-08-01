@@ -63,11 +63,14 @@ const cartesianProduct = (arrays, limit) => {
       for (const combination of result) {
         temp.push([...combination, item]);
         if (temp.length >= limit) {
+          eventBus.emit('truncation', true);
           eventBus.emit('snackbar', {
             message: "The generated schedule results are truncated because the input is too broad. To ensure all results are considered pin down some courses!",
             variant: 'warning'
           });
           return temp;
+        } else {
+          eventBus.emit('truncation', false);
         }
       }
     }
@@ -207,12 +210,14 @@ const generateCombinationsIteratively = (courseCombinations, maxCombinations) =>
       results.push(prefix);
       count++;
       if (count >= maxCombinations) {
+        eventBus.emit('truncation', true);
         eventBus.emit('snackbar', {
           message: "The generated schedule results are truncated because the input is too broad. To ensure all results are considered pin down some courses!",
           variant: 'warning'
         });
         return false;
       }
+      eventBus.emit('truncation', false);
       return true;
     }
 
