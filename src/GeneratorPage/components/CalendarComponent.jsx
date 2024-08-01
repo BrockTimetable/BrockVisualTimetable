@@ -110,7 +110,7 @@ export default function CalendarComponent({
             setCourseDetails([]);
             setEvents(newEvents);
             if (Object.keys(getCourseData()).length > 0) {
-                enqueueSnackbar(<MultiLineSnackbar message="No valid timetables can be generated!" />, {
+                enqueueSnackbar(<MultiLineSnackbar message="No valid timetables can be generated! Click the red 'x' icon for more information!" />, {
                     variant: "error",
                 });
                 setNoTimetablesGenerated(true);
@@ -402,8 +402,8 @@ export default function CalendarComponent({
                 <DialogTitle id="alert-dialog-title">{"Truncated Results"}</DialogTitle>
                 <DialogContent>
                     <DialogContentText id="alert-dialog-description">
-                        The generated schedule results are truncated because the input is too broad. Some results may not be shown.
-                        To ensure all results are considered pin down some courses!
+                        The generated schedule results are truncated because the input is too broad. Some possible course sections may not be shown.<br></br><br></br>
+                        To ensure all results are considered pin down some courses by clicking on them to lock them in place or block out unwanted time blocks by selecting the area on the calendar prior to adding more courses!
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>

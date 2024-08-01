@@ -4,7 +4,7 @@ import { getPinnedComponents } from './pinnedComponents';
 import eventBus from '../../SiteWide/Buses/eventBus';
 
 let validTimetables = [];
-const maxComboThreshold = 25000; // Maximum number of possible combinations that can be generated. (Around 25k seems to work well on higher-end machines but more testing needed across different device)
+const maxComboThreshold = 50000; // Maximum number of possible combinations that can be generated. (Around 25k seems to work well on higher-end machines but more testing needed across different device)
 
 const timeToSlot = (time) => {
   let hours;
@@ -212,7 +212,7 @@ const generateCombinationsIteratively = (courseCombinations, maxCombinations) =>
       if (count >= maxCombinations) {
         eventBus.emit('truncation', true);
         eventBus.emit('snackbar', {
-          message: "The generated schedule results are truncated because the input is too broad. To ensure all results are considered pin down some courses!",
+          message: "The generated schedule results are truncated! Click the yellow '!' icon for more information!",
           variant: 'warning'
         });
         return false;
