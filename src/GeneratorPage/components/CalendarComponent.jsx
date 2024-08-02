@@ -60,6 +60,50 @@ export default function CalendarComponent({
     const [noCourses, setNoCourses] = useState(true);
 
     useEffect(() => {
+        const calendarElement = document.getElementById('Calendar');
+        let touchStartTimer;
+        let isLongPress = false;
+    
+        const handleTouchStart = (event) => {
+            touchStartTimer = setTimeout(() => {
+                isLongPress = true;
+                if (event.target.closest('#Calendar')) {
+                    document.body.style.overflow = 'hidden';
+                }
+            }, 500);
+        };
+    
+        const handleTouchMove = (event) => {
+            if (isLongPress) {
+                event.preventDefault();
+            }
+        };
+    
+        const handleTouchEnd = () => {
+            clearTimeout(touchStartTimer);
+            document.body.style.overflow = '';
+            isLongPress = false;
+        };
+    
+        if (calendarElement) {
+            calendarElement.addEventListener('touchstart', handleTouchStart, { passive: false });
+            calendarElement.addEventListener('touchmove', handleTouchMove, { passive: false });
+            calendarElement.addEventListener('touchend', handleTouchEnd);
+            calendarElement.addEventListener('touchcancel', handleTouchEnd);
+        }
+
+        return () => {
+            if (calendarElement) {
+                calendarElement.removeEventListener('touchstart', handleTouchStart);
+                calendarElement.removeEventListener('touchmove', handleTouchMove);
+                calendarElement.removeEventListener('touchend', handleTouchEnd);
+                calendarElement.removeEventListener('touchcancel', handleTouchEnd);
+            }
+        };
+    }, []);
+    
+
+    useEffect(() => {
         updateCalendarEvents();
     }, [currentTimetableIndex, timetables]);
 
@@ -285,15 +329,12 @@ export default function CalendarComponent({
 
     function sortByBracketContent(arr) {
         return arr.sort((a, b) => {
-            // Find the index of the first open bracket '('
             const indexA = a.indexOf('(');
             const indexB = b.indexOf('(');
             
-            // Extract the substrings following the open bracket
             const substringA = a.slice(indexA);
             const substringB = b.slice(indexB);
             
-            // Compare the extracted substrings
             return substringA.localeCompare(substringB);
         });
     }
@@ -375,7 +416,7 @@ export default function CalendarComponent({
                 initialView="timeGridWeek"
                 weekends={false}
                 headerToolbar={false}
-                height={600}
+                height={833}
                 dayHeaderFormat={{ weekday: "long" }}
                 dayCellClassNames={(arg) => (arg.date.getDay() === new Date().getDay() ? "fc-day-today" : "")}
                 initialDate="2024-09-10"
@@ -391,6 +432,8 @@ export default function CalendarComponent({
                 selectMinDistance={25}
                 select={handleSelect}
                 selectAllow={handleSelectAllow}
+                longPressDelay={0}
+                selectLongPressDelay={500}
             />
             <Dialog
                 open={truncationDialogOpen}
