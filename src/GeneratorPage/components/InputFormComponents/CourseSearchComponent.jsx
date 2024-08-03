@@ -4,9 +4,10 @@ import '../../css/DepartmentSearch.css';
 import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
+import FormHelperText from '@mui/material/FormHelperText';
 
 
-export default function CourseSearchComponent({onCourseCodeChange}) {
+export default function CourseSearchComponent({ onCourseCodeChange }) {
 
   // this should be replaced with a call to the backend to get the list of courses
   // for now, we will just use a hardcoded list
@@ -50,7 +51,7 @@ export default function CourseSearchComponent({onCourseCodeChange}) {
     "COSC 4P80 D2",
   ];
 
-  const courseCodeChangeHandler = (e, newValue)=>{
+  const courseCodeChangeHandler = (e, newValue) => {
     onCourseCodeChange(e, newValue);
   }
 
@@ -58,12 +59,17 @@ export default function CourseSearchComponent({onCourseCodeChange}) {
     <>
       <Box sx={{ minWidth: 120 }} m={2}>
         <Autocomplete
-        disablePortal
-        freeSolo
-        onInputChange={courseCodeChangeHandler}
-        options={courses}
-        sx={{ width: 250 }}
-        renderInput={(params) => <TextField {...params} label="Add a course" />}
+          disablePortal
+          freeSolo
+          onInputChange={courseCodeChangeHandler}
+          options={[]}
+          sx={{ width: 250 }}
+          renderInput={(params) => (
+            <>
+              <TextField {...params} label="Add a course" />
+              <FormHelperText>Course Format Example: COSC 1P02 D2</FormHelperText>
+            </>
+          )}
         />
       </Box>
     </>
