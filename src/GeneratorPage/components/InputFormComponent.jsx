@@ -18,6 +18,7 @@ export default function InputFormComponent({ setTimetables, setSelectedDuration,
   let [courseCode, setCourseCode] = useState('');
   const [timetableType, setTimetableType] = useState('NOVALUE');
   const [addedCourses, setAddedCourses] = useState([]);
+  let requestBlock = false;
 
   const handleTableChange = (selectedTable) => {
     setTimetableType(selectedTable);
@@ -63,8 +64,15 @@ export default function InputFormComponent({ setTimetables, setSelectedDuration,
       return;
     }
 
+    if (requestBlock){
+      enqueueSnackbar(<MultiLineSnackbar message='Fetching course data... Please Wait!' />, { variant: 'warning' });
+      return;
+    }
+    requestBlock = true;
+
     try {
       const courseData = await getCourse(cleanCourseCode, timetableType, term);
+      requestBlock = false;
       storeCourseData(courseData);
       setAddedCourses([...addedCourses, courseCode]);
       addPinnedComponent(cleanCourseCode + " DURATION " + duration);
