@@ -177,6 +177,9 @@ export default function CalendarComponent({
         calendarApi.gotoDate(startDate);
 
         setSelectedDuration(durationLabel);
+        enqueueSnackbar(<MultiLineSnackbar message={"Calendar View: " + startDate.toLocaleString('default', { month: 'long', year: 'numeric' })}/>, {
+            variant: "info",
+        });
     };
 
     const handleEventClick = (clickInfo) => {
