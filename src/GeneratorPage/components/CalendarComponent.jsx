@@ -416,8 +416,8 @@ export default function CalendarComponent({
                 initialView="timeGridWeek"
                 weekends={false}
                 headerToolbar={false}
-                height={833}
-                dayHeaderFormat={{ weekday: "long" }}
+                height={600}
+                dayHeaderFormat={{ weekday: "short" }}
                 dayCellClassNames={(arg) => (arg.date.getDay() === new Date().getDay() ? "fc-day-today" : "")}
                 initialDate="2024-09-10"
                 events={events}

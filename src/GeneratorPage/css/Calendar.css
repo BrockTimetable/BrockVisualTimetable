@@ -37,6 +37,7 @@
     flex: 1;
     display: flex;
     justify-content: flex-end;
+    margin-left: 5px;
 }
 
 
@@ -49,3 +50,102 @@
 .fc-col-header-cell-cushion {
     text-decoration: none;
 }
+
+@media (max-width: 1325px) {
+    .fc-event-main {
+        font-size: 10px;
+        text-wrap: wrap;
+    }
+
+    #calendarNavBar {
+        flex-direction: column;
+        align-items: center;
+        height: auto; 
+    }
+
+    #calendarNavButtons {
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    #calendarNavButtons > Box {
+        margin: 5px;
+    }
+
+    #calendarNavButtons button {
+        min-width: 30px;
+        min-height: 30px;
+        padding: 5px;
+    }
+
+    #calendarNavButtons svg {
+        width: 47px;
+        height: 25px;
+    }
+
+    #durationFormBox {
+        width: 50%;
+        margin-top: 5px;
+        margin-left: 5%;
+        padding-bottom: 5px;
+    }
+
+    #durationFormBox .MuiFormControl-root {
+        width: 100%;
+    }
+
+    #calendarTimetableNumber {
+        margin: 10px 0;
+    }
+  }
+
+@media (max-width: 599px) {
+    .fc-event-main {
+        font-size: 8px;
+        text-wrap: wrap;
+    }
+
+    #calendarNavBar {
+        flex-direction: column;
+        align-items: center;
+        height: auto; 
+    }
+
+    #calendarNavButtons {
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    #calendarNavButtons > Box {
+        margin: 5px;
+    }
+
+    #calendarNavButtons button {
+        min-width: 30px;
+        min-height: 30px;
+        padding: 5px;
+    }
+
+    #calendarNavButtons svg {
+        width: 25px;
+        height: 20px;
+    }
+
+    #durationFormBox {
+        width: 50%;
+        margin-top: 5px;
+        margin-left: 5%;
+        padding-bottom: 5px;
+    }
+
+    #durationFormBox .MuiFormControl-root {
+        width: 100%;
+    }
+
+    #calendarTimetableNumber {
+        margin: 10px 0;
+    }
+  }
+  

@@ -2,3 +2,9 @@
     width: 25%;
     margin-top: 10px;
 }
+
+@media (max-width: 599px) {
+    #termSelectComponent {
+        margin-top: 13px;
+    }
+}

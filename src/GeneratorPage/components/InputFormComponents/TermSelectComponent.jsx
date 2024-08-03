@@ -20,7 +20,7 @@ export default function TermSelectComponent({ onTermChange }) {
   return (
     <>
       <Box sx={{ minWidth: 120 }} m={2} display={'inline'}>
-      <FormControl>
+      <FormControl id = 'termSelectComponent'>
         <InputLabel id='term-select-label'>Term</InputLabel>
         <Select
           labelId='term-select-label'
