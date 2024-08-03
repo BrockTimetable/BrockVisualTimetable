@@ -30,9 +30,9 @@ export default function TermSelectComponent({ onTermChange }) {
           sx={{ width: 125 }}
         >
           <MenuItem value={''}>Select Term</MenuItem>
-          <MenuItem value={'FW'}>Fall/Winter</MenuItem>
-          <MenuItem value={'SP'}>Spring</MenuItem>
-          <MenuItem value={'SU'}>Summer</MenuItem>
+          <MenuItem disabled={false} value={'FW'}>Fall/Winter</MenuItem>
+          <MenuItem disabled={true} value={'SP'}>Spring</MenuItem>
+          <MenuItem disabled={true} value={'SU'}>Summer</MenuItem>
         </Select>
       </FormControl>
     </Box>
