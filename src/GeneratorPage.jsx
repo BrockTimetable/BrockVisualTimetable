@@ -1,14 +1,25 @@
+// GeneratorPage.js
 import React, { useState } from "react";
 import { NavbarComponent, InputFormComponent, CalendarComponent } from "./GeneratorPage/components";
 import CssBaseline from "@mui/material/CssBaseline";
 import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
 import { CourseDetailsProvider } from "./GeneratorPage/contexts/CourseDetailsContext";
+import ChangelogDialogComponent from "./GeneratorPage/components/ChangelogDialogComponent"; // Import the ChangelogDialog component
 
 function GeneratorPage() {
     const [timetables, setTimetables] = useState([]);
     const [selectedDuration, setSelectedDuration] = useState("");
     const [durations, setDurations] = useState([]);
+    const [isChangelogOpen, setIsChangelogOpen] = useState(true); // State to manage dialog open/close
+
+    const handleOpenChangelog = () => {
+        setIsChangelogOpen(true);
+    };
+
+    const handleCloseChangelog = () => {
+        setIsChangelogOpen(false);
+    };
 
     return (
         <CourseDetailsProvider>
@@ -40,6 +51,7 @@ function GeneratorPage() {
                         </Box>
                     </Grid>
                 </Grid>
+                <ChangelogDialogComponent open={isChangelogOpen} handleClose={handleCloseChangelog} />
             </Box>
         </CourseDetailsProvider>
     );

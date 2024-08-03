@@ -15,7 +15,7 @@ export default function NavbarComponent() {
 
 
     const handleClick = () => {
-      window.location.href = 'https://www.brocktimetable.com';
+      window.location.href = './';
     };
 
   return (
