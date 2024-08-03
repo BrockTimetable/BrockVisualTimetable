@@ -154,10 +154,12 @@ export default function CalendarComponent({
             const newEvents = createCalendarEvents(null, getDaysOfWeek);
             setCourseDetails([]);
             setEvents(newEvents);
-            enqueueSnackbar(<MultiLineSnackbar message="No valid timetables can be generated! Click the red 'x' icon for more information!" />, {
-                variant: "error",
-            });
-            setNoTimetablesGenerated(true);
+            if (Object.keys(getCourseData()).length > 0) {
+                enqueueSnackbar(<MultiLineSnackbar message="No valid timetables can be generated! Click the red 'x' icon for more information!" />, {
+                    variant: "error",
+                });
+                setNoTimetablesGenerated(true);
+            }
         }
     };
 
