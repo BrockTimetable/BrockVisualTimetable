@@ -63,7 +63,7 @@ export default function CalendarComponent({
         const calendarElement = document.getElementById('Calendar');
         let touchStartTimer;
         let isLongPress = false;
-    
+
         const handleTouchStart = (event) => {
             touchStartTimer = setTimeout(() => {
                 isLongPress = true;
@@ -72,19 +72,19 @@ export default function CalendarComponent({
                 }
             }, 500);
         };
-    
+
         const handleTouchMove = (event) => {
             if (isLongPress) {
                 event.preventDefault();
             }
         };
-    
+
         const handleTouchEnd = () => {
             clearTimeout(touchStartTimer);
             document.body.style.overflow = '';
             isLongPress = false;
         };
-    
+
         if (calendarElement) {
             calendarElement.addEventListener('touchstart', handleTouchStart, { passive: false });
             calendarElement.addEventListener('touchmove', handleTouchMove, { passive: false });
@@ -101,7 +101,7 @@ export default function CalendarComponent({
             }
         };
     }, []);
-    
+
 
     useEffect(() => {
         updateCalendarEvents();
@@ -148,19 +148,16 @@ export default function CalendarComponent({
 
             setCourseDetails(courseDetails);
             setEvents(newEvents);
+            setNoTimetablesGenerated(false);
         } else {
             setNoCourses(true);
             const newEvents = createCalendarEvents(null, getDaysOfWeek);
             setCourseDetails([]);
             setEvents(newEvents);
-            if (Object.keys(getCourseData()).length > 0) {
-                enqueueSnackbar(<MultiLineSnackbar message="No valid timetables can be generated! Click the red 'x' icon for more information!" />, {
-                    variant: "error",
-                });
-                setNoTimetablesGenerated(true);
-            } else {
-                setNoTimetablesGenerated(false);
-            }
+            enqueueSnackbar(<MultiLineSnackbar message="No valid timetables can be generated! Click the red 'x' icon for more information!" />, {
+                variant: "error",
+            });
+            setNoTimetablesGenerated(true);
         }
     };
 
@@ -177,7 +174,7 @@ export default function CalendarComponent({
         calendarApi.gotoDate(startDate);
 
         setSelectedDuration(durationLabel);
-        enqueueSnackbar(<MultiLineSnackbar message={"Calendar View: " + startDate.toLocaleString('default', { month: 'long', year: 'numeric' })}/>, {
+        enqueueSnackbar(<MultiLineSnackbar message={"Calendar View: " + startDate.toLocaleString('default', { month: 'long', year: 'numeric' })} />, {
             variant: "info",
         });
     };
@@ -334,10 +331,10 @@ export default function CalendarComponent({
         return arr.sort((a, b) => {
             const indexA = a.indexOf('(');
             const indexB = b.indexOf('(');
-            
+
             const substringA = a.slice(indexA);
             const substringB = b.slice(indexB);
-            
+
             return substringA.localeCompare(substringB);
         });
     }
@@ -381,34 +378,34 @@ export default function CalendarComponent({
                     </Box>
                 </Box>
                 <Box id="durationFormBox" marginRight={2}>
-                    { !noCourses && (
+                    {!noCourses && (
                         <FormControl sx={{ width: 160 }} size="small">
-                        <InputLabel id="duration-select-label">Duration</InputLabel>
-                        <Select
-                            labelId="duration-select-label"
-                            id="duration-select"
-                            label="Duration"
-                            value={selectedDuration}
-                            onChange={(e) => setSelectedDuration(e.target.value)}
-                        >
-                            {sortByBracketContent(durations).map((duration, index) => (
-                                <MenuItem key={index} value={duration}>
-                                    {(() => {
-                                        const [startUnix, endUnix, dur] = duration.split("-");
-                                        const startMonth = new Date(parseInt(startUnix, 10) * 1000).toLocaleString(
-                                            "default",
-                                            { month: "short" }
-                                        );
-                                        const endMonth = new Date(parseInt(endUnix, 10) * 1000).toLocaleString(
-                                            "default",
-                                            { month: "short" }
-                                        );
-                                        return `${startMonth} - ${endMonth} (D${dur})`;
-                                    })()}
-                                </MenuItem>
-                            ))}
-                        </Select>
-                    </FormControl>
+                            <InputLabel id="duration-select-label">Duration</InputLabel>
+                            <Select
+                                labelId="duration-select-label"
+                                id="duration-select"
+                                label="Duration"
+                                value={selectedDuration}
+                                onChange={(e) => setSelectedDuration(e.target.value)}
+                            >
+                                {sortByBracketContent(durations).map((duration, index) => (
+                                    <MenuItem key={index} value={duration}>
+                                        {(() => {
+                                            const [startUnix, endUnix, dur] = duration.split("-");
+                                            const startMonth = new Date(parseInt(startUnix, 10) * 1000).toLocaleString(
+                                                "default",
+                                                { month: "short" }
+                                            );
+                                            const endMonth = new Date(parseInt(endUnix, 10) * 1000).toLocaleString(
+                                                "default",
+                                                { month: "short" }
+                                            );
+                                            return `${startMonth} - ${endMonth} (D${dur})`;
+                                        })()}
+                                    </MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
                     )}
                 </Box>
             </Box>
@@ -467,8 +464,8 @@ export default function CalendarComponent({
             >
                 <DialogTitle id="alert-dialog-title">{"No Timetables Generated"}</DialogTitle>
                 <DialogContent>
-                    
-                    <DialogContentText sx={{height: "5ch"}}>
+
+                    <DialogContentText sx={{ height: "5ch" }}>
                         This is likely caused by one of the following reasons:
                     </DialogContentText>
                     <DialogContentText>
@@ -477,7 +474,7 @@ export default function CalendarComponent({
                     <DialogContentText>
                         2. Adding courses that always overlap with another course.
                     </DialogContentText>
-                    <DialogContentText sx={{height: "5ch"}}>
+                    <DialogContentText sx={{ height: "5ch" }}>
                         3. Blocking out all possible timeslots that a course is offered in.
                     </DialogContentText>
                     <DialogContentText >
