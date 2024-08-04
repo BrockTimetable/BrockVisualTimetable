@@ -17,7 +17,7 @@ import { useSnackbar } from "notistack";
 import MultiLineSnackbar from "../../SiteWide/components/MultiLineSnackbar";
 import IconButton from "@mui/material/IconButton";
 import InfoIcon from "@mui/icons-material/Info";
-import CancelIcon from '@mui/icons-material/Cancel';
+import CancelIcon from "@mui/icons-material/Cancel";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
@@ -58,17 +58,19 @@ export default function CalendarComponent({
     const [noTimetablesGenerated, setNoTimetablesGenerated] = useState(false);
     const [noTimetablesDialogOpen, setNoTimetablesDialogOpen] = useState(false);
     const [noCourses, setNoCourses] = useState(true);
+    const [timeslotsOverridden, setTimeslotsOverridden] = useState(false);
+    const [timeslotsOverriddenDialogOpen, setTimeslotsOverriddenDialogOpen] = useState(false);
 
     useEffect(() => {
-        const calendarElement = document.getElementById('Calendar');
+        const calendarElement = document.getElementById("Calendar");
         let touchStartTimer;
         let isLongPress = false;
 
         const handleTouchStart = (event) => {
             touchStartTimer = setTimeout(() => {
                 isLongPress = true;
-                if (event.target.closest('#Calendar')) {
-                    document.body.style.overflow = 'hidden';
+                if (event.target.closest("#Calendar")) {
+                    document.body.style.overflow = "hidden";
                 }
             }, 500);
         };
@@ -81,27 +83,26 @@ export default function CalendarComponent({
 
         const handleTouchEnd = () => {
             clearTimeout(touchStartTimer);
-            document.body.style.overflow = '';
+            document.body.style.overflow = "";
             isLongPress = false;
         };
 
         if (calendarElement) {
-            calendarElement.addEventListener('touchstart', handleTouchStart, { passive: false });
-            calendarElement.addEventListener('touchmove', handleTouchMove, { passive: false });
-            calendarElement.addEventListener('touchend', handleTouchEnd);
-            calendarElement.addEventListener('touchcancel', handleTouchEnd);
+            calendarElement.addEventListener("touchstart", handleTouchStart, { passive: false });
+            calendarElement.addEventListener("touchmove", handleTouchMove, { passive: false });
+            calendarElement.addEventListener("touchend", handleTouchEnd);
+            calendarElement.addEventListener("touchcancel", handleTouchEnd);
         }
 
         return () => {
             if (calendarElement) {
-                calendarElement.removeEventListener('touchstart', handleTouchStart);
-                calendarElement.removeEventListener('touchmove', handleTouchMove);
-                calendarElement.removeEventListener('touchend', handleTouchEnd);
-                calendarElement.removeEventListener('touchcancel', handleTouchEnd);
+                calendarElement.removeEventListener("touchstart", handleTouchStart);
+                calendarElement.removeEventListener("touchmove", handleTouchMove);
+                calendarElement.removeEventListener("touchend", handleTouchEnd);
+                calendarElement.removeEventListener("touchcancel", handleTouchEnd);
             }
         };
     }, []);
-
 
     useEffect(() => {
         updateCalendarEvents();
@@ -120,6 +121,16 @@ export default function CalendarComponent({
         eventBus.on("truncation", handleTruncation);
         return () => {
             eventBus.off("truncation", handleTruncation);
+        };
+    }, []);
+
+    useEffect(() => {
+        const handleTimeslotsOverridden = (status) => {
+            setTimeslotsOverridden(status);
+        };
+        eventBus.on("overridden", handleTimeslotsOverridden);
+        return () => {
+            eventBus.off("overridden", handleTimeslotsOverridden);
         };
     }, []);
 
@@ -155,9 +166,12 @@ export default function CalendarComponent({
             setCourseDetails([]);
             setEvents(newEvents);
             if (Object.keys(getCourseData()).length > 0) {
-                enqueueSnackbar(<MultiLineSnackbar message="No valid timetables can be generated! Click the red 'x' icon for more information!" />, {
-                    variant: "error",
-                });
+                enqueueSnackbar(
+                    <MultiLineSnackbar message="No valid timetables can be generated! Click the red 'x' icon for more information!" />,
+                    {
+                        variant: "error",
+                    }
+                );
                 setNoTimetablesGenerated(true);
             }
         }
@@ -176,9 +190,14 @@ export default function CalendarComponent({
         calendarApi.gotoDate(startDate);
 
         setSelectedDuration(durationLabel);
-        enqueueSnackbar(<MultiLineSnackbar message={"Calendar View: " + startDate.toLocaleString('default', { month: 'long', year: 'numeric' })} />, {
-            variant: "info",
-        });
+        enqueueSnackbar(
+            <MultiLineSnackbar
+                message={"Calendar View: " + startDate.toLocaleString("default", { month: "long", year: "numeric" })}
+            />,
+            {
+                variant: "info",
+            }
+        );
     };
 
     const handleEventClick = (clickInfo) => {
@@ -328,11 +347,14 @@ export default function CalendarComponent({
     const handleCloseNoTimetablesDialog = () => {
         setNoTimetablesDialogOpen(false);
     };
+    const handleCloseBlockedSlotsDialog = () => {
+        setTimeslotsOverriddenDialogOpen(false);
+    };
 
     function sortByBracketContent(arr) {
         return arr.sort((a, b) => {
-            const indexA = a.indexOf('(');
-            const indexB = b.indexOf('(');
+            const indexA = a.indexOf("(");
+            const indexB = b.indexOf("(");
 
             const substringA = a.slice(indexA);
             const substringB = b.slice(indexB);
@@ -355,6 +377,11 @@ export default function CalendarComponent({
                             <CancelIcon />
                         </IconButton>
                     )}
+                    {timeslotsOverridden && (
+                        <IconButton color="info" onClick={() => setTimeslotsOverriddenDialogOpen(true)}>
+                            <InfoIcon />
+                        </IconButton>
+                    )}
                 </Box>
                 <Box id="calendarNavButtons">
                     <Box marginRight={1}>
@@ -367,7 +394,9 @@ export default function CalendarComponent({
                             <NavigateBeforeIcon />
                         </Button>
                     </Box>
-                    <Box id="calendarTimetableNumber">{currentTimetableIndex + 1} of {timetables.length}</Box>
+                    <Box id="calendarTimetableNumber">
+                        {currentTimetableIndex + 1} of {timetables.length}
+                    </Box>
                     <Box marginLeft={2}>
                         <Button variant="contained" onClick={handleNext} disabled={timetables.length <= 1}>
                             <NavigateNextIcon />
@@ -446,10 +475,13 @@ export default function CalendarComponent({
             >
                 <DialogTitle id="alert-dialog-title">{"Truncated Results"}</DialogTitle>
                 <DialogContent>
-                    <DialogContentText id="alert-dialog-description">
-                        The generated schedule results are truncated because the input is too broad. Some possible course sections may not be shown.<br></br><br></br>
-                        To ensure all results are considered pin down some courses by clicking on them to lock them in place or block out unwanted time blocks by selecting the area on the calendar prior to adding more courses!
+                    <DialogContentText id="alert-dialog-description" sx={{ mb: 2 }}>
+                        The generated schedule results are truncated because the input is too broad. Some possible
+                        course sections may not be shown.
                     </DialogContentText>
+                    <DialogContentText >To ensure all results are considered pin down some courses by clicking on them to lock them in
+                        place or block out unwanted time blocks by selecting the area on the calendar prior to adding
+                        more courses!</DialogContentText>
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleCloseTruncationDialog} color="primary">
@@ -466,20 +498,14 @@ export default function CalendarComponent({
             >
                 <DialogTitle id="alert-dialog-title">{"No Timetables Generated"}</DialogTitle>
                 <DialogContent>
-
-                    <DialogContentText sx={{ height: "5ch" }}>
+                    <DialogContentText sx={{ mb: 2 }}>
                         This is likely caused by one of the following reasons:
                     </DialogContentText>
                     <DialogContentText>
                         1. Adding a course that is not being offered in that duration.
                     </DialogContentText>
+                    <DialogContentText sx={{ mb: 2 }}>2. Adding courses that always overlap with another course.</DialogContentText>
                     <DialogContentText>
-                        2. Adding courses that always overlap with another course.
-                    </DialogContentText>
-                    <DialogContentText sx={{ height: "5ch" }}>
-                        3. Blocking out all possible timeslots that a course is offered in.
-                    </DialogContentText>
-                    <DialogContentText >
                         Try unblocking/unpinning some components or removing the last course you have added.
                     </DialogContentText>
                 </DialogContent>
@@ -489,7 +515,43 @@ export default function CalendarComponent({
                     </Button>
                 </DialogActions>
             </Dialog>
-
+            <Dialog
+                open={timeslotsOverriddenDialogOpen}
+                onClose={handleCloseBlockedSlotsDialog}
+                aria-labelledby="alert-dialog-title"
+                aria-describedby="alert-dialog-description"
+                id="blocked-slots-dialog"
+            >
+                <DialogTitle id="alert-dialog-title">{"Component Partially Blocked"}</DialogTitle>
+                <DialogContent>
+                    <DialogContentText sx={{ mb: 2 }}>
+                        The selected component has been partially blocked by your time constraints. This means that the
+                        chosen class will overlap with the time slots you have blocked out.
+                    </DialogContentText>
+                    <DialogContentText sx={{ mb: 2 }}>
+                        As a result, if you register with this schedule, you will have a class scheduled during one of
+                        your blocked times. This could lead to potential conflicts in your timetable.
+                    </DialogContentText>
+                    <DialogContentText sx={{ mb: 2 }}>To resolve this issue:</DialogContentText>
+                    <DialogContentText sx={{ mb: 2 }}>
+                        1. Adjust your blocked time slots: Consider unblocking some of the time slots to provide more
+                        flexibility for scheduling.
+                    </DialogContentText>
+                    <DialogContentText sx={{ mb: 2 }}>
+                        2. Choose different components: Look for alternative components that do not overlap with your
+                        blocked times.
+                    </DialogContentText>
+                    <DialogContentText>
+                        Review your schedule to ensure that you do not have overlapping commitments during the blocked
+                        periods.
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleCloseBlockedSlotsDialog} color="primary">
+                        Close
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </div>
     );
 }
