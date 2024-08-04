@@ -2,7 +2,7 @@ import axios from 'axios';
 
 export const getCourse = async (courseCode, timetableType, session) => {
   try {
-    const response = await axios.get('http://localhost:3001/api/getCourse', {
+    const response = await axios.get('https://api.brocktimetable.com/api/getCourse', {
       params: {
         courseCode,
         timetableType,
