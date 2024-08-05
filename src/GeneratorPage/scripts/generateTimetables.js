@@ -5,6 +5,7 @@ import eventBus from "../../SiteWide/Buses/eventBus";
 
 let validTimetables = [];
 const maxComboThreshold = 50000; // Maximum number of possible combinations that can be generated. (Around 25k seems to work well on higher-end machines but more testing needed across different device)
+let timeslotOverridden = false;
 
 const timeToSlot = (time) => {
     let hours;
@@ -86,12 +87,7 @@ const filterComponentsAgainstTimeSlots = (components, timeSlots) => {
     if (availableComponents.length === 0 && blockedComponents.length > 0) {
         blockedComponents.sort((a, b) => a.blockedPercentage - b.blockedPercentage);
         availableComponents.push(blockedComponents[0].component);
-		eventBus.emit("overridden", true);
-		eventBus.emit("snackbar", {
-			message:
-				"All available options for this component are partially blocked by your time constraints. The best available option with the least overlap has been selected.",
-			variant: "warning",
-		});
+		timeslotOverridden = true;
     }
 
     return availableComponents;
@@ -318,6 +314,7 @@ const generateCombinationsIteratively = (courseCombinations, maxCombinations) =>
 
 export const generateTimetables = () => {
 	eventBus.emit("overridden", false);
+	timeslotOverridden = false;
     validTimetables = [];
     const courseData = getCourseData();
     const courses = Object.values(courseData);
@@ -341,7 +338,15 @@ export const generateTimetables = () => {
         }
     });
 
-    //console.log('Generated timetables:', validTimetables);
+	if (timeslotOverridden) {
+		eventBus.emit("overridden", true);
+		eventBus.emit("snackbar", {
+			message:
+				"All available options for this component are partially blocked by your time constraints. The best available option with the least overlap has been selected.",
+			variant: "warning",
+		});
+	}
+
 };
 
 export const getValidTimetables = () => validTimetables;
