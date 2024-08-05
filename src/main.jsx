@@ -5,8 +5,10 @@ import GeneratorPage from './GeneratorPage';
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import ColorModeContext from './SiteWide/contexts/ColorModeContext';
 import CustomSnackbarProvider from './SiteWide/components/SnackbarProvider';
+import ReactGA from 'react-ga4';
 
 const App = () => {
+  ReactGA.initialize('G-B7CXZY0751');
   const [mode, setMode] = useState('light');
 
   const colorMode = useMemo(() => ({

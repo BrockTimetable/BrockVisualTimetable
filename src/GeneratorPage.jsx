@@ -5,9 +5,11 @@ import CssBaseline from "@mui/material/CssBaseline";
 import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
 import { CourseDetailsProvider } from "./GeneratorPage/contexts/CourseDetailsContext";
-import ChangelogDialogComponent from "./GeneratorPage/components/ChangelogDialogComponent"; // Import the ChangelogDialog component
+import ChangelogDialogComponent from "./GeneratorPage/components/ChangelogDialogComponent";
+import ReactGA from 'react-ga4';
 
 function GeneratorPage() {
+    ReactGA.send({ hitType: 'pageview', page: "/", title: "Brock Visual TimeTable" });
     const [timetables, setTimetables] = useState([]);
     const [selectedDuration, setSelectedDuration] = useState("");
     const [durations, setDurations] = useState([]);
