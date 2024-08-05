@@ -29,7 +29,7 @@ const ChangelogDialogComponent = ({ open, handleClose }) => {
                     <p style={{ fontSize: '0.775rem' }}>
                         <strong>NOTE:</strong> The Brock Visual Timetable application was developed by an independent team of students with the goal of assisting other students and is not affiliated with, partnered, or endorsed
                         by Brock University. The use of this application is at your own discretion. For any official information or updates related to Brock University, please refer directly to the
-                        university's official channels.
+                        university's official channels.<br></br><br></br>For any questions, concerns, feedback, or bug reports, please contact us at brocktimetable@gmail.com
                     </p>
                 </div>
             </DialogContent>

@@ -342,7 +342,7 @@ export const generateTimetables = () => {
 		eventBus.emit("overridden", true);
 		eventBus.emit("snackbar", {
 			message:
-				"All available options for this component are partially blocked by your time constraints. The best available option with the least overlap has been selected.",
+				"All available options for one or more course components are partially or fully blocked by your time constraints. As a result the best available option with the least time-block overlap has been selected.",
 			variant: "warning",
 		});
 	}

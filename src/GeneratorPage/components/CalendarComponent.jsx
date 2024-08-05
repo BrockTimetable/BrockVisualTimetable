@@ -522,28 +522,20 @@ export default function CalendarComponent({
                 aria-describedby="alert-dialog-description"
                 id="blocked-slots-dialog"
             >
-                <DialogTitle id="alert-dialog-title">{"Component Partially Blocked"}</DialogTitle>
+                <DialogTitle id="alert-dialog-title">{"Time Block Constraint Course Overlap"}</DialogTitle>
                 <DialogContent>
                     <DialogContentText sx={{ mb: 2 }}>
-                        The selected component has been partially blocked by your time constraints. This means that the
-                        chosen class will overlap with the time slots you have blocked out.
-                    </DialogContentText>
-                    <DialogContentText sx={{ mb: 2 }}>
-                        As a result, if you register with this schedule, you will have a class scheduled during one of
-                        your blocked times. This could lead to potential conflicts in your timetable.
+                    All available options for one or more course components conflict with your current time constraints, meaning the chosen class overlaps with your blocked time slots. Consequently, registering for this schedule will result in a class during one of your blocked time periods. Please ensure you are available for the generated timetable prior to registering.
                     </DialogContentText>
                     <DialogContentText sx={{ mb: 2 }}>To resolve this issue:</DialogContentText>
                     <DialogContentText sx={{ mb: 2 }}>
-                        1. Adjust your blocked time slots: Consider unblocking some of the time slots to provide more
-                        flexibility for scheduling.
+                        1. Adjust your blocked time slots: Consider unblocking certain time slots to increase scheduling flexibility.
                     </DialogContentText>
                     <DialogContentText sx={{ mb: 2 }}>
-                        2. Choose different components: Look for alternative components that do not overlap with your
-                        blocked times.
+                        2. Choose different courses: Look for alternative classes that do not overlap with your blocked times.
                     </DialogContentText>
                     <DialogContentText>
-                        Review your schedule to ensure that you do not have overlapping commitments during the blocked
-                        periods.
+                    Please review your schedule to ensure there are no overlapping commitments during the scheduled course periods.
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>
