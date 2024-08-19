@@ -58,7 +58,7 @@ export const createCalendarEvents = (timetable, getDaysOfWeek) => {
     timetable.courses.forEach(course => {
         const mainComponent = course.mainComponent;
         if (mainComponent) {
-            if (!mainComponent.schedule.time) {
+            if (!mainComponent.schedule.time || mainComponent.schedule.time.includes("Project Course")) {
                 addAllDayEvent(course, mainComponent);
             } else {
                 addTimedEvent(course, mainComponent);

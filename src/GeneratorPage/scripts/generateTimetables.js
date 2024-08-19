@@ -61,7 +61,7 @@ const filterComponentsAgainstTimeSlots = (components, timeSlots) => {
     const blockedComponents = [];
     const availableComponents = components.filter((component, index, originalComponents) => {
         const { days, time } = component.schedule;
-        if (!time) return true;
+        if (!time || time.includes("Project Course")) return true;
         const startSlot = timeToSlot(time.split("-")[0].trim());
         const endSlot = timeToSlot(time.split("-")[1].trim());
         const daysArray = days.replace(/\s/g, "").split("");
@@ -250,7 +250,7 @@ const isTimetableValid = (timetable) => {
         ].filter(Boolean);
         for (const component of components) {
             const { days, time, startDate, endDate } = component.schedule;
-            if (!time) continue;
+            if (!time || time.includes("Project Course")) continue;
             const startSlot = timeToSlot(time.split("-")[0].trim());
             const endSlot = timeToSlot(time.split("-")[1].trim());
             const daysArray = days.split(" ").filter((day) => day);
