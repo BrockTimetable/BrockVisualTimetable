@@ -200,17 +200,18 @@ const generateSingleCourseCombinations = (course, timeSlots) => {
 
     validMainComponents.forEach((mainComponent) => {
         const mainComponentDuration = mainComponent.schedule.duration;
-        const validLabsForMainComponent = validLabs.filter((lab) => lab.schedule.duration === mainComponentDuration);
-        const validTutorialsForMainComponent = validTutorials.filter(
-            (tutorial) => tutorial.schedule.duration === mainComponentDuration
-        );
-        const validSeminarsForMainComponent = validSeminars.filter(
-            (seminar) => seminar.schedule.duration === mainComponentDuration
+
+        const validLabsForMainComponent = validLabs.filter(
+            (lab) => lab.schedule.duration === mainComponentDuration && lab.id.charAt(3) === mainComponent.id.charAt(3)
         );
 
-        if (course.labs.length > 0 && validLabsForMainComponent.length === 0) return;
-        if (course.tutorials.length > 0 && validTutorialsForMainComponent.length === 0) return;
-        if (course.seminars.length > 0 && validSeminarsForMainComponent.length === 0) return;
+        const validTutorialsForMainComponent = validTutorials.filter(
+            (tutorial) => tutorial.schedule.duration === mainComponentDuration && tutorial.id.charAt(3) === mainComponent.id.charAt(3)
+        );
+
+        const validSeminarsForMainComponent = validSeminars.filter(
+            (seminar) => seminar.schedule.duration === mainComponentDuration && seminar.id.charAt(3) === mainComponent.id.charAt(3)
+        );
 
         const combinations = cartesianProduct(
             [
