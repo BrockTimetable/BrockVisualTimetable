@@ -236,6 +236,18 @@ const generateSingleCourseCombinations = (course, timeSlots) => {
             (seminar) => seminar.schedule.duration === mainComponentDuration && seminar.id.charAt(3) === mainComponentGroup[0].id.charAt(3)
         );
 
+        const pinnedLab = pinnedComponents.find(p => p.includes("LAB") && p.split(" ")[0] === course.courseCode);
+        const pinnedTut = pinnedComponents.find(p => p.includes("TUT") && p.split(" ")[0] === course.courseCode);
+        const pinnedSem = pinnedComponents.find(p => p.includes("SEM") && p.split(" ")[0] === course.courseCode);
+
+        const isLabValid = !pinnedLab || validLabsForMainComponent.some(lab => lab.id === pinnedLab.split(" ")[2]);
+        const isTutValid = !pinnedTut || validTutorialsForMainComponent.some(tut => tut.id === pinnedTut.split(" ")[2]);
+        const isSemValid = !pinnedSem || validSeminarsForMainComponent.some(sem => sem.id === pinnedSem.split(" ")[2]);
+
+        if (!isLabValid || !isTutValid || !isSemValid) {
+            return;
+        }
+
         const combinations = cartesianProduct(
             [
                 validLabsForMainComponent.length > 0 ? validLabsForMainComponent : [null],
