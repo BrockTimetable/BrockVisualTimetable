@@ -3,9 +3,20 @@ let timeBlockEvents = [];
 export const createCalendarEvents = (timetable, getDaysOfWeek) => {
     const newEvents = [];
 
+    const getUniqueId = (baseId) => {
+        let counter = 1;
+        let uniqueId = baseId;
+        while (newEvents.some(event => event.id === uniqueId)) {
+            uniqueId = `${baseId}-${counter}`;
+            counter++;
+        }
+        return uniqueId;
+    };
+    
     const addAllDayEvent = (course, component, color = 'default') => {
+        const uniqueId = getUniqueId(component.id);
         newEvents.push({
-            id: component.id,
+            id: uniqueId,
             title: `${course.courseCode} ${component.type} ${component.sectionNumber} ${component.pinned ? '📌' : ''}`,
             daysOfWeek: getDaysOfWeek("M T W R F"),
             allDay: true,
@@ -15,10 +26,11 @@ export const createCalendarEvents = (timetable, getDaysOfWeek) => {
             color: color
         });
     };
-
+    
     const addTimedEvent = (course, component, color = 'default') => {
+        const uniqueId = getUniqueId(component.id);
         newEvents.push({
-            id: component.id,
+            id: uniqueId,
             title: `${course.courseCode} ${component.type} ${component.sectionNumber} ${component.pinned ? '📌' : ''}`,
             daysOfWeek: getDaysOfWeek(component.schedule.days),
             startTime: formatTime(component.schedule.time.split('-')[0]),
@@ -56,13 +68,15 @@ export const createCalendarEvents = (timetable, getDaysOfWeek) => {
     }
 
     timetable.courses.forEach(course => {
-        const mainComponent = course.mainComponent;
-        if (mainComponent) {
-            if (!mainComponent.schedule.time || mainComponent.schedule.time.includes("Project Course")) {
-                addAllDayEvent(course, mainComponent);
-            } else {
-                addTimedEvent(course, mainComponent);
-            }
+        const mainComponents = course.mainComponents;
+        if (mainComponents) {
+            mainComponents.forEach(mainComponent => {
+                if (!mainComponent.schedule.time || mainComponent.schedule.time.includes("Project Course")) {
+                    addAllDayEvent(course, mainComponent);
+                } else {
+                    addTimedEvent(course, mainComponent);
+                }
+            });
         }
 
         const secondaryComponents = course.secondaryComponents;
@@ -88,7 +102,7 @@ export const createCalendarEvents = (timetable, getDaysOfWeek) => {
             }
         }
     });
-
+    
     return newEvents;
 };
 

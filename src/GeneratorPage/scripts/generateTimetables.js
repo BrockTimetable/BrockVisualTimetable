@@ -59,38 +59,52 @@ const filterComponentsAgainstTimeSlots = (components, timeSlots) => {
     };
 
     const blockedComponents = [];
-    const availableComponents = components.filter((component, index, originalComponents) => {
-        const { days, time } = component.schedule;
-        if (!time || time.includes("Project Course")) return true;
-        const startSlot = timeToSlot(time.split("-")[0].trim());
-        const endSlot = timeToSlot(time.split("-")[1].trim());
-        const daysArray = days.replace(/\s/g, "").split("");
+    const availableGroups = [];
 
-        let isBlocked = false;
-        for (let day of daysArray) {
-            if (!isSlotAvailable(day, startSlot, endSlot, timeSlots)) {
-                isBlocked = true;
-                break;
+    const groupedComponents = components.reduce((acc, component) => {
+        const groupId = component.id;
+        if (!acc[groupId]) acc[groupId] = [];
+        acc[groupId].push(component);
+        return acc;
+    }, {});
+
+    for (const groupId in groupedComponents) {
+        const group = groupedComponents[groupId];
+        let isGroupBlocked = false;
+        let blockedPercentage = 0;
+
+        for (const component of group) {
+            const { days, time } = component.schedule;
+            if (!time || time.includes("Project Course")) continue;
+            const startSlot = timeToSlot(time.split("-")[0].trim());
+            const endSlot = timeToSlot(time.split("-")[1].trim());
+            const daysArray = days.replace(/\s/g, "").split("");
+
+            for (let day of daysArray) {
+                if (!isSlotAvailable(day, startSlot, endSlot, timeSlots)) {
+                    isGroupBlocked = true;
+                    blockedPercentage += calculateBlockedPercentage(component, timeSlots);
+                    break;
+                }
             }
+
+            if (isGroupBlocked) break;
         }
 
-        if (isBlocked) {
-            const blockedPercentage = calculateBlockedPercentage(component, timeSlots);
-            blockedComponents.push({ component, blockedPercentage });
-            return false;
+        if (isGroupBlocked) {
+            blockedComponents.push({ group, blockedPercentage });
+        } else {
+            availableGroups.push(group);
         }
-
-        return true;
-    });
-
-    // If all components are blocked, choose the one with the least percentage of blocked slots
-    if (availableComponents.length === 0 && blockedComponents.length > 0) {
-        blockedComponents.sort((a, b) => a.blockedPercentage - b.blockedPercentage);
-        availableComponents.push(blockedComponents[0].component);
-		timeslotOverridden = true;
     }
 
-    return availableComponents;
+    if (availableGroups.length === 0 && blockedComponents.length > 0) {
+        blockedComponents.sort((a, b) => a.blockedPercentage - b.blockedPercentage);
+        availableGroups.push(blockedComponents[0].group);
+        timeslotOverridden = true;
+    }
+
+    return availableGroups.flat();
 };
 
 // Cartesian product function with early exit
@@ -169,6 +183,15 @@ const generateSingleCourseCombinations = (course, timeSlots) => {
 
     validMainComponents = filterPinned(validMainComponents, course.courseCode, "MAIN");
 
+    const groupedMainComponents = Object.values(
+        validMainComponents.reduce((acc, component) => {
+            const groupId = component.id;
+            if (!acc[groupId]) acc[groupId] = [];
+            acc[groupId].push(component);
+            return acc;
+        }, {})
+    );
+
     const validLabs = filterPinned(
         filterComponentsAgainstTimeSlots(
             durationFilter ? filterByDuration(course.labs, durationFilter.split(" ")[2]) : course.labs,
@@ -198,19 +221,19 @@ const generateSingleCourseCombinations = (course, timeSlots) => {
 
     const singleCourseCombinations = [];
 
-    validMainComponents.forEach((mainComponent) => {
-        const mainComponentDuration = mainComponent.schedule.duration;
+    groupedMainComponents.forEach((mainComponentGroup) => {
+        const mainComponentDuration = mainComponentGroup[0].schedule.duration;
 
         const validLabsForMainComponent = validLabs.filter(
-            (lab) => lab.schedule.duration === mainComponentDuration && lab.id.charAt(3) === mainComponent.id.charAt(3)
+            (lab) => lab.schedule.duration === mainComponentDuration && lab.id.charAt(3) === mainComponentGroup[0].id.charAt(3)
         );
 
         const validTutorialsForMainComponent = validTutorials.filter(
-            (tutorial) => tutorial.schedule.duration === mainComponentDuration && tutorial.id.charAt(3) === mainComponent.id.charAt(3)
+            (tutorial) => tutorial.schedule.duration === mainComponentDuration && tutorial.id.charAt(3) === mainComponentGroup[0].id.charAt(3)
         );
 
         const validSeminarsForMainComponent = validSeminars.filter(
-            (seminar) => seminar.schedule.duration === mainComponentDuration && seminar.id.charAt(3) === mainComponent.id.charAt(3)
+            (seminar) => seminar.schedule.duration === mainComponentDuration && seminar.id.charAt(3) === mainComponentGroup[0].id.charAt(3)
         );
 
         const combinations = cartesianProduct(
@@ -225,7 +248,7 @@ const generateSingleCourseCombinations = (course, timeSlots) => {
         combinations.forEach(([lab, tutorial, seminar]) => {
             singleCourseCombinations.push({
                 courseCode: course.courseCode,
-                mainComponent: mainComponent,
+                mainComponents: mainComponentGroup,
                 secondaryComponents: { lab, tutorial, seminar },
             });
         });
@@ -243,7 +266,7 @@ const isTimetableValid = (timetable) => {
 
     for (const course of timetable) {
         const components = [
-            course.mainComponent,
+            ...course.mainComponents,
             course.secondaryComponents.lab,
             course.secondaryComponents.tutorial,
             course.secondaryComponents.seminar,
@@ -322,16 +345,13 @@ export const generateTimetables = () => {
     const timeSlots = getTimeSlots();
 
     const allCourseCombinations = courses.map((course) => generateSingleCourseCombinations(course, timeSlots));
-    //console.log('All valid single course combinations:', allCourseCombinations);
 
     if (allCourseCombinations.some((combinations) => combinations.length === 0)) {
-        //console.log('No valid timetable found due to missing combinations for some courses.');
         validTimetables.push({ courses: [] });
         return;
     }
 
     let allPossibleTimetables = generateCombinationsIteratively(allCourseCombinations, maxComboThreshold);
-    //console.log('All possible timetables before validation:', allPossibleTimetables);
 
     allPossibleTimetables.forEach((timetable) => {
         if (isTimetableValid(timetable)) {

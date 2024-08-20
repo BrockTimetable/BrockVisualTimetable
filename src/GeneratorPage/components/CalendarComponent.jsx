@@ -139,7 +139,6 @@ export default function CalendarComponent({
             setNoCourses(false);
             const timetable = timetables[currentTimetableIndex];
             const newEvents = createCalendarEvents(timetable, getDaysOfWeek);
-            //console.log('New events:', newEvents); //Main Debugging log
 
             const courseDetails = newEvents
                 .filter((event) => event.description)
@@ -209,10 +208,10 @@ export default function CalendarComponent({
             }
 
             const pinnedComponents = getPinnedComponents();
-            if (pinnedComponents.includes(courseCode + " " + split[1] + " " + clickInfo.event.id)) {
-                removePinnedComponent(courseCode + " " + split[1] + " " + clickInfo.event.id);
+            if (pinnedComponents.includes(courseCode + " " + split[1] + " " + clickInfo.event.id.substring(0,7))) {
+                removePinnedComponent(courseCode + " " + split[1] + " " + clickInfo.event.id.substring(0,7));
             } else {
-                addPinnedComponent(courseCode + " " + split[1] + " " + clickInfo.event.id);
+                addPinnedComponent(courseCode + " " + split[1] + " " + clickInfo.event.id.substring(0,7));
             }
         } else {
             const blockId = clickInfo.event.id.split("-")[1];

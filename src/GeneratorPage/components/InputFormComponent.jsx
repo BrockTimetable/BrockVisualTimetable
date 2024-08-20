@@ -92,7 +92,6 @@ export default function InputFormComponent({ setTimetables, setSelectedDuration,
 
       if (durationStartDate && durationEndDate) {
         const durationLabel = `${durationStartDate}-${durationEndDate}-${duration}`;
-        console.log(durationLabel);
 
         setDurations(prevDurations => {
           if (!prevDurations.includes(durationLabel)) {
