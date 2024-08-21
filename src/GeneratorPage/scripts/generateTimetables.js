@@ -224,16 +224,24 @@ const generateSingleCourseCombinations = (course, timeSlots) => {
     groupedMainComponents.forEach((mainComponentGroup) => {
         const mainComponentDuration = mainComponentGroup[0].schedule.duration;
 
+        let isOnlyMainSection = validMainComponents.length === 1;
+
         const validLabsForMainComponent = validLabs.filter(
-            (lab) => lab.schedule.duration === mainComponentDuration && lab.id.charAt(3) === mainComponentGroup[0].id.charAt(3)
+            (lab) =>
+                lab.schedule.duration === mainComponentDuration &&
+                (isOnlyMainSection && mainComponentGroup[0].id != "0" || lab.id.charAt(3) === mainComponentGroup[0].id.charAt(3))
         );
 
         const validTutorialsForMainComponent = validTutorials.filter(
-            (tutorial) => tutorial.schedule.duration === mainComponentDuration && tutorial.id.charAt(3) === mainComponentGroup[0].id.charAt(3)
+            (tutorial) =>
+                tutorial.schedule.duration === mainComponentDuration &&
+                (isOnlyMainSection && mainComponentGroup[0].id != "0" || tutorial.id.charAt(3) === mainComponentGroup[0].id.charAt(3))
         );
 
         const validSeminarsForMainComponent = validSeminars.filter(
-            (seminar) => seminar.schedule.duration === mainComponentDuration && seminar.id.charAt(3) === mainComponentGroup[0].id.charAt(3)
+            (seminar) =>
+                seminar.schedule.duration === mainComponentDuration &&
+                (isOnlyMainSection && mainComponentGroup[0].id != "0" || seminar.id.charAt(3) === mainComponentGroup[0].id.charAt(3))
         );
 
         const pinnedLab = pinnedComponents.find(p => p.includes("LAB") && p.split(" ")[0] === course.courseCode);
