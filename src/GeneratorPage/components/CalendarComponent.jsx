@@ -135,6 +135,9 @@ export default function CalendarComponent({
     }, []);
 
     const updateCalendarEvents = () => {
+        if (currentTimetableIndex >= timetables.length && timetables.length > 0) {
+            handleLast();
+        }
         if (timetables.length > 0 && timetables[0].courses.length > 0) {
             setNoCourses(false);
             const timetable = timetables[currentTimetableIndex];
