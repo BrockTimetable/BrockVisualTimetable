@@ -15,3 +15,18 @@ export const getCourse = async (courseCode, timetableType, session) => {
     throw error;
   }
 };
+
+export const getNameList = async (timetableType, session) => {
+  try {
+    const response = await axios.get('https://api.brocktimetable.com/api/getNameList', {
+      params: {
+        timetableType,
+        session,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching name list:', error);
+    throw error;
+  }
+};
