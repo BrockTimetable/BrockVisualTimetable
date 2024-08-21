@@ -3,57 +3,21 @@ import '../../css/DepartmentSearch.css';
 
 import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
-import Autocomplete from '@mui/material/Autocomplete';
+import Autocomplete, { createFilterOptions } from '@mui/material/Autocomplete';
 import FormHelperText from '@mui/material/FormHelperText';
+import ListSubheader from '@mui/material/ListSubheader';
 
-
-export default function CourseSearchComponent({ onCourseCodeChange }) {
-
-  // this should be replaced with a call to the backend to get the list of courses
-  // for now, we will just use a hardcoded list
-  // https://github.com/iOlivers/BrockTimeTable/issues/2
-  let courses = [
-    "COSC 1P02 D2",
-    "COSC 1P02 D3",
-    "COSC 1P03 D2",
-    "COSC 1P03 D3",
-    "COSC 1P50 D2",
-    "COSC 1P50 D3",
-    "COSC 1P71 D3",
-    "COSC 2P03 D2",
-    "COSC 2P05 D3",
-    "COSC 2P08 D3",
-    "COSC 2P12 D2",
-    "COSC 2P13 D3",
-    "COSC 2P89 D2",
-    "COSC 2P95 D2",
-    "COSC 2P96 D2",
-    "COSC 3P01 D2",
-    "COSC 3P03 D2",
-    "COSC 3P32 D3",
-    "COSC 3P71 D2",
-    "COSC 3P91 D3",
-    "COSC 3P93 D2",
-    "COSC 3P94 D3",
-    "COSC 3P96 D3",
-    "COSC 3P99 D2",
-    "COSC 3P99 D3",
-    "COSC 4P90 D1",
-    "COSC 4P90 D3",
-    "COSC 4P01 D2",
-    "COSC 4P02 D3",
-    "COSC 4P03 D3",
-    "COSC 4P41 D2",
-    "COSC 4P42 D2",
-    "COSC 4P50 D3",
-    "COSC 4P61 D2",
-    "COSC 4P78 D3",
-    "COSC 4P80 D2",
-  ];
+export default function CourseSearchComponent({ onCourseCodeChange, courseOptions }) {
 
   const courseCodeChangeHandler = (e, newValue) => {
     onCourseCodeChange(e, newValue);
   }
+
+  const filterOptions = createFilterOptions({
+    ignoreCase: true,
+    matchFrom: 'start',
+    limit: 3000
+  });
 
   return (
     <>
@@ -62,13 +26,30 @@ export default function CourseSearchComponent({ onCourseCodeChange }) {
           disablePortal
           freeSolo
           onInputChange={courseCodeChangeHandler}
-          options={[]}
+          options={courseOptions}
           sx={{ width: 250 }}
           renderInput={(params) => (
             <>
               <TextField {...params} label="Add a course" />
               <FormHelperText>Course Format Example: COSC 1P02 D2</FormHelperText>
             </>
+          )}
+          filterOptions={filterOptions}
+          groupBy={(option) => option.slice(0, 4).toUpperCase()}
+          renderGroup={(params) => (
+            <li key={params.key}>
+              <ListSubheader
+                sx={{
+                  backgroundColor: 'primary.main',
+                  color: 'white',
+                  fontSize: '1rem',
+                  lineHeight: '2',
+                }}
+              >
+                {params.group}
+              </ListSubheader>
+              {params.children}
+            </li>
           )}
         />
       </Box>

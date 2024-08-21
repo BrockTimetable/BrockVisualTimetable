@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import CourseSearchComponent from './InputFormComponents/CourseSearchComponent';
 import TermSelectComponent from './InputFormComponents/TermSelectComponent';
 import TimeTableSelectComponent from './InputFormComponents/TimeTableSelectComponent';
 import AddButtonComponent from './InputFormComponents/AddButtonComponent';
 import CourseListComponent from './InputFormComponents/CourseListComponent';
 import { storeCourseData, removeCourseData } from '../scripts/courseData';
-import { getCourse } from '../scripts/fetchData';
+import { getCourse, getNameList } from '../scripts/fetchData';
 import { generateTimetables, getValidTimetables } from '../scripts/generateTimetables';
 import { addPinnedComponent, clearCoursePins, getPinnedComponents } from '../scripts/pinnedComponents';
 import Box from '@mui/material/Box';
@@ -15,10 +15,27 @@ import MultiLineSnackbar from '../../SiteWide/components/MultiLineSnackbar';
 export default function InputFormComponent({ setTimetables, setSelectedDuration, setDurations }) {
   const { enqueueSnackbar } = useSnackbar();
   const [term, setTerm] = useState('NOVALUE');
-  let [courseCode, setCourseCode] = useState('');
+  const [courseCode, setCourseCode] = useState('');
   const [timetableType, setTimetableType] = useState('NOVALUE');
   const [addedCourses, setAddedCourses] = useState([]);
+  const [courseOptions, setCourseOptions] = useState([]);
   let requestBlock = false;
+
+  // Fetch course codes when the component mounts or term/timetable changes
+  useEffect(() => {
+    const fetchCourseOptions = async () => {
+      if (term === 'NOVALUE' || timetableType === 'NOVALUE') return;
+      try {
+        const courses = await getNameList(timetableType, term);
+        setCourseOptions(courses);
+      } catch (error) {
+        console.error('Error fetching course list:', error);
+        enqueueSnackbar(<MultiLineSnackbar message='Error fetching course list.' />, { variant: 'error' });
+      }
+    };
+
+    fetchCourseOptions();
+  }, [term, timetableType]); // Dependencies here depend on when you need to refetch
 
   const handleTableChange = (selectedTable) => {
     setTimetableType(selectedTable);
@@ -118,14 +135,17 @@ export default function InputFormComponent({ setTimetables, setSelectedDuration,
   };
 
   return (
-    <>
-      <Box sx={{ minWidth: 120 }} m={2}>
-        <TimeTableSelectComponent onTableChange={handleTableChange} />
-        <TermSelectComponent onTermChange={handleTermChange} />
-        <CourseSearchComponent onCourseCodeChange={handleCourseCodeChange} />
-        <AddButtonComponent onAddCourse={addCourse} />
-        <CourseListComponent courses={addedCourses} onRemoveCourse={removeCourse} />
-      </Box>
-    </>
+    <Box sx={{ minWidth: 120 }} m={2}>
+      <TimeTableSelectComponent onTableChange={handleTableChange} />
+      <TermSelectComponent onTermChange={handleTermChange} />
+      <CourseSearchComponent
+        onCourseCodeChange={handleCourseCodeChange}
+        courseOptions={courseOptions}
+        timetableType={timetableType}
+        term={term}
+      />
+      <AddButtonComponent onAddCourse={addCourse} />
+      <CourseListComponent courses={addedCourses} onRemoveCourse={removeCourse} />
+    </Box>
   );
 }
