@@ -1,4 +1,3 @@
-// GeneratorPage.js
 import React, { useState } from "react";
 import { NavbarComponent, InputFormComponent, CalendarComponent } from "./GeneratorPage/components";
 import CssBaseline from "@mui/material/CssBaseline";
@@ -13,8 +12,7 @@ function GeneratorPage() {
     const [timetables, setTimetables] = useState([]);
     const [selectedDuration, setSelectedDuration] = useState("");
     const [durations, setDurations] = useState([]);
-    const [isChangelogOpen, setIsChangelogOpen] = useState(true); // State to manage dialog open/close
-
+    const [isChangelogOpen, setIsChangelogOpen] = useState(true);
     const handleOpenChangelog = () => {
         setIsChangelogOpen(true);
     };
@@ -48,6 +46,10 @@ function GeneratorPage() {
                         </Box>
                     </Grid>
                     <Grid item xs={12} md={12} lg={3}>
+                        {/*
+                        NOTE: The export feature and its components will be added to this grid to 
+                        replace the temporary label once the feature is implemented.
+                        */}
                         <Box sx={{ minWidth: 120 }} m={2}>
                             Import/Export TimeTable Feature Coming Soon...
                         </Box>

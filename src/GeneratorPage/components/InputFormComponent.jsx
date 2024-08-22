@@ -81,7 +81,7 @@ export default function InputFormComponent({ setTimetables, setSelectedDuration,
       return;
     }
 
-    if (requestBlock){
+    if (requestBlock) {
       enqueueSnackbar(<MultiLineSnackbar message='Fetching course data... Please Wait!' />, { variant: 'warning' });
       return;
     }

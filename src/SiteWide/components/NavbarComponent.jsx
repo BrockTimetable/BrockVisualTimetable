@@ -14,18 +14,18 @@ export default function NavbarComponent() {
   const colorMode = useContext(ColorModeContext);
 
 
-    const handleClick = () => {
-      window.location.href = './';
-    };
+  const handleClick = () => {
+    window.location.href = './';
+  };
 
   return (
     <Box sx={{ flexGrow: 1 }}>
       <AppBar position="static">
         <Toolbar>
-          <Typography variant="h5" component="div" sx={{fontWeight: 'bold', cursor: 'pointer' }} onClick={handleClick}>
+          <Typography variant="h5" component="div" sx={{ fontWeight: 'bold', cursor: 'pointer' }} onClick={handleClick}>
             Brock Visual TimeTable
           </Typography>
-          <Box sx={{flexGrow: 1}}/>
+          <Box sx={{ flexGrow: 1 }} />
           <IconButton sx={{ ml: 1 }} onClick={colorMode.toggleColorMode} color="inherit">
             {theme.palette.mode === 'dark' ? <Brightness7Icon /> : <Brightness4Icon />}
           </IconButton>

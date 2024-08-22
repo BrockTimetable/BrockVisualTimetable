@@ -60,7 +60,7 @@
     #calendarNavBar {
         flex-direction: column;
         align-items: center;
-        height: auto; 
+        height: auto;
     }
 
     #calendarNavButtons {
@@ -69,7 +69,7 @@
         justify-content: center;
     }
 
-    #calendarNavButtons > Box {
+    #calendarNavButtons>Box {
         margin: 5px;
     }
 
@@ -98,7 +98,7 @@
     #calendarTimetableNumber {
         margin: 10px 0;
     }
-  }
+}
 
 @media (max-width: 599px) {
     .fc-event-main {
@@ -109,7 +109,7 @@
     #calendarNavBar {
         flex-direction: column;
         align-items: center;
-        height: auto; 
+        height: auto;
     }
 
     #calendarNavButtons {
@@ -118,7 +118,7 @@
         justify-content: center;
     }
 
-    #calendarNavButtons > Box {
+    #calendarNavButtons>Box {
         margin: 5px;
     }
 
@@ -147,5 +147,4 @@
     #calendarTimetableNumber {
         margin: 10px 0;
     }
-  }
-  
+}

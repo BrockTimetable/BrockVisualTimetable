@@ -3,6 +3,11 @@ let timeBlockEvents = [];
 export const createCalendarEvents = (timetable, getDaysOfWeek) => {
     const newEvents = [];
 
+    /*
+    Note: In cases where we have multiple main course components, (such as two LECs)
+    the components will have the same ID and as such we have to append an index counter
+    to create unique IDs for each calendar event.
+    */
     const getUniqueId = (baseId) => {
         let counter = 1;
         let uniqueId = baseId;
@@ -12,7 +17,7 @@ export const createCalendarEvents = (timetable, getDaysOfWeek) => {
         }
         return uniqueId;
     };
-    
+
     const addAllDayEvent = (course, component, color = 'default') => {
         const uniqueId = getUniqueId(component.id);
         newEvents.push({
@@ -26,7 +31,7 @@ export const createCalendarEvents = (timetable, getDaysOfWeek) => {
             color: color
         });
     };
-    
+
     const addTimedEvent = (course, component, color = 'default') => {
         const uniqueId = getUniqueId(component.id);
         newEvents.push({
@@ -50,7 +55,7 @@ export const createCalendarEvents = (timetable, getDaysOfWeek) => {
             startTime: block.startTime,
             endTime: block.endTime,
             startRecur: block.startRecur,
-            endRecur: '9999-12-31', 
+            endRecur: '9999-12-31',
             color: 'grey'
         });
     };
@@ -59,7 +64,7 @@ export const createCalendarEvents = (timetable, getDaysOfWeek) => {
         addTimeBlockEvent(block);
     });
 
-    if (!timetable){
+    if (!timetable) {
         return newEvents;
     }
 
@@ -71,6 +76,10 @@ export const createCalendarEvents = (timetable, getDaysOfWeek) => {
         const mainComponents = course.mainComponents;
         if (mainComponents) {
             mainComponents.forEach(mainComponent => {
+                /*
+                NOTE: Alphabetic character test check is needed as actual times do not contain alphabetic characters
+                while project courses and field trip courses do and do not have specific assigned times.
+                */
                 if (!mainComponent.schedule.time || /[a-zA-Z]/.test(mainComponent.schedule.time)) {
                     addAllDayEvent(course, mainComponent);
                 } else {
@@ -102,43 +111,43 @@ export const createCalendarEvents = (timetable, getDaysOfWeek) => {
             }
         }
     });
-    
+
     return newEvents;
 };
 
 
 export const getDaysOfWeek = (days) => {
-  const dayMap = {
-      'M': '1',
-      'T': '2',
-      'W': '3',
-      'R': '4',
-      'F': '5',
-      'S': '6',
-      'U': '0'
-  };
-  return days.split(' ').map(day => dayMap[day]);
+    const dayMap = {
+        'M': '1',
+        'T': '2',
+        'W': '3',
+        'R': '4',
+        'F': '5',
+        'S': '6',
+        'U': '0'
+    };
+    return days.split(' ').map(day => dayMap[day]);
 };
 
 const formatTime = (time) => {
-  time = time.trim();
-  if (time.length < 4) {
-      time = '0' + time;
-  }
-  if (time.length === 3) {
-      time = time.substring(0, 1) + ':' + time.substring(1, 3);
-  } else {
-      time = time.substring(0, 2) + ':' + time.substring(2, 4);
-  }
-  return time;
+    time = time.trim();
+    if (time.length < 4) {
+        time = '0' + time;
+    }
+    if (time.length === 3) {
+        time = time.substring(0, 1) + ':' + time.substring(1, 3);
+    } else {
+        time = time.substring(0, 2) + ':' + time.substring(2, 4);
+    }
+    return time;
 };
 
 const formatDate = (timestamp) => {
-  const date = new Date(timestamp * 1000);
-  const year = date.getUTCFullYear();
-  const month = ('0' + (date.getUTCMonth() + 1)).slice(-2);
-  const day = ('0' + date.getUTCDate()).slice(-2);
-  return `${year}-${month}-${day}`;
+    const date = new Date(timestamp * 1000);
+    const year = date.getUTCFullYear();
+    const month = ('0' + (date.getUTCMonth() + 1)).slice(-2);
+    const day = ('0' + date.getUTCDate()).slice(-2);
+    return `${year}-${month}-${day}`;
 };
 
 export const getTimeBlockEvents = () => {

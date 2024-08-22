@@ -15,6 +15,7 @@ Brock Visual TimeTable is a tool created by Brock students for Brock students. T
 
 ## How To Contribute
 Whether you are another CS student or simply would love to help out, your contributions are welcome & encouraged.
+Please take some time to read the docs/ to gain a better understanding of the layout & structure of the project.
 Take a moment to explore the 'Issues' tab on our project page to discover bugs to squash or features to develop. 
 Planning a change that doesn't align with an existing issue? Please create a new issue for it before you begin your work.
 

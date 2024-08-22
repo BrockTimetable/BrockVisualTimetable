@@ -211,10 +211,18 @@ export default function CalendarComponent({
             }
 
             const pinnedComponents = getPinnedComponents();
-            if (pinnedComponents.includes(courseCode + " " + split[1] + " " + clickInfo.event.id.substring(0,7))) {
-                removePinnedComponent(courseCode + " " + split[1] + " " + clickInfo.event.id.substring(0,7));
+            /*
+            NOTE: substring(0,7) is used as ID's are 7 characters long.
+
+            If there are multiple main components (such as two LECs) the 
+            additional main components will have and index counter extension
+            which is what the substring is trying to strip for the purpose
+            of pinning.
+            */
+            if (pinnedComponents.includes(courseCode + " " + split[1] + " " + clickInfo.event.id.substring(0, 7))) {
+                removePinnedComponent(courseCode + " " + split[1] + " " + clickInfo.event.id.substring(0, 7));
             } else {
-                addPinnedComponent(courseCode + " " + split[1] + " " + clickInfo.event.id.substring(0,7));
+                addPinnedComponent(courseCode + " " + split[1] + " " + clickInfo.event.id.substring(0, 7));
             }
         } else {
             const blockId = clickInfo.event.id.split("-")[1];
@@ -527,7 +535,7 @@ export default function CalendarComponent({
                 <DialogTitle id="alert-dialog-title">{"Time Block Constraint Course Overlap"}</DialogTitle>
                 <DialogContent>
                     <DialogContentText sx={{ mb: 2 }}>
-                    All available options for one or more course components conflict with your current time constraints, meaning the chosen class overlaps with your blocked time slots. Consequently, registering for this schedule will result in a class during one of your blocked time periods. Please ensure you are available for the generated timetable prior to registering.
+                        All available options for one or more course components conflict with your current time constraints, meaning the chosen class overlaps with your blocked time slots. Consequently, registering for this schedule will result in a class during one of your blocked time periods. Please ensure you are available for the generated timetable prior to registering.
                     </DialogContentText>
                     <DialogContentText sx={{ mb: 2 }}>To resolve this issue:</DialogContentText>
                     <DialogContentText sx={{ mb: 2 }}>
@@ -537,7 +545,7 @@ export default function CalendarComponent({
                         2. Choose different courses: Look for alternative classes that do not overlap with your blocked times.
                     </DialogContentText>
                     <DialogContentText>
-                    Please review your schedule to ensure there are no overlapping commitments during the scheduled course periods.
+                        Please review your schedule to ensure there are no overlapping commitments during the scheduled course periods.
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>
