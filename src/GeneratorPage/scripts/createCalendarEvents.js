@@ -11,56 +11,58 @@ export const createCalendarEvents = (timetable, getDaysOfWeek) => {
     const getUniqueId = (baseId) => {
         let counter = 1;
         let uniqueId = baseId;
-        while (newEvents.some(event => event.id === uniqueId)) {
+        while (newEvents.some((event) => event.id === uniqueId)) {
             uniqueId = `${baseId}-${counter}`;
             counter++;
         }
         return uniqueId;
     };
 
-    const addAllDayEvent = (course, component, color = 'default') => {
+    const addAllDayEvent = (course, component, color = "default") => {
         const uniqueId = getUniqueId(component.id);
         newEvents.push({
             id: uniqueId,
-            title: `${course.courseCode} ${component.type} ${component.sectionNumber} ${component.pinned ? '📌' : ''}`,
+            title: `${course.courseCode} ${component.type} ${component.sectionNumber} ${component.pinned ? "📌" : ""}`,
             daysOfWeek: getDaysOfWeek("M T W R F"),
             allDay: true,
             startRecur: formatDate(component.schedule.startDate),
             endRecur: formatDate(component.schedule.endDate),
             description: component.instructor,
-            color: color
+            color: color,
         });
     };
 
-    const addTimedEvent = (course, component, color = 'default') => {
+    const addTimedEvent = (course, component, color = "default") => {
         const uniqueId = getUniqueId(component.id);
         newEvents.push({
             id: uniqueId,
-            title: `${course.courseCode} ${component.type} ${component.sectionNumber} ${component.pinned ? '📌' : ''}`,
+            title: `${course.courseCode} ${component.type} ${component.sectionNumber} ${component.pinned ? "📌" : ""}`,
             daysOfWeek: getDaysOfWeek(component.schedule.days),
-            startTime: formatTime(component.schedule.time.split('-')[0]),
-            endTime: formatTime(component.schedule.time.split('-')[1]),
+            startTime: formatTime(component.schedule.time.split("-")[0]),
+            endTime: formatTime(component.schedule.time.split("-")[1]),
             startRecur: formatDate(component.schedule.startDate),
             endRecur: formatDate(component.schedule.endDate),
             description: component.instructor,
-            color: color
+            color: color,
         });
     };
 
     const addTimeBlockEvent = (block) => {
         newEvents.push({
             id: `block-${block.id}`,
-            title: 'TIME BLOCKED',
             daysOfWeek: getDaysOfWeek(block.daysOfWeek),
             startTime: block.startTime,
             endTime: block.endTime,
             startRecur: block.startRecur,
-            endRecur: '9999-12-31',
-            color: 'grey'
+            endRecur: "9999-12-31",
+            color: "grey",
+            extendedProps: {
+                isBlocked: true,
+            },
         });
     };
 
-    timeBlockEvents.forEach(block => {
+    timeBlockEvents.forEach((block) => {
         addTimeBlockEvent(block);
     });
 
@@ -72,10 +74,10 @@ export const createCalendarEvents = (timetable, getDaysOfWeek) => {
         return newEvents;
     }
 
-    timetable.courses.forEach(course => {
+    timetable.courses.forEach((course) => {
         const mainComponents = course.mainComponents;
         if (mainComponents) {
-            mainComponents.forEach(mainComponent => {
+            mainComponents.forEach((mainComponent) => {
                 /*
                 NOTE: Alphabetic character test check is needed as actual times do not contain alphabetic characters
                 while project courses and field trip courses do and do not have specific assigned times.
@@ -91,23 +93,23 @@ export const createCalendarEvents = (timetable, getDaysOfWeek) => {
         const secondaryComponents = course.secondaryComponents;
         if (secondaryComponents.lab) {
             if (!secondaryComponents.lab.schedule.time) {
-                addAllDayEvent(course, secondaryComponents.lab, 'green');
+                addAllDayEvent(course, secondaryComponents.lab, "green");
             } else {
-                addTimedEvent(course, secondaryComponents.lab, 'green');
+                addTimedEvent(course, secondaryComponents.lab, "green");
             }
         }
         if (secondaryComponents.tutorial) {
             if (!secondaryComponents.tutorial.schedule.time) {
-                addAllDayEvent(course, secondaryComponents.tutorial, 'red');
+                addAllDayEvent(course, secondaryComponents.tutorial, "red");
             } else {
-                addTimedEvent(course, secondaryComponents.tutorial, 'red');
+                addTimedEvent(course, secondaryComponents.tutorial, "red");
             }
         }
         if (secondaryComponents.seminar) {
             if (!secondaryComponents.seminar.schedule.time) {
-                addAllDayEvent(course, secondaryComponents.seminar, '#ABBD39');
+                addAllDayEvent(course, secondaryComponents.seminar, "#ABBD39");
             } else {
-                addTimedEvent(course, secondaryComponents.seminar, '#ABBD39');
+                addTimedEvent(course, secondaryComponents.seminar, "#ABBD39");
             }
         }
     });
@@ -115,29 +117,28 @@ export const createCalendarEvents = (timetable, getDaysOfWeek) => {
     return newEvents;
 };
 
-
 export const getDaysOfWeek = (days) => {
     const dayMap = {
-        'M': '1',
-        'T': '2',
-        'W': '3',
-        'R': '4',
-        'F': '5',
-        'S': '6',
-        'U': '0'
+        M: "1",
+        T: "2",
+        W: "3",
+        R: "4",
+        F: "5",
+        S: "6",
+        U: "0",
     };
-    return days.split(' ').map(day => dayMap[day]);
+    return days.split(" ").map((day) => dayMap[day]);
 };
 
 const formatTime = (time) => {
     time = time.trim();
     if (time.length < 4) {
-        time = '0' + time;
+        time = "0" + time;
     }
     if (time.length === 3) {
-        time = time.substring(0, 1) + ':' + time.substring(1, 3);
+        time = time.substring(0, 1) + ":" + time.substring(1, 3);
     } else {
-        time = time.substring(0, 2) + ':' + time.substring(2, 4);
+        time = time.substring(0, 2) + ":" + time.substring(2, 4);
     }
     return time;
 };
@@ -145,8 +146,8 @@ const formatTime = (time) => {
 const formatDate = (timestamp) => {
     const date = new Date(timestamp * 1000);
     const year = date.getUTCFullYear();
-    const month = ('0' + (date.getUTCMonth() + 1)).slice(-2);
-    const day = ('0' + date.getUTCDate()).slice(-2);
+    const month = ("0" + (date.getUTCMonth() + 1)).slice(-2);
+    const day = ("0" + date.getUTCDate()).slice(-2);
     return `${year}-${month}-${day}`;
 };
 
@@ -159,5 +160,5 @@ export const addTimeBlockEvent = (block) => {
 };
 
 export const removeTimeBlockEvent = (blockId) => {
-    timeBlockEvents = timeBlockEvents.filter(block => block.id !== blockId);
+    timeBlockEvents = timeBlockEvents.filter((block) => block.id !== blockId);
 };

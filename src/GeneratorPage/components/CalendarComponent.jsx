@@ -11,6 +11,7 @@ import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 import NavigateFirstIcon from "@mui/icons-material/FirstPage";
 import NavigateLastIcon from "@mui/icons-material/LastPage";
+import BlockIcon from "@mui/icons-material/Block";
 import Box from "@mui/material/Box";
 import { useTheme } from "@mui/material/styles";
 import { useSnackbar } from "notistack";
@@ -203,7 +204,7 @@ export default function CalendarComponent({
     };
 
     const handleEventClick = (clickInfo) => {
-        if (clickInfo.event.title !== "TIME BLOCKED") {
+        if (!clickInfo.event.extendedProps.isBlocked) {
             const split = clickInfo.event.title.split(" ");
             const courseCode = split[0];
             if (split[1] !== "TUT" && split[1] !== "LAB" && split[1] !== "SEM") {
@@ -373,6 +374,44 @@ export default function CalendarComponent({
         });
     }
 
+    const renderEventContent = (eventInfo) => {
+        // Calculate the event duration in minutes
+        const startTime = eventInfo.event.start;
+        const endTime = eventInfo.event.end;
+        const eventDuration = (endTime - startTime) / (1000 * 60); // Duration in minutes
+
+        // Set the threshold for showing the time (90 minutes)
+        const minDurationToShowTime = 90;
+
+        if (eventInfo.event.extendedProps.isBlocked) {
+            return (
+                <div style={{ position: "relative", height: "100%", textAlign: "center" }}>
+                    {eventDuration >= minDurationToShowTime && (
+                        <div style={{ position: "absolute", top: "2px", left: "2px" }}>
+                            <b>{eventInfo.timeText}</b>
+                        </div>
+                    )}
+                    <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100%" }}>
+                        <span style={{ fontSize: "2rem" }}>
+                            <BlockIcon />
+                        </span>
+                    </div>
+                </div>
+            );
+        } else {
+            // Default rendering for other events
+            return (
+                <div>
+                    <b>{eventInfo.timeText}</b>
+                    <br />
+                    <span>{eventInfo.event.title}</span>
+                    <br />
+                    <span>{eventInfo.event.extendedProps.description}</span>
+                </div>
+            );
+        }
+    };
+
     return (
         <div id="Calendar">
             <Box id="calendarNavBar" style={{ backgroundColor: theme.palette.divider }}>
@@ -489,9 +528,11 @@ export default function CalendarComponent({
                         The generated schedule results are truncated because the input is too broad. Some possible
                         course sections may not be shown.
                     </DialogContentText>
-                    <DialogContentText >To ensure all results are considered pin down some courses by clicking on them to lock them in
+                    <DialogContentText>
+                        To ensure all results are considered pin down some courses by clicking on them to lock them in
                         place or block out unwanted time blocks by selecting the area on the calendar prior to adding
-                        more courses!</DialogContentText>
+                        more courses!
+                    </DialogContentText>
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleCloseTruncationDialog} color="primary">
@@ -514,7 +555,9 @@ export default function CalendarComponent({
                     <DialogContentText>
                         1. Adding a course that is not being offered in that duration.
                     </DialogContentText>
-                    <DialogContentText sx={{ mb: 2 }}>2. Adding courses that always overlap with another course.</DialogContentText>
+                    <DialogContentText sx={{ mb: 2 }}>
+                        2. Adding courses that always overlap with another course.
+                    </DialogContentText>
                     <DialogContentText>
                         Try unblocking/unpinning some components or removing the last course you have added.
                     </DialogContentText>
@@ -535,17 +578,23 @@ export default function CalendarComponent({
                 <DialogTitle id="alert-dialog-title">{"Time Block Constraint Course Overlap"}</DialogTitle>
                 <DialogContent>
                     <DialogContentText sx={{ mb: 2 }}>
-                        All available options for one or more course components conflict with your current time constraints, meaning the chosen class overlaps with your blocked time slots. Consequently, registering for this schedule will result in a class during one of your blocked time periods. Please ensure you are available for the generated timetable prior to registering.
+                        All available options for one or more course components conflict with your current time
+                        constraints, meaning the chosen class overlaps with your blocked time slots. Consequently,
+                        registering for this schedule will result in a class during one of your blocked time periods.
+                        Please ensure you are available for the generated timetable prior to registering.
                     </DialogContentText>
                     <DialogContentText sx={{ mb: 2 }}>To resolve this issue:</DialogContentText>
                     <DialogContentText sx={{ mb: 2 }}>
-                        1. Adjust your blocked time slots: Consider unblocking certain time slots to increase scheduling flexibility.
+                        1. Adjust your blocked time slots: Consider unblocking certain time slots to increase scheduling
+                        flexibility.
                     </DialogContentText>
                     <DialogContentText sx={{ mb: 2 }}>
-                        2. Choose different courses: Look for alternative classes that do not overlap with your blocked times.
+                        2. Choose different courses: Look for alternative classes that do not overlap with your blocked
+                        times.
                     </DialogContentText>
                     <DialogContentText>
-                        Please review your schedule to ensure there are no overlapping commitments during the scheduled course periods.
+                        Please review your schedule to ensure there are no overlapping commitments during the scheduled
+                        course periods.
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>
@@ -557,15 +606,3 @@ export default function CalendarComponent({
         </div>
     );
 }
-
-const renderEventContent = (eventInfo) => {
-    return (
-        <div>
-            <b>{eventInfo.timeText}</b>
-            <br />
-            <span>{eventInfo.event.title}</span>
-            <br />
-            <span>{eventInfo.event.extendedProps.description}</span>
-        </div>
-    );
-};
