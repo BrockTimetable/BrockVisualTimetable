@@ -11,6 +11,7 @@ import { addPinnedComponent, clearCoursePins, getPinnedComponents } from '../scr
 import Box from '@mui/material/Box';
 import { useSnackbar } from 'notistack';
 import MultiLineSnackbar from '../../SiteWide/components/MultiLineSnackbar';
+import ReactGA from 'react-ga4';
 
 export default function InputFormComponent({ setTimetables, setSelectedDuration, setDurations }) {
   const { enqueueSnackbar } = useSnackbar();
@@ -118,6 +119,12 @@ export default function InputFormComponent({ setTimetables, setSelectedDuration,
         });
         setSelectedDuration(durationLabel);
       }
+
+      ReactGA.event({
+        category: "Generator Event",
+        action: "Added Course",
+        label: cleanCourseCode + " D" + duration,
+      });
     } catch (error) {
       console.error('Error fetching course data:', error);
       enqueueSnackbar(<MultiLineSnackbar message='Error fetching course data.' />, { variant: 'error' });

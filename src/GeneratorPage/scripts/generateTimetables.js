@@ -33,6 +33,7 @@ import { getCourseData } from "./courseData";
 import { getTimeSlots } from "./timeSlots";
 import { getPinnedComponents } from "./pinnedComponents";
 import eventBus from "../../SiteWide/Buses/eventBus";
+import ReactGA from 'react-ga4';
 
 let validTimetables = [];
 const maxComboThreshold = 50000; // Maximum number of possible combinations that can be generated. (Around 25k seems to work well on higher-end machines but more testing needed across different device)
@@ -376,6 +377,10 @@ const generateCombinationsIteratively = (courseCombinations, maxCombinations) =>
                         "The generated schedule results are truncated! Click the yellow '!' icon for more information!",
                     variant: "warning",
                 });
+                ReactGA.event({
+                    category: "Generator Event",
+                    action: "Truncation"
+                  });
                 return false;
             }
             eventBus.emit("truncation", false);

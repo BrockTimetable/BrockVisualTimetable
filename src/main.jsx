@@ -8,7 +8,7 @@ import CustomSnackbarProvider from './SiteWide/components/SnackbarProvider';
 import ReactGA from 'react-ga4';
 
 const App = () => {
-  ReactGA.initialize('G-B7CXZY0751');
+  ReactGA.initialize('G-M2NP1M6YSK');
   const [mode, setMode] = useState('light');
 
   const colorMode = useMemo(() => ({

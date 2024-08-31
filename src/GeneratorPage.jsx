@@ -8,7 +8,7 @@ import ChangelogDialogComponent from "./GeneratorPage/components/ChangelogDialog
 import ReactGA from 'react-ga4';
 
 function GeneratorPage() {
-    ReactGA.send({ hitType: 'pageview', page: "/", title: "Brock Visual TimeTable" });
+    ReactGA.send({ hitType: 'pageview', page: "Generator", title: "Brock Visual TimeTable" });
     const [timetables, setTimetables] = useState([]);
     const [selectedDuration, setSelectedDuration] = useState("");
     const [durations, setDurations] = useState([]);
