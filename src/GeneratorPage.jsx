@@ -34,8 +34,8 @@ function GeneratorPage() {
                             setDurations={setDurations}
                         />
                     </Grid>
-                    <Grid item xs={12} md={6} lg={6}>
-                        <Box sx={{ minWidth: 350 }} m={2}>
+                    <Grid item xs={12} md={6} lg={8}>
+                        <Box sx={{ minWidth: 350}} m={2}>
                             <CalendarComponent
                                 timetables={timetables}
                                 setTimetables={setTimetables}
@@ -43,15 +43,6 @@ function GeneratorPage() {
                                 setSelectedDuration={setSelectedDuration}
                                 durations={durations}
                             />
-                        </Box>
-                    </Grid>
-                    <Grid item xs={12} md={12} lg={3}>
-                        {/*
-                        NOTE: The export feature and its components will be added to this grid to 
-                        replace the temporary label once the feature is implemented.
-                        */}
-                        <Box sx={{ minWidth: 120 }} m={2}>
-                            Import/Export TimeTable Feature Coming Soon...
                         </Box>
                     </Grid>
                 </Grid>
