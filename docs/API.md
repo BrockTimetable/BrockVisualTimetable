@@ -26,11 +26,7 @@ All API requests are prefixed with the following base URL: https://api.brocktime
 #### Example Request
 
 ```
-GET https://api.brocktimetable.com/api/getNameList
-
-Headers:
-"timetableType: UG"
-"session: FW"
+curl "https://api.brocktimetable.com/api/getNameList?timetableType=UG&session=FW"
 ```
 
 #### Example Response
@@ -57,12 +53,7 @@ Headers:
 #### Example Request
 
 ```
-GET https://api.brocktimetable.com/api/getCourse
-
-Headers:
-"courseCode: COSC1P02"
-"timetableType: UG"
-"session: FW"
+curl "https://api.brocktimetable.com/api/getCourse?courseCode=COSC1P02&timetableType=UG&session=FW"
 ```
 
 #### Example Response
@@ -116,4 +107,29 @@ Headers:
   "seminars": []
 }
 
+```
+### 3. Get Date of Data Update
+
+**Endpoint:** `GET /api/getNameList`
+
+**Description:** Retrieves a timestamp of when the data for the timetable & session was last updated.
+
+#### Request
+
+- **Method:** `GET`
+- **URL:** `/api/dataAge`
+- **Headers:**
+  - `timetableType: <timeTableType>`
+  - `session: <session>`
+
+#### Example Request
+
+```
+curl "https://api.brocktimetable.com/api/dataAge?timetableType=UG&session=FW"
+```
+
+#### Example Response
+
+```
+{"dataAge":"9/13/2024, 10:27:00 AM"}
 ```
