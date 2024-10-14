@@ -29,11 +29,10 @@ export default function CourseListComponent({ course, courseDetail, removeCourse
     return (
         <Box>
             <ListItemButton
-                //onClick={() => onRemoveCourse(course)}
                 onClick={handleClick}
                 style={{ backgroundColor: theme.palette.divider }}
             >
-                <ListItemText primary={course} />
+                <ListItemText primary={course} style={{ textTransform: 'uppercase' }} />
                 <IconButton edge={false} aria-label="delete" onClick={handleRemoveClick}>
                     <DeleteIcon />
                 </IconButton>
@@ -61,4 +60,3 @@ export default function CourseListComponent({ course, courseDetail, removeCourse
         </Box>
     );
 }
-

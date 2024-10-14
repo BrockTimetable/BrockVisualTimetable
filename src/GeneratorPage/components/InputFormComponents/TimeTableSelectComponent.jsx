@@ -14,7 +14,6 @@ export default function TimetableSelectComponent({ onTableChange }) {
   function handleTermChange(event) {
     const selectedTimetable = event.target.value;
     setTimetable(selectedTimetable);
-
     onTableChange(selectedTimetable);
   }
 

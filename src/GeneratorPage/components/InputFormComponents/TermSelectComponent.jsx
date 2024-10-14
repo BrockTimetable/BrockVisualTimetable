@@ -13,7 +13,6 @@ export default function TermSelectComponent({ onTermChange }) {
   function handleTermChange(event) {
     const selectedTerm = event.target.value;
     setTerm(selectedTerm);
-
     onTermChange(selectedTerm);
   }
 

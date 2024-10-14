@@ -24,6 +24,6 @@ export const removePinnedComponent = (component) => {
 };
 
 export const clearCoursePins = (prefix) => {
-    const toRemove = getPinnedComponents().filter(component => component.startsWith(prefix));
-    toRemove.forEach(component => removePinnedComponent(component));
+    const componentsToRemove = pinnedComponents.filter(component => component.startsWith(prefix));
+    componentsToRemove.forEach(removePinnedComponent);
 };

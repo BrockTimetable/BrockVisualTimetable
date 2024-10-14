@@ -20,12 +20,16 @@ const replaceSectionId = (sections) => {
   });
 };
 
-export const storeCourseData = (course) => {
-  const { courseCode, sections, labs, tutorials, seminars } = course;
-
+const initializeCourseData = (courseCode) => {
   if (!courseData[courseCode]) {
     courseData[courseCode] = { sections: [], labs: [], tutorials: [], seminars: [] };
   }
+};
+
+export const storeCourseData = (course) => {
+  const { courseCode, sections, labs, tutorials, seminars } = course;
+
+  initializeCourseData(courseCode);
 
   courseData[courseCode].courseCode = courseCode;
   courseData[courseCode].sections.push(...sections);
@@ -38,6 +42,6 @@ export const storeCourseData = (course) => {
 export const getCourseData = () => courseData;
 
 export const removeCourseData = (courseCode) => {
-  courseCode = courseCode.replace(" ", "");
-  delete courseData[courseCode];
+  const sanitizedCourseCode = courseCode.replace(" ", "");
+  delete courseData[sanitizedCourseCode];
 };

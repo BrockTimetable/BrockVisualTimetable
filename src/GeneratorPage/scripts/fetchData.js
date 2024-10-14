@@ -1,32 +1,21 @@
 import axios from 'axios';
 
-export const getCourse = async (courseCode, timetableType, session) => {
+const API_BASE_URL = 'https://api.brocktimetable.com/api';
+
+const fetchData = async (endpoint, params) => {
   try {
-    const response = await axios.get('https://api.brocktimetable.com/api/getCourse', {
-      params: {
-        courseCode,
-        timetableType,
-        session,
-      },
-    });
+    const response = await axios.get(`${API_BASE_URL}/${endpoint}`, { params });
     return response.data;
   } catch (error) {
-    console.error('Error fetching course:', error);
+    console.error(`Error fetching data from ${endpoint}:`, error);
     throw error;
   }
 };
 
-export const getNameList = async (timetableType, session) => {
-  try {
-    const response = await axios.get('https://api.brocktimetable.com/api/getNameList', {
-      params: {
-        timetableType,
-        session,
-      },
-    });
-    return response.data;
-  } catch (error) {
-    console.error('Error fetching name list:', error);
-    throw error;
-  }
+export const getCourse = (courseCode, timetableType, session) => {
+  return fetchData('getCourse', { courseCode, timetableType, session });
+};
+
+export const getNameList = (timetableType, session) => {
+  return fetchData('getNameList', { timetableType, session });
 };

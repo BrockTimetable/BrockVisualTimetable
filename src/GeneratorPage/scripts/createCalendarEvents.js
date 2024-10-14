@@ -18,33 +18,35 @@ export const createCalendarEvents = (timetable, getDaysOfWeek) => {
         return uniqueId;
     };
 
-    const addAllDayEvent = (course, component, color = "default") => {
+    const createEvent = (course, component, color, isAllDay) => {
         const uniqueId = getUniqueId(component.id);
-        newEvents.push({
+        const event = {
             id: uniqueId,
             title: `${course.courseCode} ${component.type} ${component.sectionNumber} ${component.pinned ? "📌" : ""}`,
-            daysOfWeek: getDaysOfWeek("M T W R F"),
-            allDay: true,
+            daysOfWeek: getDaysOfWeek(component.schedule.days || "M T W R F"),
             startRecur: formatDate(component.schedule.startDate),
             endRecur: formatDate(component.schedule.endDate),
             description: component.instructor,
             color: color,
-        });
+        };
+
+        if (isAllDay) {
+            event.allDay = true;
+        } else {
+            const [startTime, endTime] = component.schedule.time.split("-");
+            event.startTime = formatTime(startTime);
+            event.endTime = formatTime(endTime);
+        }
+
+        newEvents.push(event);
+    };
+
+    const addAllDayEvent = (course, component, color = "default") => {
+        createEvent(course, component, color, true);
     };
 
     const addTimedEvent = (course, component, color = "default") => {
-        const uniqueId = getUniqueId(component.id);
-        newEvents.push({
-            id: uniqueId,
-            title: `${course.courseCode} ${component.type} ${component.sectionNumber} ${component.pinned ? "📌" : ""}`,
-            daysOfWeek: getDaysOfWeek(component.schedule.days),
-            startTime: formatTime(component.schedule.time.split("-")[0]),
-            endTime: formatTime(component.schedule.time.split("-")[1]),
-            startRecur: formatDate(component.schedule.startDate),
-            endRecur: formatDate(component.schedule.endDate),
-            description: component.instructor,
-            color: color,
-        });
+        createEvent(course, component, color, false);
     };
 
     const addTimeBlockEvent = (block) => {
@@ -62,20 +64,15 @@ export const createCalendarEvents = (timetable, getDaysOfWeek) => {
         });
     };
 
-    timeBlockEvents.forEach((block) => {
-        addTimeBlockEvent(block);
-    });
+    timeBlockEvents.forEach(addTimeBlockEvent);
 
-    if (!timetable) {
-        return newEvents;
-    }
-
-    if (!timetable.courses) {
+    if (!timetable || !timetable.courses) {
         return newEvents;
     }
 
     timetable.courses.forEach((course) => {
-        const mainComponents = course.mainComponents;
+        const { mainComponents, secondaryComponents } = course;
+
         if (mainComponents) {
             mainComponents.forEach((mainComponent) => {
                 /*
@@ -90,26 +87,31 @@ export const createCalendarEvents = (timetable, getDaysOfWeek) => {
             });
         }
 
-        const secondaryComponents = course.secondaryComponents;
-        if (secondaryComponents.lab) {
-            if (!secondaryComponents.lab.schedule.time) {
-                addAllDayEvent(course, secondaryComponents.lab, "green");
-            } else {
-                addTimedEvent(course, secondaryComponents.lab, "green");
+        if (secondaryComponents) {
+            const { lab, tutorial, seminar } = secondaryComponents;
+
+            if (lab) {
+                if (!lab.schedule.time) {
+                    addAllDayEvent(course, lab, "green");
+                } else {
+                    addTimedEvent(course, lab, "green");
+                }
             }
-        }
-        if (secondaryComponents.tutorial) {
-            if (!secondaryComponents.tutorial.schedule.time) {
-                addAllDayEvent(course, secondaryComponents.tutorial, "red");
-            } else {
-                addTimedEvent(course, secondaryComponents.tutorial, "red");
+
+            if (tutorial) {
+                if (!tutorial.schedule.time) {
+                    addAllDayEvent(course, tutorial, "red");
+                } else {
+                    addTimedEvent(course, tutorial, "red");
+                }
             }
-        }
-        if (secondaryComponents.seminar) {
-            if (!secondaryComponents.seminar.schedule.time) {
-                addAllDayEvent(course, secondaryComponents.seminar, "#ABBD39");
-            } else {
-                addTimedEvent(course, secondaryComponents.seminar, "#ABBD39");
+
+            if (seminar) {
+                if (!seminar.schedule.time) {
+                    addAllDayEvent(course, seminar, "#ABBD39");
+                } else {
+                    addTimedEvent(course, seminar, "#ABBD39");
+                }
             }
         }
     });
