@@ -7,7 +7,15 @@ import Autocomplete, { createFilterOptions } from '@mui/material/Autocomplete';
 import FormHelperText from '@mui/material/FormHelperText';
 import ListSubheader from '@mui/material/ListSubheader';
 
-export default function CourseSearchComponent({ onCourseCodeChange, courseOptions, onEnterPress }) {
+export default function CourseSearchComponent({
+  onCourseCodeChange,
+  courseOptions,
+  onEnterPress,
+  timetableType,
+  term,
+  inputValue,
+  setInputValue
+}) {
 
   const courseCodeChangeHandler = (e, newValue) => {
     onCourseCodeChange(e, newValue);
@@ -24,7 +32,11 @@ export default function CourseSearchComponent({ onCourseCodeChange, courseOption
       <Autocomplete
         disablePortal
         freeSolo
-        onInputChange={courseCodeChangeHandler}
+        onInputChange={(event, newInputValue) => {
+          setInputValue(newInputValue);
+          courseCodeChangeHandler(event, newInputValue);
+        }}
+        inputValue={inputValue}
         options={courseOptions}
         sx={{ width: 250 }}
         filterOptions={filterOptions}

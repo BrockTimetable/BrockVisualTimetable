@@ -19,6 +19,7 @@ export default function InputFormComponent({ setTimetables, setSelectedDuration,
 	const { enqueueSnackbar } = useSnackbar();
 	const [term, setTerm] = useState('NOVALUE');
 	const [courseCode, setCourseCode] = useState('');
+	const [courseInputValue, setCourseInputValue] = useState('');
 	const [timetableType, setTimetableType] = useState('NOVALUE');
 	const [addedCourses, setAddedCourses] = useState([]);
 	const [courseOptions, setCourseOptions] = useState([]);
@@ -41,7 +42,10 @@ export default function InputFormComponent({ setTimetables, setSelectedDuration,
 
 	const handleTableChange = (selectedTable) => setTimetableType(selectedTable);
 	const handleTermChange = (selectedTerm) => setTerm(selectedTerm);
-	const handleCourseCodeChange = (e, value) => setCourseCode(value.toUpperCase());
+	const handleCourseCodeChange = (e, value) => {
+		setCourseCode(value.toUpperCase());
+		setCourseInputValue(value);
+	};
 
 	const addCourse = async () => {
 		if (!validateInputs()) return;
@@ -62,6 +66,7 @@ export default function InputFormComponent({ setTimetables, setSelectedDuration,
 		try {
 			const courseData = await getCourse(cleanCourseCode, timetableType, term);
 			handleCourseData(courseData, cleanCourseCode, duration);
+			setCourseInputValue(''); // Clear the input value
 		} catch (error) {
 			console.error('Error fetching course data:', error);
 			enqueueSnackbar(<MultiLineSnackbar message='Error fetching course data.' />, { variant: 'error' });
@@ -90,8 +95,9 @@ export default function InputFormComponent({ setTimetables, setSelectedDuration,
 	};
 
 	const isValidCourseCode = (code) => {
-		const split = code.split(" ");
-		return split.length === 3 && split[2].includes("D");
+		const regex = /^[A-Z]{4} \d[A-Z]\d{2} D\d+$/;
+		console.log(regex.test(code));
+		return regex.test(code);
 	};
 
 	const parseCourseCode = (code) => {
@@ -167,6 +173,8 @@ export default function InputFormComponent({ setTimetables, setSelectedDuration,
 				timetableType={timetableType}
 				term={term}
 				onEnterPress={addCourse}
+				inputValue={courseInputValue}
+				setInputValue={setCourseInputValue}
 			/>
 			<AddButtonComponent onAddCourse={addCourse} />
 			<CourseListComponent courses={addedCourses} onRemoveCourse={removeCourse} />
