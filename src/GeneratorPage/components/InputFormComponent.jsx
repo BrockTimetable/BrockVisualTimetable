@@ -96,7 +96,6 @@ export default function InputFormComponent({ setTimetables, setSelectedDuration,
 
 	const isValidCourseCode = (code) => {
 		const regex = /^[A-Z]{4} \d[A-Z]\d{2} D\d+$/;
-		console.log(regex.test(code));
 		return regex.test(code);
 	};
 
