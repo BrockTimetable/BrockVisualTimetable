@@ -9,6 +9,7 @@ import TimeTableSelectComponent from './InputFormComponents/TimeTableSelectCompo
 import AddButtonComponent from './InputFormComponents/AddButtonComponent';
 import CourseListComponent from './InputFormComponents/CourseListComponent';
 import MultiLineSnackbar from '../../SiteWide/components/MultiLineSnackbar';
+import SortCheckbox from './InputFormComponents/SortCheckbox';
 
 import { storeCourseData, removeCourseData } from '../scripts/courseData';
 import { getCourse, getNameList } from '../scripts/fetchData';
@@ -23,6 +24,7 @@ export default function InputFormComponent({ setTimetables, setSelectedDuration,
 	const [timetableType, setTimetableType] = useState('NOVALUE');
 	const [addedCourses, setAddedCourses] = useState([]);
 	const [courseOptions, setCourseOptions] = useState([]);
+	const [sortByWaitingTime, setSortByWaitingTime] = useState(true);
 	let requestBlock = false;
 
 	useEffect(() => {
@@ -114,7 +116,7 @@ export default function InputFormComponent({ setTimetables, setSelectedDuration,
 		storeCourseData(courseData);
 		setAddedCourses([...addedCourses, courseCode]);
 		addPinnedComponent(`${cleanCourseCode} DURATION ${duration}`);
-		generateTimetables();
+		generateTimetables(sortByWaitingTime);
 		setTimetables(getValidTimetables());
 
 		const { durationStartDate, durationEndDate } = getDurationDates(courseData, duration);
@@ -158,7 +160,13 @@ export default function InputFormComponent({ setTimetables, setSelectedDuration,
 		setAddedCourses(addedCourses.filter(c => c !== course));
 		removeCourseData(cleanCourseCode);
 		clearCoursePins(cleanCourseCode);
-		generateTimetables();
+		generateTimetables(sortByWaitingTime);
+		setTimetables(getValidTimetables());
+	};
+
+	const handleSortChange = (e) => {
+		setSortByWaitingTime(e.target.checked);
+		generateTimetables(e.target.checked);
 		setTimetables(getValidTimetables());
 	};
 
@@ -176,6 +184,7 @@ export default function InputFormComponent({ setTimetables, setSelectedDuration,
 				setInputValue={setCourseInputValue}
 			/>
 			<AddButtonComponent onAddCourse={addCourse} />
+			<SortCheckbox checked={sortByWaitingTime} onChange={handleSortChange} />
 			<CourseListComponent courses={addedCourses} onRemoveCourse={removeCourse} />
 		</Box>
 	);

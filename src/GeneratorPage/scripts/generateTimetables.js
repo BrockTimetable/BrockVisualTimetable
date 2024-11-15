@@ -40,8 +40,8 @@ let timeslotOverridden = false;
 
 const timeToSlot = (time) => {
     const [hours, minutes] = time.length === 3
-        ? [parseInt(time[0]), time[1] === "3" ? 30 : 0]
-        : [parseInt(time.slice(0, 2)), time[2] === "3" ? 30 : 0];
+        ? [parseInt(time[0]), parseInt(time[1] + "0")]
+        : [parseInt(time.slice(0, 2)), parseInt(time.slice(2))];
     return (hours - 8) * 2 + (minutes === 30 ? 1 : 0);
 };
 
@@ -350,7 +350,42 @@ const generateCombinationsIteratively = (courseCombinations, maxCombinations) =>
     return results;
 };
 
-export const generateTimetables = () => {
+const calculateWaitingTime = (timetable) => {
+    let totalWaitingTime = 0;
+    const daySlots = {};
+
+    timetable.forEach(course => {
+        const components = [
+            ...course.mainComponents,
+            course.secondaryComponents.lab,
+            course.secondaryComponents.tutorial,
+            course.secondaryComponents.seminar,
+        ].filter(Boolean);
+
+        components.forEach(component => {
+            const { days, time } = component.schedule;
+            if (!time || /[a-zA-Z]/.test(time)) return;
+            const [startSlot, endSlot] = time.split("-").map(t => timeToSlot(t.trim()));
+            const daysArray = days.split(" ").filter(day => day);
+
+            daysArray.forEach(day => {
+                if (!daySlots[day]) daySlots[day] = [];
+                daySlots[day].push({ startSlot, endSlot });
+            });
+        });
+    });
+
+    Object.values(daySlots).forEach(slots => {
+        slots.sort((a, b) => a.startSlot - b.startSlot);
+        for (let i = 1; i < slots.length; i++) {
+            totalWaitingTime += (slots[i].startSlot - slots[i - 1].endSlot) * 30; // Convert slots to minutes
+        }
+    });
+
+    return totalWaitingTime;
+};
+
+export const generateTimetables = (sortByWaitingTimeParam) => {
     eventBus.emit("overridden", false);
     timeslotOverridden = false;
     validTimetables = [];
@@ -372,6 +407,13 @@ export const generateTimetables = () => {
             validTimetables.push({ courses: timetable });
         }
     });
+
+    if (sortByWaitingTimeParam) {
+        validTimetables.sort((a, b) => calculateWaitingTime(a.courses) - calculateWaitingTime(b.courses));
+        /*validTimetables.forEach((timetable, index) => {
+            console.log(`Timetable ${index + 1}: Waiting Time = ${calculateWaitingTime(timetable.courses)} minutes`);
+        });*/
+    }
 
     if (timeslotOverridden) {
         eventBus.emit("overridden", true);
