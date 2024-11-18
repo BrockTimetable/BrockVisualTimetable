@@ -47,6 +47,7 @@ export default function CalendarComponent({
     selectedDuration,
     setSelectedDuration,
     durations,
+    sortOption
 }) {
     const { enqueueSnackbar } = useSnackbar();
     const calendarRef = React.useRef(null);
@@ -250,7 +251,7 @@ export default function CalendarComponent({
             }
         }
         setCurrentTimetableIndex(0);
-        generateTimetables();
+        generateTimetables(sortOption);
         setTimetables(getValidTimetables());
     };
 
@@ -337,7 +338,7 @@ export default function CalendarComponent({
             addTimeBlockEvent(block);
         }
         setCurrentTimetableIndex(0);
-        generateTimetables();
+        generateTimetables(sortOption);
         setTimetables(getValidTimetables());
     };
 

@@ -16,7 +16,7 @@ import { getCourse, getNameList } from '../scripts/fetchData';
 import { generateTimetables, getValidTimetables } from '../scripts/generateTimetables';
 import { addPinnedComponent, clearCoursePins } from '../scripts/pinnedComponents';
 
-export default function InputFormComponent({ setTimetables, setSelectedDuration, setDurations }) {
+export default function InputFormComponent({ setTimetables, setSelectedDuration, setDurations, setSortOption }) {
 	const { enqueueSnackbar } = useSnackbar();
 	const [term, setTerm] = useState('NOVALUE');
 	const [courseCode, setCourseCode] = useState('');
@@ -24,7 +24,7 @@ export default function InputFormComponent({ setTimetables, setSelectedDuration,
 	const [timetableType, setTimetableType] = useState('NOVALUE');
 	const [addedCourses, setAddedCourses] = useState([]);
 	const [courseOptions, setCourseOptions] = useState([]);
-	const [sortOption, setSortOption] = useState('NOVALUE');
+	const [sortChoice, setSortChoice] = useState('NOVALUE');
 	let requestBlock = false;
 
 	useEffect(() => {
@@ -116,7 +116,7 @@ export default function InputFormComponent({ setTimetables, setSelectedDuration,
 		storeCourseData(courseData);
 		setAddedCourses([...addedCourses, courseCode]);
 		addPinnedComponent(`${cleanCourseCode} DURATION ${duration}`);
-		generateTimetables(sortOption);
+		generateTimetables(sortChoice);
 		setTimetables(getValidTimetables());
 
 		const { durationStartDate, durationEndDate } = getDurationDates(courseData, duration);
@@ -160,12 +160,13 @@ export default function InputFormComponent({ setTimetables, setSelectedDuration,
 		setAddedCourses(addedCourses.filter(c => c !== course));
 		removeCourseData(cleanCourseCode);
 		clearCoursePins(cleanCourseCode);
-		generateTimetables(sortOption);
+		generateTimetables(sortChoice);
 		setTimetables(getValidTimetables());
 	};
 
 	const handleSortChange = (e) => {
-		setSortOption(e.target.value);
+		setSortChoice(e.target.value);
+		setSortOption(e.target.value); // Add this line to update the sortOption state
 		generateTimetables(e.target.value);
 		setTimetables(getValidTimetables());
 	};
@@ -184,7 +185,7 @@ export default function InputFormComponent({ setTimetables, setSelectedDuration,
 				setInputValue={setCourseInputValue}
 			/>
 			<AddButtonComponent onAddCourse={addCourse} />
-			<SortDropdown value={sortOption} onChange={handleSortChange} />
+			<SortDropdown value={sortChoice} onChange={handleSortChange} />
 			<CourseListComponent courses={addedCourses} onRemoveCourse={removeCourse} />
 		</Box>
 	);
