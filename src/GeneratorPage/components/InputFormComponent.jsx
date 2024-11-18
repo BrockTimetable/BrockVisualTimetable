@@ -9,7 +9,7 @@ import TimeTableSelectComponent from './InputFormComponents/TimeTableSelectCompo
 import AddButtonComponent from './InputFormComponents/AddButtonComponent';
 import CourseListComponent from './InputFormComponents/CourseListComponent';
 import MultiLineSnackbar from '../../SiteWide/components/MultiLineSnackbar';
-import SortCheckbox from './InputFormComponents/SortCheckbox';
+import SortDropdown from './InputFormComponents/SortDropdown';
 
 import { storeCourseData, removeCourseData } from '../scripts/courseData';
 import { getCourse, getNameList } from '../scripts/fetchData';
@@ -24,7 +24,7 @@ export default function InputFormComponent({ setTimetables, setSelectedDuration,
 	const [timetableType, setTimetableType] = useState('NOVALUE');
 	const [addedCourses, setAddedCourses] = useState([]);
 	const [courseOptions, setCourseOptions] = useState([]);
-	const [sortByWaitingTime, setSortByWaitingTime] = useState(true);
+	const [sortOption, setSortOption] = useState('NOVALUE');
 	let requestBlock = false;
 
 	useEffect(() => {
@@ -116,7 +116,7 @@ export default function InputFormComponent({ setTimetables, setSelectedDuration,
 		storeCourseData(courseData);
 		setAddedCourses([...addedCourses, courseCode]);
 		addPinnedComponent(`${cleanCourseCode} DURATION ${duration}`);
-		generateTimetables(sortByWaitingTime);
+		generateTimetables(sortOption);
 		setTimetables(getValidTimetables());
 
 		const { durationStartDate, durationEndDate } = getDurationDates(courseData, duration);
@@ -160,13 +160,13 @@ export default function InputFormComponent({ setTimetables, setSelectedDuration,
 		setAddedCourses(addedCourses.filter(c => c !== course));
 		removeCourseData(cleanCourseCode);
 		clearCoursePins(cleanCourseCode);
-		generateTimetables(sortByWaitingTime);
+		generateTimetables(sortOption);
 		setTimetables(getValidTimetables());
 	};
 
 	const handleSortChange = (e) => {
-		setSortByWaitingTime(e.target.checked);
-		generateTimetables(e.target.checked);
+		setSortOption(e.target.value);
+		generateTimetables(e.target.value);
 		setTimetables(getValidTimetables());
 	};
 
@@ -184,7 +184,7 @@ export default function InputFormComponent({ setTimetables, setSelectedDuration,
 				setInputValue={setCourseInputValue}
 			/>
 			<AddButtonComponent onAddCourse={addCourse} />
-			<SortCheckbox checked={sortByWaitingTime} onChange={handleSortChange} />
+			<SortDropdown value={sortOption} onChange={handleSortChange} />
 			<CourseListComponent courses={addedCourses} onRemoveCourse={removeCourse} />
 		</Box>
 	);

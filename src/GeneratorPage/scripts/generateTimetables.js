@@ -32,16 +32,17 @@ import { getCourseData } from "./courseData";
 import { getTimeSlots } from "./timeSlots";
 import { getPinnedComponents } from "./pinnedComponents";
 import eventBus from "../../SiteWide/Buses/eventBus";
-import ReactGA from 'react-ga4';
+import ReactGA from "react-ga4";
 
 let validTimetables = [];
 const maxComboThreshold = 50000; // Maximum number of possible combinations that can be generated.
 let timeslotOverridden = false;
 
 const timeToSlot = (time) => {
-    const [hours, minutes] = time.length === 3
-        ? [parseInt(time[0]), parseInt(time[1] + "0")]
-        : [parseInt(time.slice(0, 2)), parseInt(time.slice(2))];
+    const [hours, minutes] =
+        time.length === 3
+            ? [parseInt(time[0]), parseInt(time[1] + "0")]
+            : [parseInt(time.slice(0, 2)), parseInt(time.slice(2))];
     return (hours - 8) * 2 + (minutes === 30 ? 1 : 0);
 };
 
@@ -56,7 +57,7 @@ const filterComponentsAgainstTimeSlots = (components, timeSlots) => {
     const calculateBlockedPercentage = (component) => {
         const { days, time } = component.schedule;
         if (!time) return 0;
-        const [startSlot, endSlot] = time.split("-").map(t => timeToSlot(t.trim()));
+        const [startSlot, endSlot] = time.split("-").map((t) => timeToSlot(t.trim()));
         const daysArray = days.replace(/\s/g, "").split("");
         const totalSlots = (endSlot - startSlot) * daysArray.length;
 
@@ -86,7 +87,7 @@ const filterComponentsAgainstTimeSlots = (components, timeSlots) => {
         for (const component of group) {
             const { days, time } = component.schedule;
             if (!time || /[a-zA-Z]/.test(time)) continue;
-            const [startSlot, endSlot] = time.split("-").map(t => timeToSlot(t.trim()));
+            const [startSlot, endSlot] = time.split("-").map((t) => timeToSlot(t.trim()));
             const daysArray = days.replace(/\s/g, "").split("");
 
             for (let day of daysArray) {
@@ -126,7 +127,8 @@ const cartesianProduct = (arrays, limit) => {
                 if (temp.length >= limit) {
                     eventBus.emit("truncation", true);
                     eventBus.emit("snackbar", {
-                        message: "The generated schedule results are truncated because the input is too broad. To ensure all results are considered pin down some courses!",
+                        message:
+                            "The generated schedule results are truncated because the input is too broad. To ensure all results are considered pin down some courses!",
                         variant: "warning",
                     });
                     return temp;
@@ -139,18 +141,18 @@ const cartesianProduct = (arrays, limit) => {
 };
 
 const filterPinned = (components, courseCode, componentType) => {
-    components.forEach(component => component.pinned = false);
+    components.forEach((component) => (component.pinned = false));
 
     const pinnedComponents = getPinnedComponents();
-    const coursePinnedComponents = pinnedComponents.filter(p => {
+    const coursePinnedComponents = pinnedComponents.filter((p) => {
         const [course, type] = p.split(" ");
         return course === courseCode && type === componentType;
     });
 
     if (!coursePinnedComponents.length) return components;
 
-    return components.filter(component => {
-        return coursePinnedComponents.some(pinned => {
+    return components.filter((component) => {
+        return coursePinnedComponents.some((pinned) => {
             const [, , id] = pinned.split(" ");
             if (component.id === id) {
                 component.pinned = true;
@@ -162,13 +164,13 @@ const filterPinned = (components, courseCode, componentType) => {
 };
 
 const filterByDuration = (components, duration) => {
-    return components.filter(component => component.schedule.duration === duration);
+    return components.filter((component) => component.schedule.duration === duration);
 };
 
 const generateSingleCourseCombinations = (course, timeSlots) => {
     const pinnedComponents = getPinnedComponents();
 
-    const durationFilter = pinnedComponents.find(p => {
+    const durationFilter = pinnedComponents.find((p) => {
         const [pinnedCourse, type, value] = p.split(" ");
         return pinnedCourse === course.courseCode && type === "DURATION";
     });
@@ -182,12 +184,14 @@ const generateSingleCourseCombinations = (course, timeSlots) => {
     validMainComponents = filterComponentsAgainstTimeSlots(validMainComponents, timeSlots);
     validMainComponents = filterPinned(validMainComponents, course.courseCode, "MAIN");
 
-    const groupedMainComponents = Object.values(validMainComponents.reduce((acc, component) => {
-        const groupId = component.id;
-        if (!acc[groupId]) acc[groupId] = [];
-        acc[groupId].push(component);
-        return acc;
-    }, {}));
+    const groupedMainComponents = Object.values(
+        validMainComponents.reduce((acc, component) => {
+            const groupId = component.id;
+            if (!acc[groupId]) acc[groupId] = [];
+            acc[groupId].push(component);
+            return acc;
+        }, {})
+    );
 
     const validLabs = filterPinned(
         filterComponentsAgainstTimeSlots(
@@ -218,7 +222,7 @@ const generateSingleCourseCombinations = (course, timeSlots) => {
 
     const singleCourseCombinations = [];
 
-    groupedMainComponents.forEach(mainComponentGroup => {
+    groupedMainComponents.forEach((mainComponentGroup) => {
         const mainComponentDuration = mainComponentGroup[0].schedule.duration;
         const isOnlyMainSection = validMainComponents.length === 1;
 
@@ -232,27 +236,35 @@ const generateSingleCourseCombinations = (course, timeSlots) => {
         */
 
         const validLabsForMainComponent = validLabs.filter(
-            lab => lab.schedule.duration === mainComponentDuration &&
-                (isOnlyMainSection && mainComponentGroup[0].id !== "0" || lab.id.charAt(3) === mainComponentGroup[0].id.charAt(3))
+            (lab) =>
+                lab.schedule.duration === mainComponentDuration &&
+                ((isOnlyMainSection && mainComponentGroup[0].id !== "0") ||
+                    lab.id.charAt(3) === mainComponentGroup[0].id.charAt(3))
         );
 
         const validTutorialsForMainComponent = validTutorials.filter(
-            tutorial => tutorial.schedule.duration === mainComponentDuration &&
-                (isOnlyMainSection && mainComponentGroup[0].id !== "0" || tutorial.id.charAt(3) === mainComponentGroup[0].id.charAt(3))
+            (tutorial) =>
+                tutorial.schedule.duration === mainComponentDuration &&
+                ((isOnlyMainSection && mainComponentGroup[0].id !== "0") ||
+                    tutorial.id.charAt(3) === mainComponentGroup[0].id.charAt(3))
         );
 
         const validSeminarsForMainComponent = validSeminars.filter(
-            seminar => seminar.schedule.duration === mainComponentDuration &&
-                (isOnlyMainSection && mainComponentGroup[0].id !== "0" || seminar.id.charAt(3) === mainComponentGroup[0].id.charAt(3))
+            (seminar) =>
+                seminar.schedule.duration === mainComponentDuration &&
+                ((isOnlyMainSection && mainComponentGroup[0].id !== "0") ||
+                    seminar.id.charAt(3) === mainComponentGroup[0].id.charAt(3))
         );
 
-        const pinnedLab = pinnedComponents.find(p => p.includes("LAB") && p.split(" ")[0] === course.courseCode);
-        const pinnedTut = pinnedComponents.find(p => p.includes("TUT") && p.split(" ")[0] === course.courseCode);
-        const pinnedSem = pinnedComponents.find(p => p.includes("SEM") && p.split(" ")[0] === course.courseCode);
+        const pinnedLab = pinnedComponents.find((p) => p.includes("LAB") && p.split(" ")[0] === course.courseCode);
+        const pinnedTut = pinnedComponents.find((p) => p.includes("TUT") && p.split(" ")[0] === course.courseCode);
+        const pinnedSem = pinnedComponents.find((p) => p.includes("SEM") && p.split(" ")[0] === course.courseCode);
 
-        const isLabValid = !pinnedLab || validLabsForMainComponent.some(lab => lab.id === pinnedLab.split(" ")[2]);
-        const isTutValid = !pinnedTut || validTutorialsForMainComponent.some(tut => tut.id === pinnedTut.split(" ")[2]);
-        const isSemValid = !pinnedSem || validSeminarsForMainComponent.some(sem => sem.id === pinnedSem.split(" ")[2]);
+        const isLabValid = !pinnedLab || validLabsForMainComponent.some((lab) => lab.id === pinnedLab.split(" ")[2]);
+        const isTutValid =
+            !pinnedTut || validTutorialsForMainComponent.some((tut) => tut.id === pinnedTut.split(" ")[2]);
+        const isSemValid =
+            !pinnedSem || validSeminarsForMainComponent.some((sem) => sem.id === pinnedSem.split(" ")[2]);
 
         if (!isLabValid || !isTutValid || !isSemValid) return;
 
@@ -293,19 +305,24 @@ const isTimetableValid = (timetable) => {
         for (const component of components) {
             const { days, time, startDate, endDate } = component.schedule;
             if (!time || /[a-zA-Z]/.test(time)) continue;
-            const [startSlot, endSlot] = time.split("-").map(t => timeToSlot(t.trim()));
-            const daysArray = days.split(" ").filter(day => day);
+            const [startSlot, endSlot] = time.split("-").map((t) => timeToSlot(t.trim()));
+            const daysArray = days.split(" ").filter((day) => day);
 
             for (const day of daysArray) {
                 for (let i = startSlot; i < endSlot; i++) {
                     if (!occupiedSlots[day]) occupiedSlots[day] = {};
-                    for (const [existingStartDate, existingEndDate] of Object.keys(occupiedSlots[day]).map(d => d.split("-").map(Number))) {
-                        if (overlap(startDate, endDate, existingStartDate, existingEndDate) &&
-                            occupiedSlots[day][`${existingStartDate}-${existingEndDate}`].includes(i)) {
+                    for (const [existingStartDate, existingEndDate] of Object.keys(occupiedSlots[day]).map((d) =>
+                        d.split("-").map(Number)
+                    )) {
+                        if (
+                            overlap(startDate, endDate, existingStartDate, existingEndDate) &&
+                            occupiedSlots[day][`${existingStartDate}-${existingEndDate}`].includes(i)
+                        ) {
                             return false;
                         }
                     }
-                    if (!occupiedSlots[day][`${startDate}-${endDate}`]) occupiedSlots[day][`${startDate}-${endDate}`] = [];
+                    if (!occupiedSlots[day][`${startDate}-${endDate}`])
+                        occupiedSlots[day][`${startDate}-${endDate}`] = [];
                     occupiedSlots[day][`${startDate}-${endDate}`].push(i);
                 }
             }
@@ -326,12 +343,13 @@ const generateCombinationsIteratively = (courseCombinations, maxCombinations) =>
             if (count >= maxCombinations) {
                 eventBus.emit("truncation", true);
                 eventBus.emit("snackbar", {
-                    message: "The generated schedule results are truncated! Click the yellow '!' icon for more information!",
+                    message:
+                        "The generated schedule results are truncated! Click the yellow '!' icon for more information!",
                     variant: "warning",
                 });
                 ReactGA.event({
                     category: "Generator Event",
-                    action: "Truncation"
+                    action: "Truncation",
                 });
                 return false;
             }
@@ -354,7 +372,7 @@ const calculateWaitingTime = (timetable) => {
     let totalWaitingTime = 0;
     const daySlots = {};
 
-    timetable.forEach(course => {
+    timetable.forEach((course) => {
         const components = [
             ...course.mainComponents,
             course.secondaryComponents.lab,
@@ -362,20 +380,20 @@ const calculateWaitingTime = (timetable) => {
             course.secondaryComponents.seminar,
         ].filter(Boolean);
 
-        components.forEach(component => {
+        components.forEach((component) => {
             const { days, time } = component.schedule;
-            if (!time || /[a-zA-Z]/.test(time)) return;
-            const [startSlot, endSlot] = time.split("-").map(t => timeToSlot(t.trim()));
-            const daysArray = days.split(" ").filter(day => day);
+            if (!time || /[a-zA-z]/.test(time)) return;
+            const [startSlot, endSlot] = time.split("-").map((t) => timeToSlot(t.trim()));
+            const daysArray = days.split(" ").filter((day) => day);
 
-            daysArray.forEach(day => {
+            daysArray.forEach((day) => {
                 if (!daySlots[day]) daySlots[day] = [];
                 daySlots[day].push({ startSlot, endSlot });
             });
         });
     });
 
-    Object.values(daySlots).forEach(slots => {
+    Object.values(daySlots).forEach((slots) => {
         slots.sort((a, b) => a.startSlot - b.startSlot);
         for (let i = 1; i < slots.length; i++) {
             totalWaitingTime += (slots[i].startSlot - slots[i - 1].endSlot) * 30; // Convert slots to minutes
@@ -385,7 +403,29 @@ const calculateWaitingTime = (timetable) => {
     return totalWaitingTime;
 };
 
-export const generateTimetables = (sortByWaitingTimeParam) => {
+const calculateClassDays = (timetable) => {
+    const daysWithClasses = new Set();
+
+    timetable.forEach((course) => {
+        const components = [
+            ...course.mainComponents,
+            course.secondaryComponents.lab,
+            course.secondaryComponents.tutorial,
+            course.secondaryComponents.seminar,
+        ].filter(Boolean);
+
+        components.forEach((component) => {
+            const { days } = component.schedule;
+            if (!days) return;
+            const daysArray = days.split(" ").filter((day) => day);
+            daysArray.forEach((day) => daysWithClasses.add(day));
+        });
+    });
+
+    return daysWithClasses.size;
+};
+
+export const generateTimetables = (sortOption) => {
     eventBus.emit("overridden", false);
     timeslotOverridden = false;
     validTimetables = [];
@@ -393,32 +433,38 @@ export const generateTimetables = (sortByWaitingTimeParam) => {
     const courses = Object.values(courseData);
     const timeSlots = getTimeSlots();
 
-    const allCourseCombinations = courses.map(course => generateSingleCourseCombinations(course, timeSlots));
+    const allCourseCombinations = courses.map((course) => generateSingleCourseCombinations(course, timeSlots));
 
-    if (allCourseCombinations.some(combinations => combinations.length === 0)) {
+    if (allCourseCombinations.some((combinations) => combinations.length === 0)) {
         validTimetables.push({ courses: [] });
         return;
     }
 
     let allPossibleTimetables = generateCombinationsIteratively(allCourseCombinations, maxComboThreshold);
 
-    allPossibleTimetables.forEach(timetable => {
+    allPossibleTimetables.forEach((timetable) => {
         if (isTimetableValid(timetable)) {
             validTimetables.push({ courses: timetable });
         }
     });
 
-    if (sortByWaitingTimeParam) {
-        validTimetables.sort((a, b) => calculateWaitingTime(a.courses) - calculateWaitingTime(b.courses));
-        /*validTimetables.forEach((timetable, index) => {
-            console.log(`Timetable ${index + 1}: Waiting Time = ${calculateWaitingTime(timetable.courses)} minutes`);
-        });*/
+    if (sortOption === "sortByWaitingTime") {
+        validTimetables.sort((a, b) => {
+            const waitingTimeDiff = calculateWaitingTime(a.courses) - calculateWaitingTime(b.courses);
+            if (waitingTimeDiff !== 0) {
+                return waitingTimeDiff;
+            }
+            return calculateClassDays(a.courses) - calculateClassDays(b.courses);
+        });
+    } else if (sortOption === "minimizeClassDays") {
+        validTimetables.sort((a, b) => calculateClassDays(a.courses) - calculateClassDays(b.courses));
     }
 
     if (timeslotOverridden) {
         eventBus.emit("overridden", true);
         eventBus.emit("snackbar", {
-            message: "All available options for one or more course components are partially or fully blocked by your time constraints. As a result the best available option with the least time-block overlap has been selected.",
+            message:
+                "All available options for one or more course components are partially or fully blocked by your time constraints. As a result the best available option with the least time-block overlap has been selected.",
             variant: "warning",
         });
     }
