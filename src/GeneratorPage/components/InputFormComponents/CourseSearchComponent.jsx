@@ -28,17 +28,17 @@ export default function CourseSearchComponent({
   });
 
   return (
-    <Box sx={{ minWidth: 120 }} m={2}>
+    <Box>
       <Autocomplete
         disablePortal
         freeSolo
+        fullWidth
         onInputChange={(event, newInputValue) => {
           setInputValue(newInputValue);
           courseCodeChangeHandler(event, newInputValue);
         }}
         inputValue={inputValue}
         options={courseOptions}
-        sx={{ width: 250 }}
         filterOptions={filterOptions}
         groupBy={(option) => option.slice(0, 4).toUpperCase()}
         renderGroup={(params) => (
@@ -67,7 +67,6 @@ export default function CourseSearchComponent({
                 }
               }}
             />
-            <FormHelperText>Course Format Example: COSC 1P02 D2</FormHelperText>
           </>
         )}
       />

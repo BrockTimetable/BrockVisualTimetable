@@ -8,7 +8,7 @@ import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
 
 export default function TermSelectComponent({ onTermChange }) {
-  const [term, setTerm] = React.useState('');
+  const [term, setTerm] = React.useState('FW');
 
   function handleTermChange(event) {
     const selectedTerm = event.target.value;
@@ -18,15 +18,14 @@ export default function TermSelectComponent({ onTermChange }) {
 
   return (
     <>
-      <Box sx={{ minWidth: 120 }} m={2} display={'inline'}>
-        <FormControl id='termSelectComponent'>
+      <Box>
+        <FormControl id='termSelectComponent' fullWidth>
           <InputLabel id='term-select-label'>Term</InputLabel>
           <Select
             labelId='term-select-label'
             value={term}
             label="Term"
             onChange={handleTermChange}
-            sx={{ width: 125 }}
           >
             <MenuItem value={''}>Select Term</MenuItem>
             <MenuItem disabled={false} value={'FW'}>Fall/Winter</MenuItem>

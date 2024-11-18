@@ -12,6 +12,7 @@ import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 import NavigateFirstIcon from "@mui/icons-material/FirstPage";
 import NavigateLastIcon from "@mui/icons-material/LastPage";
 import BlockIcon from "@mui/icons-material/Block";
+import PinIcon from "@mui/icons-material/PushPin";
 import Box from "@mui/material/Box";
 import { useTheme } from "@mui/material/styles";
 import { useSnackbar } from "notistack";
@@ -32,6 +33,7 @@ import {
     getTimeBlockEvents,
     addTimeBlockEvent,
     removeTimeBlockEvent,
+    isEventPinned,
 } from "../scripts/createCalendarEvents";
 import { generateTimetables, getValidTimetables } from "../scripts/generateTimetables";
 import { addPinnedComponent, getPinnedComponents, removePinnedComponent } from "../scripts/pinnedComponents";
@@ -47,7 +49,7 @@ export default function CalendarComponent({
     selectedDuration,
     setSelectedDuration,
     durations,
-    sortOption
+    sortOption,
 }) {
     const { enqueueSnackbar } = useSnackbar();
     const calendarRef = React.useRef(null);
@@ -149,9 +151,6 @@ export default function CalendarComponent({
                 .filter((event) => event.description)
                 .map((event) => {
                     let titleArray = event.title.trim().split(" ");
-                    if (titleArray[titleArray.length - 1] === "📌") {
-                        titleArray.pop();
-                    }
                     return {
                         name: titleArray[0],
                         instructor: event.description,
@@ -400,21 +399,75 @@ export default function CalendarComponent({
                 </div>
             );
         } else {
-            // Default rendering for other events
+            const isPinned = isEventPinned(eventInfo.event);
+
             return (
-                <div>
-                    <b>{eventInfo.timeText}</b>
-                    <br />
-                    <span>{eventInfo.event.title}</span>
-                    <br />
-                    <span>{eventInfo.event.extendedProps.description}</span>
+                <div
+                    style={{
+                        position: "relative",
+                        backgroundColor: isPinned ? "rgba(0, 0, 0, 0.5)" : "transparent",
+                        height: "100%",
+                        padding: "2px",
+                    }}
+                >
+                    {eventDuration >= minDurationToShowTime && (
+                        <div style={{ position: "absolute", top: "2px", left: "2px" }}>
+                            <b>{eventInfo.timeText}</b>
+                        </div>
+                    )}
+                    {isPinned && (
+                        <div
+                            style={{
+                                display: "flex",
+                                justifyContent: "center",
+                                alignItems: "center",
+                                position: "absolute",
+                                top: 0,
+                                left: 0,
+                                right: 0,
+                                bottom: 0,
+                                opacity: 0.25,
+                                fontSize: "4rem",
+                            }}
+                        >
+                            <PinIcon />
+                        </div>
+                    )}
+                    <div style={{ position: "relative", zIndex: 1 }}>
+                        <b>{eventInfo.timeText}</b>
+                        <br />
+                        <span>{eventInfo.event.title}</span>
+                        <br />
+                        <span>{eventInfo.event.extendedProps.description}</span>
+                    </div>
                 </div>
             );
         }
     };
 
     return (
-        <div id="Calendar">
+        <Box
+            sx={{
+                border: "1px solid",
+                borderColor: "primary.main",
+                borderRadius: "8px",
+                padding: "16px",
+                marginBottom: "16px",
+                position: "relative",
+            }}
+        >
+            <Box
+                sx={{
+                    position: "absolute",
+                    top: "-10px",
+                    left: "10px",
+                    backgroundColor: "background.default",
+                    padding: "0 8px",
+                    color: "primary.main",
+                }}
+            >
+                Calendar
+            </Box>
             <Box id="calendarNavBar" style={{ backgroundColor: theme.palette.divider }}>
                 <Box id="infoButtonBox" marginLeft={1}>
                     {isTruncated && (
@@ -497,7 +550,7 @@ export default function CalendarComponent({
                 initialView="timeGridWeek"
                 weekends={false}
                 headerToolbar={false}
-                height={833}
+                height={838}
                 dayHeaderFormat={{ weekday: "short" }}
                 dayCellClassNames={(arg) => (arg.date.getDay() === new Date().getDay() ? "fc-day-today" : "")}
                 initialDate="2024-09-10"
@@ -604,6 +657,6 @@ export default function CalendarComponent({
                     </Button>
                 </DialogActions>
             </Dialog>
-        </div>
+        </Box>
     );
 }
