@@ -13,6 +13,8 @@ function GeneratorPage() {
     const [selectedDuration, setSelectedDuration] = useState("");
     const [durations, setDurations] = useState([]);
     const [isChangelogOpen, setIsChangelogOpen] = useState(true);
+    const [sortOption, setSortOption] = useState('NOVALUE');
+
     const handleOpenChangelog = () => {
         setIsChangelogOpen(true);
     };
@@ -32,6 +34,7 @@ function GeneratorPage() {
                             setTimetables={setTimetables}
                             setSelectedDuration={setSelectedDuration}
                             setDurations={setDurations}
+                            setSortOption={setSortOption}
                         />
                     </Grid>
                     <Grid item xs={12} md={6} lg={8}>
@@ -42,6 +45,7 @@ function GeneratorPage() {
                                 selectedDuration={selectedDuration}
                                 setSelectedDuration={setSelectedDuration}
                                 durations={durations}
+                                sortOption={sortOption}
                             />
                         </Box>
                     </Grid>
