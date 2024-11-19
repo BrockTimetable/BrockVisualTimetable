@@ -6,6 +6,7 @@ import { ThemeProvider, createTheme } from "@mui/material/styles";
 import ColorModeContext from './SiteWide/contexts/ColorModeContext';
 import CustomSnackbarProvider from './SiteWide/components/SnackbarProvider';
 import ReactGA from 'react-ga4';
+import './GeneratorPage/css/index.css';
 
 const App = () => {
   ReactGA.initialize('G-M2NP1M6YSK');

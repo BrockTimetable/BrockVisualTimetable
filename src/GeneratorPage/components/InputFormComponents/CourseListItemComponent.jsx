@@ -27,10 +27,10 @@ export default function CourseListComponent({ course, courseDetail, removeCourse
     }
 
     return (
-        <Box sx={{ mb: 1, border: `1px solid ${theme.palette.divider}`, borderRadius: 1, overflow: 'hidden' }}>
+        <Box sx={{ mb: 1, border: `1px solid ${theme.palette.divider}`, borderRadius: 1, overflow: 'hidden', transition: "border-color 0.5s ease" }}>
             <ListItemButton
                 onClick={handleClick}
-                sx={{ backgroundColor: theme.palette.background.paper }}
+                sx={{ backgroundColor: theme.palette.background.paper, transition: "background-color 0.5s ease, color 0.5s ease", }}
             >
                 <ListItemText primary={course} sx={{ textTransform: 'uppercase', fontWeight: 'bold' }} />
                 <IconButton edge="end" aria-label="delete" onClick={handleRemoveClick}>
@@ -40,8 +40,8 @@ export default function CourseListComponent({ course, courseDetail, removeCourse
                     {open ? <ExpandLess /> : <ExpandMore />}
                 </IconButton>
             </ListItemButton>
-            <Collapse in={open} timeout="auto" unmountOnExit>
-                <List component="div" disablePadding sx={{ backgroundColor: theme.palette.background.default }}>
+            <Collapse in={open} timeout="auto" unmountOnExit >
+                <List component="div" disablePadding >
                     <ListItem>
                         <ListItemText primary={courseDetail ? courseDetail.instructor : "N/A"} secondary="Course Instructor" />
                     </ListItem>
