@@ -20,16 +20,13 @@ import GitHubButton from "./InputFormComponents/GitHubButton";
 
 import CourseOptions from "./InputFormComponents/Sections/CourseOptions";
 import SortOptions from "./InputFormComponents/Sections/SortOptions";
-import CourseList from "./InputFormComponents/Sections/CourseList";
-import SourceCode from "./InputFormComponents/Sections/SourceCode";
 
-export default function InputFormComponent({ setTimetables, setSelectedDuration, setDurations, setSortOption }) {
+export default function InputFormTop({ setTimetables, setSelectedDuration, setDurations, setSortOption, addedCourses, setAddedCourses }) {
     const { enqueueSnackbar } = useSnackbar();
     const [term, setTerm] = useState("FW");
     const [courseCode, setCourseCode] = useState("");
     const [courseInputValue, setCourseInputValue] = useState("");
     const [timetableType, setTimetableType] = useState("UG");
-    const [addedCourses, setAddedCourses] = useState([]);
     const [courseOptions, setCourseOptions] = useState([]);
     const [sortChoice, setSortChoice] = useState("");
     let requestBlock = false;
@@ -168,15 +165,6 @@ export default function InputFormComponent({ setTimetables, setSelectedDuration,
         setSelectedDuration(durationLabel);
     };
 
-    const removeCourse = (course) => {
-        const cleanCourseCode = course.split(" ").slice(0, 2).join("");
-        setAddedCourses(addedCourses.filter((c) => c !== course));
-        removeCourseData(cleanCourseCode);
-        clearCoursePins(cleanCourseCode);
-        generateTimetables(sortChoice);
-        setTimetables(getValidTimetables());
-    };
-
     const handleSortChange = (e) => {
         setSortChoice(e.target.value);
         setSortOption(e.target.value);
@@ -202,12 +190,6 @@ export default function InputFormComponent({ setTimetables, setSelectedDuration,
                 </Grid>
                 <Grid item xs={12}>
                     <SortOptions sortChoice={sortChoice} handleSortChange={handleSortChange} />
-                </Grid>
-                <Grid item xs={12}>
-                    <CourseList addedCourses={addedCourses} removeCourse={removeCourse} />
-                </Grid>
-                <Grid item xs={12}>
-                    <SourceCode />
                 </Grid>
             </Grid>
         </Box>

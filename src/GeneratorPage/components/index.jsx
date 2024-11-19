@@ -4,4 +4,6 @@ export { default as CalendarComponent } from './CalendarComponent';
 
 export { default as CourseListComponent } from './InputFormComponents/CourseListComponent';
 
-export { default as InputFormComponent } from './InputFormComponent';
+export { default as InputFormTopComponent } from './InputFormTopComponent';
+
+export { default as InputFormBottomComponent } from './InputFormBottomComponent';
