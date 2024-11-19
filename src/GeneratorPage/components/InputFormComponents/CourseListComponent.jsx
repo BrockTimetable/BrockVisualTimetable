@@ -18,7 +18,7 @@ export default function CourseListComponent({ courses = [], onRemoveCourse }) {
             {courses.length === 0 && <p style={{ textAlign: "center", bgcolor: "text.primary" }}>No courses added</p>}
             {courses.length > 0 && (
                 <List
-                    sx={{ width: "100%", maxWidth: 360,  }}
+                    fullWidth
                     component="nav"
                     aria-labelledby="nested-list-subheader"
                 >

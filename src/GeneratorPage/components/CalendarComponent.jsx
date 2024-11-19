@@ -25,6 +25,10 @@ import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
+import CalendarNavBar from "./CalendarNavBar";
+import TruncationDialog from "./TruncationDialog";
+import NoTimetablesDialog from "./NoTimetablesDialog";
+import BlockedSlotsDialog from "./BlockedSlotsDialog";
 
 import "../css/Calendar.css";
 import {
@@ -474,82 +478,25 @@ export default function CalendarComponent({
                 Calendar
             </Box>
             <Box sx={{ height: "26px" }} />
-            <Box id="calendarNavBar" style={{ backgroundColor: theme.palette.divider }}>
-                <Box id="infoButtonBox" marginLeft={1}>
-                    {isTruncated && (
-                        <IconButton color="warning" onClick={() => setTruncationDialogOpen(true)}>
-                            <InfoIcon />
-                        </IconButton>
-                    )}
-                    {noTimetablesGenerated && (
-                        <IconButton color="error" onClick={() => setNoTimetablesDialogOpen(true)}>
-                            <CancelIcon />
-                        </IconButton>
-                    )}
-                    {timeslotsOverridden && (
-                        <IconButton color="info" onClick={() => setTimeslotsOverriddenDialogOpen(true)}>
-                            <InfoIcon />
-                        </IconButton>
-                    )}
-                </Box>
-                <Box id="calendarNavButtons">
-                    <Box marginRight={1}>
-                        <Button variant="contained" onClick={handleFirst} disabled={timetables.length <= 1}>
-                            <NavigateFirstIcon />
-                        </Button>
-                    </Box>
-                    <Box marginRight={2}>
-                        <Button variant="contained" onClick={handlePrevious} disabled={timetables.length <= 1}>
-                            <NavigateBeforeIcon />
-                        </Button>
-                    </Box>
-                    <Box id="calendarTimetableNumber">
-                        {currentTimetableIndex + 1} of {timetables.length}
-                    </Box>
-                    <Box marginLeft={2}>
-                        <Button variant="contained" onClick={handleNext} disabled={timetables.length <= 1}>
-                            <NavigateNextIcon />
-                        </Button>
-                    </Box>
-                    <Box marginLeft={1}>
-                        <Button variant="contained" onClick={handleLast} disabled={timetables.length <= 1}>
-                            <NavigateLastIcon />
-                        </Button>
-                    </Box>
-                </Box>
-                <Box id="durationFormBox" marginRight={2}>
-                    {!noCourses && (
-                        <FormControl sx={{ width: 160 }} size="small">
-                            <InputLabel id="duration-select-label">Duration</InputLabel>
-                            <Select
-                                labelId="duration-select-label"
-                                id="duration-select"
-                                label="Duration"
-                                value={selectedDuration}
-                                onChange={(e) => setSelectedDuration(e.target.value)}
-                            >
-                                {sortByBracketContent(durations).map((duration, index) => (
-                                    <MenuItem key={index} value={duration}>
-                                        {(() => {
-                                            const [startUnix, endUnix, dur] = duration.split("-");
-                                            const startMonth = new Date(parseInt(startUnix, 10) * 1000).toLocaleString(
-                                                "default",
-                                                { month: "short" }
-                                            );
-                                            const endMonth = new Date(parseInt(endUnix, 10) * 1000).toLocaleString(
-                                                "default",
-                                                { month: "short" }
-                                            );
-                                            return `${startMonth} - ${endMonth} (D${dur})`;
-                                        })()}
-                                    </MenuItem>
-                                ))}
-                            </Select>
-                        </FormControl>
-                    )}
-                </Box>
-            </Box>
-
+            <CalendarNavBar
+                isTruncated={isTruncated}
+                noTimetablesGenerated={noTimetablesGenerated}
+                timeslotsOverridden={timeslotsOverridden}
+                handleFirst={handleFirst}
+                handlePrevious={handlePrevious}
+                handleNext={handleNext}
+                handleLast={handleLast}
+                currentTimetableIndex={currentTimetableIndex}
+                timetables={timetables}
+                selectedDuration={selectedDuration}
+                setSelectedDuration={setSelectedDuration}
+                durations={durations}
+                noCourses={noCourses}
+                sortByBracketContent={sortByBracketContent}
+                setTruncationDialogOpen={setTruncationDialogOpen}
+                setNoTimetablesDialogOpen={setNoTimetablesDialogOpen}
+                setTimeslotsOverriddenDialogOpen={setTimeslotsOverriddenDialogOpen}
+            />
             <FullCalendar
                 ref={calendarRef}
                 plugins={[timeGridPlugin, interactionPlugin]}
@@ -575,94 +522,18 @@ export default function CalendarComponent({
                 longPressDelay={0}
                 selectLongPressDelay={500}
             />
-            <Dialog
-                open={truncationDialogOpen}
-                onClose={handleCloseTruncationDialog}
-                aria-labelledby="alert-dialog-title"
-                aria-describedby="alert-dialog-description"
-                id="truncation-dialog"
-            >
-                <DialogTitle id="alert-dialog-title">{"Truncated Results"}</DialogTitle>
-                <DialogContent>
-                    <DialogContentText id="alert-dialog-description" sx={{ mb: 2 }}>
-                        The generated schedule results are truncated because the input is too broad. Some possible
-                        course sections may not be shown.
-                    </DialogContentText>
-                    <DialogContentText>
-                        To ensure all results are considered pin down some courses by clicking on them to lock them in
-                        place or block out unwanted time blocks by selecting the area on the calendar prior to adding
-                        more courses!
-                    </DialogContentText>
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={handleCloseTruncationDialog} color="primary">
-                        Close
-                    </Button>
-                </DialogActions>
-            </Dialog>
-            <Dialog
-                open={noTimetablesDialogOpen}
-                onClose={handleCloseTruncationDialog}
-                aria-labelledby="alert-dialog-title"
-                aria-describedby="alert-dialog-description"
-                id="no-timetables-generated-dialog"
-            >
-                <DialogTitle id="alert-dialog-title">{"No Timetables Generated"}</DialogTitle>
-                <DialogContent>
-                    <DialogContentText sx={{ mb: 2 }}>
-                        This is likely caused by one of the following reasons:
-                    </DialogContentText>
-                    <DialogContentText>
-                        1. Adding a course that is not being offered in that duration.
-                    </DialogContentText>
-                    <DialogContentText sx={{ mb: 2 }}>
-                        2. Adding courses that always overlap with another course.
-                    </DialogContentText>
-                    <DialogContentText>
-                        Try unblocking/unpinning some components or removing the last course you have added.
-                    </DialogContentText>
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={handleCloseNoTimetablesDialog} color="primary">
-                        Close
-                    </Button>
-                </DialogActions>
-            </Dialog>
-            <Dialog
-                open={timeslotsOverriddenDialogOpen}
-                onClose={handleCloseBlockedSlotsDialog}
-                aria-labelledby="alert-dialog-title"
-                aria-describedby="alert-dialog-description"
-                id="blocked-slots-dialog"
-            >
-                <DialogTitle id="alert-dialog-title">{"Time Block Constraint Course Overlap"}</DialogTitle>
-                <DialogContent>
-                    <DialogContentText sx={{ mb: 2 }}>
-                        All available options for one or more course components conflict with your current time
-                        constraints, meaning the chosen class overlaps with your blocked time slots. Consequently,
-                        registering for this schedule will result in a class during one of your blocked time periods.
-                        Please ensure you are available for the generated timetable prior to registering.
-                    </DialogContentText>
-                    <DialogContentText sx={{ mb: 2 }}>To resolve this issue:</DialogContentText>
-                    <DialogContentText sx={{ mb: 2 }}>
-                        1. Adjust your blocked time slots: Consider unblocking certain time slots to increase scheduling
-                        flexibility.
-                    </DialogContentText>
-                    <DialogContentText sx={{ mb: 2 }}>
-                        2. Choose different courses: Look for alternative classes that do not overlap with your blocked
-                        times.
-                    </DialogContentText>
-                    <DialogContentText>
-                        Please review your schedule to ensure there are no overlapping commitments during the scheduled
-                        course periods.
-                    </DialogContentText>
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={handleCloseBlockedSlotsDialog} color="primary">
-                        Close
-                    </Button>
-                </DialogActions>
-            </Dialog>
+            <TruncationDialog
+                truncationDialogOpen={truncationDialogOpen}
+                handleCloseTruncationDialog={handleCloseTruncationDialog}
+            />
+            <NoTimetablesDialog
+                noTimetablesDialogOpen={noTimetablesDialogOpen}
+                handleCloseNoTimetablesDialog={handleCloseNoTimetablesDialog}
+            />
+            <BlockedSlotsDialog
+                timeslotsOverriddenDialogOpen={timeslotsOverriddenDialogOpen}
+                handleCloseBlockedSlotsDialog={handleCloseBlockedSlotsDialog}
+            />
         </Box>
     );
 }
