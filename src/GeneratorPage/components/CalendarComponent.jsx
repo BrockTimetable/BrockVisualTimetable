@@ -459,15 +459,21 @@ export default function CalendarComponent({
             <Box
                 sx={{
                     position: "absolute",
-                    top: "-10px",
-                    left: "10px",
-                    backgroundColor: "background.default",
-                    padding: "0 8px",
-                    color: "primary.main",
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    backgroundColor: "primary.main",
+                    padding: "4px 8px",
+                    color: "white",
+                    fontWeight: "bold",
+                    fontSize: "0.875rem",
+                    borderTopLeftRadius: "8px",
+                    borderTopRightRadius: "8px",
                 }}
             >
                 Calendar
             </Box>
+            <Box sx={{ height: "26px" }} />
             <Box id="calendarNavBar" style={{ backgroundColor: theme.palette.divider }}>
                 <Box id="infoButtonBox" marginLeft={1}>
                     {isTruncated && (
@@ -550,7 +556,7 @@ export default function CalendarComponent({
                 initialView="timeGridWeek"
                 weekends={false}
                 headerToolbar={false}
-                height={838}
+                height={835}
                 dayHeaderFormat={{ weekday: "short" }}
                 dayCellClassNames={(arg) => (arg.date.getDay() === new Date().getDay() ? "fc-day-today" : "")}
                 initialDate="2024-09-10"
