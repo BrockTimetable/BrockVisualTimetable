@@ -1,4 +1,3 @@
-
 import React from 'react';
 import '../../css/TermSelect.css';
 
@@ -9,7 +8,7 @@ import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
 
 export default function TimetableSelectComponent({ onTableChange }) {
-  const [timetable, setTimetable] = React.useState('');
+  const [timetable, setTimetable] = React.useState('UG');
 
   function handleTermChange(event) {
     const selectedTimetable = event.target.value;
@@ -19,15 +18,14 @@ export default function TimetableSelectComponent({ onTableChange }) {
 
   return (
     <>
-      <Box sx={{ minWidth: 120 }} m={2} display={'inline'}>
-        <FormControl>
+      <Box>
+        <FormControl fullWidth>
           <InputLabel id='timetable-select-label'>Timetable</InputLabel>
           <Select
             labelId='timetable-select-label'
             value={timetable}
             label="Timetable"
             onChange={handleTermChange}
-            sx={{ width: 225 }}
           >
             <MenuItem value={''}>Select Timetable</MenuItem>
             <MenuItem value={'UG'}>New/Returning Students</MenuItem>

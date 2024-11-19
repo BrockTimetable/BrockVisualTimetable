@@ -22,9 +22,47 @@ const App = () => {
       mode: mode,
       primary: {
         main: '#cc0000',
+        light: '#ff6666',
+        dark: '#990000',
+        contrastText: '#ffffff',
       },
       secondary: {
-        main: '#73767f',
+        main: '#cc0000',
+        light: '#ff6666',
+        dark: '#990000',
+        contrastText: '#ffffff',
+      },
+      error: {
+        main: '#f44336',
+        light: '#e57373',
+        dark: '#d32f2f',
+        contrastText: '#ffffff',
+      },
+      warning: {
+        main: '#ff9800',
+        light: '#ffb74d',
+        dark: '#f57c00',
+        contrastText: '#000000',
+      },
+      info: {
+        main: '#2196f3',
+        light: '#64b5f6',
+        dark: '#1976d2',
+        contrastText: '#ffffff',
+      },
+      success: {
+        main: '#4caf50',
+        light: '#81c784',
+        dark: '#388e3c',
+        contrastText: '#ffffff',
+      },
+      background: {
+        default: mode === 'light' ? '#ffffff' : '#242526',
+        paper: mode === 'light' ? '#f5f5f5' : '#1d1d1d',
+      },
+      text: {
+        primary: mode === 'light' ? '#000000' : '#ffffff',
+        secondary: mode === 'light' ? '#73767f' : '#b0b3b8',
       },
     },
   }), [mode]);

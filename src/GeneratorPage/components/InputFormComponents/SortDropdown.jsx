@@ -7,11 +7,9 @@ import Box from "@mui/material/Box";
 
 export default function SortDropdown({ value, onChange }) {
     return (
-        <Box m={2} width={250}>
+        <Box>
             <FormControl fullWidth>
-                <InputLabel>Sort Options</InputLabel>
-                <Select value={value} onChange={onChange} label="Sort Options">
-                    <MenuItem value="NOVALUE">None</MenuItem>
+                <Select value={value} onChange={onChange} displayEmpty>
                     <MenuItem value="sortByWaitingTime">Sort by Waiting Time</MenuItem>
                     <MenuItem value="minimizeClassDays">Minimize Class Days</MenuItem>
                 </Select>

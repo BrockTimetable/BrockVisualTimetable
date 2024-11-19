@@ -22,12 +22,13 @@ export const createCalendarEvents = (timetable, getDaysOfWeek) => {
         const uniqueId = getUniqueId(component.id);
         const event = {
             id: uniqueId,
-            title: `${course.courseCode} ${component.type} ${component.sectionNumber} ${component.pinned ? "📌" : ""}`,
+            title: `${course.courseCode} ${component.type} ${component.sectionNumber}`,
             daysOfWeek: getDaysOfWeek(component.schedule.days || "M T W R F"),
             startRecur: formatDate(component.schedule.startDate),
             endRecur: formatDate(component.schedule.endDate),
             description: component.instructor,
             color: color,
+            isPinned: component.pinned,
         };
 
         if (isAllDay) {
@@ -163,4 +164,8 @@ export const addTimeBlockEvent = (block) => {
 
 export const removeTimeBlockEvent = (blockId) => {
     timeBlockEvents = timeBlockEvents.filter((block) => block.id !== blockId);
+};
+
+export const isEventPinned = (event) => {
+    return event.extendedProps && event.extendedProps.isPinned;
 };
