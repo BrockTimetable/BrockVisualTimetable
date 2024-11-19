@@ -7,6 +7,7 @@ import { useMediaQuery } from "@mui/material";
 import { CourseDetailsProvider } from "./GeneratorPage/contexts/CourseDetailsContext";
 import ChangelogDialogComponent from "./GeneratorPage/components/ChangelogDialogComponent";
 import ReactGA from "react-ga4";
+import { generateTimetables, getValidTimetables } from "./GeneratorPage/scripts/generateTimetables";
 
 function GeneratorPage() {
     ReactGA.send({ hitType: "pageview", page: "Generator", title: "Brock Visual TimeTable" });
@@ -56,7 +57,11 @@ function GeneratorPage() {
                                     <Box mt={2}>
                                         <InputFormBottomComponent
                                             addedCourses={addedCourses}
-                                            removeCourse={removeCourse}
+                                            setAddedCourses={setAddedCourses}
+                                            setTimetables={setTimetables}
+                                            sortOption={sortOption}
+                                            generateTimetables={generateTimetables}
+                                            getValidTimetables={getValidTimetables}
                                         />
                                     </Box>
                                 )}
@@ -79,7 +84,11 @@ function GeneratorPage() {
                                 <Box m={2} mt={0}>
                                     <InputFormBottomComponent
                                         addedCourses={addedCourses}
-                                        removeCourse={removeCourse}
+                                        setAddedCourses={setAddedCourses}
+                                        setTimetables={setTimetables}
+                                        sortOption={sortOption}
+                                        generateTimetables={generateTimetables}
+                                        getValidTimetables={getValidTimetables}
                                     />
                                 </Box>
                             </Grid>

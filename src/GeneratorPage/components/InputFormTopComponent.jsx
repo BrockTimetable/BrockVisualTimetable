@@ -4,19 +4,12 @@ import Grid from "@mui/material/Grid";
 import { useSnackbar } from "notistack";
 import ReactGA from "react-ga4";
 
-import CourseSearchComponent from "./InputFormComponents/CourseSearchComponent";
-import TermSelectComponent from "./InputFormComponents/TermSelectComponent";
-import TimeTableSelectComponent from "./InputFormComponents/TimeTableSelectComponent";
-import AddButtonComponent from "./InputFormComponents/AddButtonComponent";
-import CourseListComponent from "./InputFormComponents/CourseListComponent";
 import MultiLineSnackbar from "../../SiteWide/components/MultiLineSnackbar";
-import SortDropdown from "./InputFormComponents/SortDropdown";
 
 import { storeCourseData, removeCourseData } from "../scripts/courseData";
 import { getCourse, getNameList } from "../scripts/fetchData";
 import { generateTimetables, getValidTimetables } from "../scripts/generateTimetables";
 import { addPinnedComponent, clearCoursePins } from "../scripts/pinnedComponents";
-import GitHubButton from "./InputFormComponents/GitHubButton";
 
 import CourseOptions from "./InputFormComponents/Sections/CourseOptions";
 import SortOptions from "./InputFormComponents/Sections/SortOptions";
