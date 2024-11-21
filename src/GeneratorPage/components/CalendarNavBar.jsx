@@ -72,7 +72,7 @@ export default function CalendarNavBar({
                     </Button>
                 </Box>
             </Box>
-            <Box id="durationFormBox" sx={{ flex: 1, display: 'flex', justifyContent: 'flex-end', paddingTop: '4px', paddingBottom: '4px', marginRight: '4px', visibility: noCourses ? 'hidden' : 'visible' }}>
+            <Box id="durationFormBox" sx={{ flex: 1, display: 'flex', justifyContent: 'flex-end', paddingTop: '4px', paddingBottom: '4px', marginRight: '4px' }}>
                 <FormControl sx={{ width: 160 }} size="small">
                     <InputLabel id="duration-select-label">Duration</InputLabel>
                     <Select
