@@ -1,8 +1,9 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import GeneratorPage from './GeneratorPage';
 import { ThemeProvider, createTheme } from "@mui/material/styles";
+import CssBaseline from '@mui/material/CssBaseline';
 import ColorModeContext from './SiteWide/contexts/ColorModeContext';
 import CustomSnackbarProvider from './SiteWide/components/SnackbarProvider';
 import ReactGA from 'react-ga4';
@@ -65,13 +66,23 @@ const App = () => {
         primary: mode === 'light' ? '#000000' : '#ffffff',
         secondary: mode === 'light' ? '#73767f' : '#b0b3b8',
       },
+      divider: mode === 'light' ? '#e0e0e0' : '#424242',
+      outline: mode === 'light' ? '#b0b0b0' : '#616161',
     },
   }), [mode]);
+
+  useEffect(() => {
+    document.documentElement.style.setProperty('--theme-divider-color', theme.palette.divider);
+    document.documentElement.style.setProperty('--theme-outline-color', theme.palette.outline);
+    document.body.classList.toggle('light-mode', mode === 'light');
+    document.body.classList.toggle('dark-mode', mode === 'dark');
+  }, [theme.palette.divider, theme.palette.outline, mode]);
 
   return (
     <Router>
       <ColorModeContext.Provider value={colorMode}>
         <ThemeProvider theme={theme}>
+          <CssBaseline />
           <Routes>
             <Route path="/" element={<GeneratorPage />} />
           </Routes>
