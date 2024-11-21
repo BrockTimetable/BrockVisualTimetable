@@ -31,6 +31,7 @@ import NoTimetablesDialog from "./NoTimetablesDialog";
 import BlockedSlotsDialog from "./BlockedSlotsDialog";
 
 import "../css/Calendar.css";
+import "../css/CustomCalendar.css"; // Add this line to import the new CSS file
 import {
     createCalendarEvents,
     getDaysOfWeek,
@@ -412,6 +413,7 @@ export default function CalendarComponent({
                         backgroundColor: isPinned ? "rgba(0, 0, 0, 0.5)" : "transparent",
                         height: "100%",
                         padding: "2px",
+                        borderRadius: "4px", // Add this line to fix border-radius issue
                     }}
                 >
                     {eventDuration >= minDurationToShowTime && (

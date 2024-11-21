@@ -1,0 +1,9 @@
+
+.fc-event {
+    border: none;
+    border-radius: 3px;
+}
+
+.fc-timegrid-event .fc-event-main {
+    padding: 0;
+}
