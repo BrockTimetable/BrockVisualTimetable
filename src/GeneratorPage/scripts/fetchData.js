@@ -12,7 +12,7 @@ const fetchData = async (endpoint, params) => {
   }
 };
 
-export const getCourse = (courseCode, timetableType, session) => {
+export const getCourse = async (courseCode, timetableType, session) => {
   return fetchData('getCourse', { courseCode, timetableType, session });
 };
 

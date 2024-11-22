@@ -9,7 +9,7 @@ import MultiLineSnackbar from "../../SiteWide/components/MultiLineSnackbar";
 import { storeCourseData, removeCourseData } from "../scripts/courseData";
 import { getCourse, getNameList } from "../scripts/fetchData";
 import { generateTimetables, getValidTimetables } from "../scripts/generateTimetables";
-import { addPinnedComponent, clearCoursePins } from "../scripts/pinnedComponents";
+import { addPinnedComponent } from "../scripts/pinnedComponents";
 
 import CourseOptions from "./InputFormComponents/Sections/CourseOptions";
 import SortOptions from "./InputFormComponents/Sections/SortOptions";
@@ -69,7 +69,6 @@ export default function InputFormTop({ setTimetables, setSelectedDuration, setDu
             handleCourseData(courseData, cleanCourseCode, duration);
             setCourseInputValue(""); // Clear the input value
         } catch (error) {
-            console.error("Error fetching course data:", error);
             enqueueSnackbar(<MultiLineSnackbar message="Error fetching course data." />, { variant: "error" });
         } finally {
             requestBlock = false;

@@ -6,7 +6,7 @@ ADDING "COSC1P02 TUT 3591103" TO pinnedComponents will ensure only combos with t
 ADDING "COSC1P02 LAB 3591103" TO pinnedComponents will ensure only combos with lab ID of 3591102 will generate for COSC1P02
 ADDING "COSC1P02 SEM 3591103" TO pinnedComponents will ensure only combos with seminar ID of 3591102 will generate for COSC1P02
 */
-const pinnedComponents = [];
+let pinnedComponents = [];
 
 export const getPinnedComponents = () => [...pinnedComponents];
 
