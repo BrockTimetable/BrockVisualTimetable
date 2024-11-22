@@ -29,7 +29,7 @@ export default function CalendarNavBar({
     const theme = useTheme();
 
     return (
-        <Box id="calendarNavBar" sx={{ backgroundColor: theme.palette.divider, display: 'flex', alignItems: 'center', borderRadius: '16px', padding: '8px', marginBottom: '16px', height: 'auto' }}>
+        <Box id="calendarNavBar" sx={{ backgroundColor: theme.palette.divider, display: 'flex', alignItems: 'center', borderRadius: '16px', padding: '8px', marginBottom: '16px', height: 'auto', transition: "background-color 0.5s ease", }}>
             <Box id="infoButtonBox" sx={{ flex: 1, display: 'flex', justifyContent: 'flex-start' }}>
                 {isTruncated && (
                     <IconButton color="warning" onClick={() => setTruncationDialogOpen(true)}>
