@@ -8,6 +8,7 @@ import Brightness4Icon from "@mui/icons-material/Brightness4";
 import Brightness7Icon from "@mui/icons-material/Brightness7";
 import { useTheme } from "@mui/material/styles";
 import ColorModeContext from "../contexts/ColorModeContext";
+import { Link } from "react-router-dom";
 
 const NavbarComponent = () => {
     const theme = useTheme();
@@ -39,9 +40,17 @@ const NavbarComponent = () => {
           >
             📚 Brock Visual TimeTable
           </Typography>
-          <IconButton sx={{ ml: 1 }} onClick={colorMode.toggleColorMode} color="inherit">
-            {theme.palette.mode === "dark" ? <Brightness7Icon /> : <Brightness4Icon />}
-          </IconButton>
+          <Box display="flex" alignItems="center">
+            <Link to="/" style={{ marginRight: 16, textDecoration: 'none', color: theme.palette.text.primary }}>
+              Generator
+            </Link>
+            <Link to="/guide" style={{ marginRight: 16, textDecoration: 'none', color: theme.palette.text.primary }}>
+              Guide
+            </Link>
+            <IconButton sx={{ ml: 1 }} onClick={colorMode.toggleColorMode} color="inherit">
+              {theme.palette.mode === "dark" ? <Brightness7Icon /> : <Brightness4Icon />}
+            </IconButton>
+          </Box>
         </Box>
       </Box>
     );
