@@ -21,7 +21,7 @@ export default function InputFormTop({ setTimetables, setSelectedDuration, setDu
     const [courseInputValue, setCourseInputValue] = useState("");
     const [timetableType, setTimetableType] = useState("UG");
     const [courseOptions, setCourseOptions] = useState([]);
-    const [sortChoice, setSortChoice] = useState("");
+    const [sortChoice, setSortChoice] = useState("default");
     let requestBlock = false;
 
     useEffect(() => {
