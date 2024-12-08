@@ -10,6 +10,7 @@ export default function SortDropdown({ value, onChange }) {
         <Box>
             <FormControl fullWidth>
                 <Select value={value} onChange={onChange} displayEmpty>
+                    <MenuItem value="default">Default</MenuItem>
                     <MenuItem value="sortByWaitingTime">Sort by Waiting Time</MenuItem>
                     <MenuItem value="minimizeClassDays">Minimize Class Days</MenuItem>
                 </Select>
