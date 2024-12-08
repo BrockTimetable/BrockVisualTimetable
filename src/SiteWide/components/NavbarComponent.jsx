@@ -58,21 +58,20 @@ const NavbarComponent = () => {
             }}
         >
             <Box display="flex" alignItems="center" justifyContent="space-between" width="100%">
-                <Typography
-                    variant={isMobile ? "h6" : "h4"}
-                    component="div"
-                    sx={{ fontWeight: "bold" }}
-                >
+                <Typography variant={isMobile ? "h6" : "h4"} component="div" sx={{ fontWeight: "bold" }}>
                     📚 Brock Visual TimeTable
                 </Typography>
                 {isMobile ? (
                     <>
-                        <IconButton sx={{ ml: 1 }} onClick={colorMode.toggleColorMode} color="inherit">
-                            {theme.palette.mode === "dark" ? <Brightness7Icon /> : <Brightness4Icon />}
-                        </IconButton>
-                        <IconButton edge="start" color="inherit" aria-label="menu" onClick={toggleDrawer(true)}>
-                            <MenuIcon />
-                        </IconButton>
+                        <Box>
+                            <IconButton sx={{ mr: 2 }} onClick={colorMode.toggleColorMode} color="inherit">
+                                {theme.palette.mode === "dark" ? <Brightness7Icon /> : <Brightness4Icon />}
+                            </IconButton>
+                            <IconButton edge="start" color="inherit" aria-label="menu" onClick={toggleDrawer(true)}>
+                                <MenuIcon />
+                            </IconButton>
+                        </Box>
+
                         <Drawer anchor="left" open={drawerOpen} onClose={toggleDrawer(false)}>
                             {drawerContent}
                         </Drawer>
