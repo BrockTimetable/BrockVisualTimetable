@@ -29,6 +29,7 @@ import CalendarNavBar from "./CalendarNavBar";
 import TruncationDialog from "./TruncationDialog";
 import NoTimetablesDialog from "./NoTimetablesDialog";
 import BlockedSlotsDialog from "./BlockedSlotsDialog";
+import BorderBox from "./InputFormComponents/Sections/BorderBox";
 
 import "../css/Calendar.css";
 import "../css/CustomCalendar.css"; // Add this line to import the new CSS file
@@ -452,34 +453,7 @@ export default function CalendarComponent({
     };
 
     return (
-        <Box
-            sx={{
-                border: "1px solid",
-                borderColor: "primary.main",
-                borderRadius: "8px",
-                padding: "16px",
-                marginBottom: "16px",
-                position: "relative",
-            }}
-        >
-            <Box
-                sx={{
-                    position: "absolute",
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    backgroundColor: "primary.main",
-                    padding: "4px 8px",
-                    color: "white",
-                    fontWeight: "bold",
-                    fontSize: "0.875rem",
-                    borderTopLeftRadius: "8px",
-                    borderTopRightRadius: "8px",
-                }}
-            >
-                Calendar
-            </Box>
-            <Box sx={{ height: "26px" }} />
+        <BorderBox title="Calendar">
             <CalendarNavBar
                 isTruncated={isTruncated}
                 noTimetablesGenerated={noTimetablesGenerated}
@@ -536,6 +510,6 @@ export default function CalendarComponent({
                 timeslotsOverriddenDialogOpen={timeslotsOverriddenDialogOpen}
                 handleCloseBlockedSlotsDialog={handleCloseBlockedSlotsDialog}
             />
-        </Box>
+        </BorderBox>
     );
 }
