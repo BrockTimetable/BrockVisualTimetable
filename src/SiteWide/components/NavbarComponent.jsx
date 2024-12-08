@@ -23,10 +23,6 @@ const NavbarComponent = () => {
     const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
     const [drawerOpen, setDrawerOpen] = useState(false);
 
-    const handleClick = () => {
-        window.location.href = "./";
-    };
-
     const toggleDrawer = (open) => (event) => {
         if (event.type === "keydown" && (event.key === "Tab" || event.key === "Shift")) {
             return;
@@ -65,8 +61,7 @@ const NavbarComponent = () => {
                 <Typography
                     variant={isMobile ? "h6" : "h4"}
                     component="div"
-                    sx={{ fontWeight: "bold", cursor: "pointer" }}
-                    onClick={handleClick}
+                    sx={{ fontWeight: "bold" }}
                 >
                     📚 Brock Visual TimeTable
                 </Typography>
