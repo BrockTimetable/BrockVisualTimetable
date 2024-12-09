@@ -40,7 +40,7 @@ function GeneratorPage() {
         <CourseDetailsProvider>
             <Box sx={{ minWidth: 350, display: 'flex', justifyContent: 'center' }}>
                 <CssBaseline />
-                <Box sx={{ maxWidth: 1280, width: '100%' }}>
+                <Box sx={{ maxWidth: 1280, width: '100%' }} mb={8}>
                     <NavbarComponent />
                     <Grid container spacing={0} justifyContent="center">
                         <Grid item xs={12} md={4} lg={3}>

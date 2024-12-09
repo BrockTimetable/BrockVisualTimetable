@@ -2,6 +2,7 @@ import React, { useMemo, useState, useEffect } from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import GeneratorPage from './GeneratorPage';
+import GuidePage from './GuidePage';
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import CssBaseline from '@mui/material/CssBaseline';
 import ColorModeContext from './SiteWide/contexts/ColorModeContext';
@@ -85,6 +86,7 @@ const App = () => {
           <CssBaseline />
           <Routes>
             <Route path="/" element={<GeneratorPage />} />
+            <Route path="/guide" element={<GuidePage />} />
           </Routes>
         </ThemeProvider>
       </ColorModeContext.Provider>
