@@ -37,6 +37,7 @@ import ReactGA from "react-ga4";
 let validTimetables = [];
 const maxComboThreshold = 50000; // Maximum number of possible combinations that can be generated.
 let timeslotOverridden = false;
+let lastBlockedComponents = []; //Stores all components that were blocked by user time constraints, is used later as a fallback mechanicm to attempt to regenerate timetables if none were found.
 
 const timeToSlot = (time) => {
     const [hours, minutes] =
@@ -114,6 +115,7 @@ const filterComponentsAgainstTimeSlots = (components, timeSlots) => {
         timeslotOverridden = true;
     }
 
+    lastBlockedComponents = lastBlockedComponents.concat(blockedComponents); //collects all components blocked by user-defined time constraints so we can reconsider them later
     return availableGroups.flat();
 };
 
@@ -451,9 +453,58 @@ export const generateTimetables = (sortOption) => {
     if (sortOption === "sortByWaitingTime") {
         validTimetables.sort((a, b) => {
             const waitingTimeDiff = calculateWaitingTime(a.courses) - calculateWaitingTime(b.courses);
-            if (waitingTimeDiff !== 0) {
-                return waitingTimeDiff;
+            if (waitingTimeDiff !== 0) return waitingTimeDiff;
+            return calculateClassDays(a.courses) - calculateClassDays(b.courses);
+        });
+    } else if (sortOption === "minimizeClassDays") {
+        validTimetables.sort((a, b) => calculateClassDays(a.courses) - calculateClassDays(b.courses));
+    }
+
+    if (validTimetables.length === 0 && lastBlockedComponents.length > 0) {
+    lastBlockedComponents.sort((a, b) => a.blockedPercentage - b.blockedPercentage);
+
+    for (let i = 0; i < lastBlockedComponents.length; i++) {
+        const leastBlockedGroup = lastBlockedComponents[i].group;
+
+        for (const component of leastBlockedGroup) {
+            const { days, time } = component.schedule;
+            if (!time) continue;
+            const [startSlot, endSlot] = time.split("-").map((t) => timeToSlot(t.trim()));
+            const daysArray = days.replace(/\s/g, "").split("");
+            for (let day of daysArray) {
+                for (let s = startSlot; s < endSlot; s++) {
+                    timeSlots[day][s] = false; 
+                }
             }
+        }
+
+        timeslotOverridden = true;
+        validTimetables = [];
+
+        const courseData = getCourseData();
+        const courses = Object.values(courseData);
+
+        const retryCourseCombinations = courses.map((course) => generateSingleCourseCombinations(course, timeSlots));
+
+        if (retryCourseCombinations.some((combinations) => combinations.length === 0)) {
+            continue;
+        }
+
+        let retryAllPossibleTimetables = generateCombinationsIteratively(retryCourseCombinations, maxComboThreshold);
+        retryAllPossibleTimetables.forEach((timetable) => {
+            if (isTimetableValid(timetable)) {
+                validTimetables.push({ courses: timetable });
+            }
+        });
+
+    
+        if (validTimetables.length > 0) break;
+    }
+
+    if (sortOption === "sortByWaitingTime") {
+        validTimetables.sort((a, b) => {
+            const waitingTimeDiff = calculateWaitingTime(a.courses) - calculateWaitingTime(b.courses);
+            if (waitingTimeDiff !== 0) return waitingTimeDiff;
             return calculateClassDays(a.courses) - calculateClassDays(b.courses);
         });
     } else if (sortOption === "minimizeClassDays") {
@@ -464,10 +515,11 @@ export const generateTimetables = (sortOption) => {
         eventBus.emit("overridden", true);
         eventBus.emit("snackbar", {
             message:
-                "All available options for one or more course components are partially or fully blocked by your time constraints. As a result the best available option with the least time-block overlap has been selected.",
+                "All available options for one or more course components were blocked. One or more user-defined time blocks has been overridden to find a valid timetable.",
             variant: "warning",
         });
     }
+}
 };
 
 export const getValidTimetables = () => validTimetables;
