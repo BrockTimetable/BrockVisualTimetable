@@ -453,6 +453,7 @@ export default function CalendarComponent({
     };
 
     return (
+        <div id="Calendar">
         <BorderBox title="Calendar">
             <CalendarNavBar
                 isTruncated={isTruncated}
@@ -511,5 +512,6 @@ export default function CalendarComponent({
                 handleCloseBlockedSlotsDialog={handleCloseBlockedSlotsDialog}
             />
         </BorderBox>
+        </div>
     );
 }
