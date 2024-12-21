@@ -300,7 +300,7 @@ function GuidePage() {
                                     For fall and winter terms:
                                 </Typography>
                                 <List sx={{ listStyle: "decimal", pl: 4 }}>
-                                    <ListItem sx={{ display: "", py: 0 }}>
+                                    <ListItem sx={{ display: "list-item", py: 0 }}>
                                         <ListItemText primary="is for 8 month courses, spanning from September to April." />
                                     </ListItem>
                                     <ListItem sx={{ display: "list-item", py: 0 }}>
