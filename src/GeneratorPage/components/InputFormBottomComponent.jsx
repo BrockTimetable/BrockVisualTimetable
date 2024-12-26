@@ -15,7 +15,6 @@ export default function InputFormBottomComponent({ addedCourses, setAddedCourses
         removePinnedComponent(`${cleanCourseCode} DURATION ${course.split(" ")[2].substring(1)}`);
         generateTimetables(sortOption);
         setTimetables(getValidTimetables());
-        updateDurationsAfterRemoval(course);
     };
 
     return (

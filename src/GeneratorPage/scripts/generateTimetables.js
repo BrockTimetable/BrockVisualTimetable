@@ -441,65 +441,56 @@ export const generateTimetables = (sortOption) => {
         validTimetables.push({ courses: [] });
         return;
     }
-
     let allPossibleTimetables = generateCombinationsIteratively(allCourseCombinations, maxComboThreshold);
-
+    
     allPossibleTimetables.forEach((timetable) => {
         if (isTimetableValid(timetable)) {
             validTimetables.push({ courses: timetable });
         }
     });
 
-    if (sortOption === "sortByWaitingTime") {
-        validTimetables.sort((a, b) => {
-            const waitingTimeDiff = calculateWaitingTime(a.courses) - calculateWaitingTime(b.courses);
-            if (waitingTimeDiff !== 0) return waitingTimeDiff;
-            return calculateClassDays(a.courses) - calculateClassDays(b.courses);
-        });
-    } else if (sortOption === "minimizeClassDays") {
-        validTimetables.sort((a, b) => calculateClassDays(a.courses) - calculateClassDays(b.courses));
-    }
-
     if (validTimetables.length === 0 && lastBlockedComponents.length > 0) {
-    lastBlockedComponents.sort((a, b) => a.blockedPercentage - b.blockedPercentage);
+        lastBlockedComponents.sort((a, b) => a.blockedPercentage - b.blockedPercentage);
 
-    for (let i = 0; i < lastBlockedComponents.length; i++) {
-        const leastBlockedGroup = lastBlockedComponents[i].group;
+        for (let i = 0; i < lastBlockedComponents.length; i++) {
+            const leastBlockedGroup = lastBlockedComponents[i].group;
 
-        for (const component of leastBlockedGroup) {
-            const { days, time } = component.schedule;
-            if (!time) continue;
-            const [startSlot, endSlot] = time.split("-").map((t) => timeToSlot(t.trim()));
-            const daysArray = days.replace(/\s/g, "").split("");
-            for (let day of daysArray) {
-                for (let s = startSlot; s < endSlot; s++) {
-                    timeSlots[day][s] = false; 
+            for (const component of leastBlockedGroup) {
+                const { days, time } = component.schedule;
+                if (!time) continue;
+                const [startSlot, endSlot] = time.split("-").map((t) => timeToSlot(t.trim()));
+                const daysArray = days.replace(/\s/g, "").split("");
+                for (let day of daysArray) {
+                    for (let s = startSlot; s < endSlot; s++) {
+                        timeSlots[day][s] = false; 
+                    }
                 }
             }
-        }
 
-        timeslotOverridden = true;
-        validTimetables = [];
+            timeslotOverridden = true;
+            validTimetables = [];
 
-        const courseData = getCourseData();
-        const courses = Object.values(courseData);
+            const courseData = getCourseData();
+            const courses = Object.values(courseData);
 
-        const retryCourseCombinations = courses.map((course) => generateSingleCourseCombinations(course, timeSlots));
+            const retryCourseCombinations = courses.map((course) => generateSingleCourseCombinations(course, timeSlots));
 
-        if (retryCourseCombinations.some((combinations) => combinations.length === 0)) {
-            continue;
-        }
-
-        let retryAllPossibleTimetables = generateCombinationsIteratively(retryCourseCombinations, maxComboThreshold);
-        retryAllPossibleTimetables.forEach((timetable) => {
-            if (isTimetableValid(timetable)) {
-                validTimetables.push({ courses: timetable });
+            if (retryCourseCombinations.some((combinations) => combinations.length === 0)) {
+                continue;
             }
-        });
 
-    
-        if (validTimetables.length > 0) break;
+            let retryAllPossibleTimetables = generateCombinationsIteratively(retryCourseCombinations, maxComboThreshold);
+            retryAllPossibleTimetables.forEach((timetable) => {
+                if (isTimetableValid(timetable)) {
+                    validTimetables.push({ courses: timetable });
+                }
+            });
+
+        
+            if (validTimetables.length > 0) break;
+        }
     }
+    
 
     if (sortOption === "sortByWaitingTime") {
         validTimetables.sort((a, b) => {
@@ -519,7 +510,6 @@ export const generateTimetables = (sortOption) => {
             variant: "warning",
         });
     }
-}
 };
 
 export const getValidTimetables = () => validTimetables;
