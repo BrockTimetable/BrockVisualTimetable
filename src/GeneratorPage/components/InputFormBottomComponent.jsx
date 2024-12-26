@@ -3,6 +3,7 @@ import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
 import CourseList from "./InputFormComponents/Sections/CourseList";
 import SourceCode from "./InputFormComponents/Sections/SourceCode";
+import Tips from "./InputFormComponents/Sections/Tips";
 import { removeCourseData } from "../scripts/courseData";
 import { removePinnedComponent } from "../scripts/pinnedComponents";
 
@@ -23,6 +24,9 @@ export default function InputFormBottomComponent({ addedCourses, setAddedCourses
             <Grid container spacing={2}>
                 <Grid item xs={12}>
                     <CourseList addedCourses={addedCourses} removeCourse={handleRemoveCourse} />
+                </Grid>
+                <Grid item xs={12}>
+                    <Tips />
                 </Grid>
                 <Grid item xs={12}>
                     <SourceCode />
