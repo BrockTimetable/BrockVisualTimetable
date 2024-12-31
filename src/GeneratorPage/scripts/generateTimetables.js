@@ -39,7 +39,33 @@ const maxComboThreshold = 50000; // Maximum number of possible combinations that
 let timeslotOverridden = false;
 let lastBlockedComponents = []; //Stores all components that were blocked by user time constraints, is used later as a fallback mechanicm to attempt to regenerate timetables if none were found.
 
+// Performance tracking variables
+let performanceMetrics = {
+    generationStartTime: 0,
+    generationEndTime: 0,
+    totalCombinationsProcessed: 0,
+    validTimetablesFound: 0,
+    timeSlotOverrides: 0
+};
+
 const timeToSlot = (time) => {
+    // Cache for common time conversions
+    const timeCache = {
+        '800': 0, '830': 1, '900': 2, '930': 3,
+        '1000': 4, '1030': 5, '1100': 6, '1130': 7,
+        '1200': 8, '1230': 9, '1300': 10, '1330': 11,
+        '1400': 12, '1430': 13, '1500': 14, '1530': 15,
+        '1600': 16, '1630': 17, '1700': 18, '1730': 19,
+        '1800': 20, '1830': 21, '1900': 22, '1930': 23,
+        '2000': 24, '2030': 25, '2100': 26, '2130': 27
+    };
+
+    // Try cache first
+    if (timeCache.hasOwnProperty(time)) {
+        return timeCache[time];
+    }
+
+    // Fall back to calculation for unusual times
     const [hours, minutes] =
         time.length === 3
             ? [parseInt(time[0]), parseInt(time[1] + "0")]
@@ -47,54 +73,69 @@ const timeToSlot = (time) => {
     return (hours - 8) * 2 + (minutes === 30 ? 1 : 0);
 };
 
-const filterComponentsAgainstTimeSlots = (components, timeSlots) => {
-    const isSlotAvailable = (day, startSlot, endSlot) => {
-        for (let i = startSlot; i < endSlot; i++) {
-            if (timeSlots[day][i]) return false;
-        }
-        return true;
-    };
+const calculateBlockedPercentage = (component, timeSlots) => {
+    const { days, time } = component.schedule;
+    if (!time || /[a-zA-Z]/.test(time)) return 100; // If time is invalid, consider it fully blocked
 
-    const calculateBlockedPercentage = (component) => {
-        const { days, time } = component.schedule;
-        if (!time) return 0;
-        const [startSlot, endSlot] = time.split("-").map((t) => timeToSlot(t.trim()));
-        const daysArray = days.replace(/\s/g, "").split("");
-        const totalSlots = (endSlot - startSlot) * daysArray.length;
+    const [startSlot, endSlot] = time.split("-").map(t => timeToSlot(t.trim()));
+    const daysArray = days.replace(/\s/g, "").split("");
+    
+    let totalSlots = 0;
+    let blockedSlots = 0;
 
-        let blockedCount = 0;
-        for (let day of daysArray) {
-            for (let i = startSlot; i < endSlot; i++) {
-                if (timeSlots[day][i]) blockedCount++;
+    for (const day of daysArray) {
+        for (let slot = startSlot; slot < endSlot; slot++) {
+            totalSlots++;
+            if (timeSlots[day][slot]) {
+                blockedSlots++;
             }
         }
-        return (blockedCount / totalSlots) * 100;
-    };
+    }
 
-    const groupedComponents = components.reduce((acc, component) => {
-        const groupId = component.id;
-        if (!acc[groupId]) acc[groupId] = [];
-        acc[groupId].push(component);
-        return acc;
-    }, {});
+    return (blockedSlots / totalSlots) * 100;
+};
 
+const isSlotAvailable = (timeSlots, day, startSlot, endSlot) => {
+    // Use TypedArray for better performance
+    const slots = timeSlots[day];
+    for (let i = startSlot; i < endSlot; i++) {
+        if (slots[i]) return false;
+    }
+    return true;
+};
+
+const filterComponentsAgainstTimeSlots = (components, timeSlots) => {
+    // Pre-compile regex
+    const timeRegex = /[a-zA-Z]/;
+    
+    const groupedComponents = new Map();
     const blockedComponents = [];
     const availableGroups = [];
 
-    for (const group of Object.values(groupedComponents)) {
+    // Group components by ID
+    for (const component of components) {
+        const groupId = component.id;
+        if (!groupedComponents.has(groupId)) {
+            groupedComponents.set(groupId, []);
+        }
+        groupedComponents.get(groupId).push(component);
+    }
+
+    for (const [, group] of groupedComponents) {
         let isGroupBlocked = false;
         let blockedPercentage = 0;
 
         for (const component of group) {
             const { days, time } = component.schedule;
-            if (!time || /[a-zA-Z]/.test(time)) continue;
-            const [startSlot, endSlot] = time.split("-").map((t) => timeToSlot(t.trim()));
+            if (!time || timeRegex.test(time)) continue;
+
+            const [startSlot, endSlot] = time.split("-").map(t => timeToSlot(t.trim()));
             const daysArray = days.replace(/\s/g, "").split("");
 
-            for (let day of daysArray) {
-                if (!isSlotAvailable(day, startSlot, endSlot)) {
+            for (const day of daysArray) {
+                if (!isSlotAvailable(timeSlots, day, startSlot, endSlot)) {
                     isGroupBlocked = true;
-                    blockedPercentage += calculateBlockedPercentage(component);
+                    blockedPercentage += calculateBlockedPercentage(component, timeSlots);
                     break;
                 }
             }
@@ -115,30 +156,51 @@ const filterComponentsAgainstTimeSlots = (components, timeSlots) => {
         timeslotOverridden = true;
     }
 
-    lastBlockedComponents = lastBlockedComponents.concat(blockedComponents); //collects all components blocked by user-defined time constraints so we can reconsider them later
+    lastBlockedComponents = lastBlockedComponents.concat(blockedComponents);
     return availableGroups.flat();
 };
 
 const cartesianProduct = (arrays, limit) => {
+    // Early return if any array is empty
+    if (arrays.some(arr => arr.length === 0)) return [];
+    
+    // If we only have one array, return its items wrapped in arrays
+    if (arrays.length === 1) {
+        return arrays[0].map(item => [item]);
+    }
+
+    // Calculate total possible combinations to avoid unnecessary work
+    const totalPossible = arrays.reduce((acc, arr) => acc * arr.length, 1);
+    if (totalPossible > limit) {
+        eventBus.emit("truncation", true);
+        eventBus.emit("snackbar", {
+            message:
+                "The generated schedule results are truncated because the input is too broad. To ensure all results are considered pin down some courses!",
+            variant: "warning",
+        });
+        // Return early if we know we'll exceed the limit
+        return [];
+    }
+
     let result = [[]];
+    let total = 0;
+
     for (const array of arrays) {
-        const temp = [];
+        const temp = new Array(result.length * array.length);
+        let tempIndex = 0;
+
         for (const item of array) {
             for (const combination of result) {
-                temp.push([...combination, item]);
-                if (temp.length >= limit) {
-                    eventBus.emit("truncation", true);
-                    eventBus.emit("snackbar", {
-                        message:
-                            "The generated schedule results are truncated because the input is too broad. To ensure all results are considered pin down some courses!",
-                        variant: "warning",
-                    });
-                    return temp;
+                temp[tempIndex++] = [...combination, item];
+                total++;
+                if (total >= limit) {
+                    return temp.slice(0, tempIndex);
                 }
             }
         }
-        result = temp;
+        result = temp.slice(0, tempIndex);
     }
+    
     return result;
 };
 
@@ -292,11 +354,17 @@ const generateSingleCourseCombinations = (course, timeSlots) => {
 };
 
 const isTimetableValid = (timetable) => {
-    const occupiedSlots = {};
-
+    // Pre-compile regex
+    const timeRegex = /[a-zA-Z]/;
+    
+    // Use a more efficient data structure for occupied slots
+    const occupiedSlots = new Map();
+    
+    // Helper function to check overlap
     const overlap = (start1, end1, start2, end2) => start1 < end2 && start2 < end1;
 
     for (const course of timetable) {
+        // Get all components in one go
         const components = [
             ...course.mainComponents,
             course.secondaryComponents.lab,
@@ -306,26 +374,42 @@ const isTimetableValid = (timetable) => {
 
         for (const component of components) {
             const { days, time, startDate, endDate } = component.schedule;
-            if (!time || /[a-zA-Z]/.test(time)) continue;
-            const [startSlot, endSlot] = time.split("-").map((t) => timeToSlot(t.trim()));
-            const daysArray = days.split(" ").filter((day) => day);
+            if (!time || timeRegex.test(time)) continue;
+
+            // Convert time to slots once
+            const [startSlot, endSlot] = time.split("-").map(t => timeToSlot(t.trim()));
+            const daysArray = days.split(" ").filter(Boolean);
+
+            // Create date range key once
+            const dateKey = `${startDate}-${endDate}`;
 
             for (const day of daysArray) {
-                for (let i = startSlot; i < endSlot; i++) {
-                    if (!occupiedSlots[day]) occupiedSlots[day] = {};
-                    for (const [existingStartDate, existingEndDate] of Object.keys(occupiedSlots[day]).map((d) =>
-                        d.split("-").map(Number)
-                    )) {
-                        if (
-                            overlap(startDate, endDate, existingStartDate, existingEndDate) &&
-                            occupiedSlots[day][`${existingStartDate}-${existingEndDate}`].includes(i)
-                        ) {
-                            return false;
+                if (!occupiedSlots.has(day)) {
+                    occupiedSlots.set(day, new Map());
+                }
+                const daySlots = occupiedSlots.get(day);
+
+                // Check all existing slots for this day
+                for (const [existingDateKey, slots] of daySlots) {
+                    const [existingStartDate, existingEndDate] = existingDateKey.split("-").map(Number);
+                    
+                    if (overlap(startDate, endDate, existingStartDate, existingEndDate)) {
+                        // Check if any slot in the range is occupied
+                        for (let i = startSlot; i < endSlot; i++) {
+                            if (slots.has(i)) {
+                                return false;
+                            }
                         }
                     }
-                    if (!occupiedSlots[day][`${startDate}-${endDate}`])
-                        occupiedSlots[day][`${startDate}-${endDate}`] = [];
-                    occupiedSlots[day][`${startDate}-${endDate}`].push(i);
+                }
+
+                // If we get here, the slots are available. Mark them as occupied.
+                if (!daySlots.has(dateKey)) {
+                    daySlots.set(dateKey, new Set());
+                }
+                const slots = daySlots.get(dateKey);
+                for (let i = startSlot; i < endSlot; i++) {
+                    slots.add(i);
                 }
             }
         }
@@ -342,6 +426,7 @@ const generateCombinationsIteratively = (courseCombinations, maxCombinations) =>
         if (arrays.length === 0) {
             results.push(prefix);
             count++;
+            performanceMetrics.totalCombinationsProcessed++;
             if (count >= maxCombinations) {
                 eventBus.emit("truncation", true);
                 eventBus.emit("snackbar", {
@@ -428,6 +513,15 @@ const calculateClassDays = (timetable) => {
 };
 
 export const generateTimetables = (sortOption) => {
+    // Reset metrics but don't start timer yet
+    performanceMetrics = {
+        generationStartTime: 0,
+        generationEndTime: 0,
+        totalCombinationsProcessed: 0,
+        validTimetablesFound: 0,
+        timeSlotOverrides: 0
+    };
+
     eventBus.emit("overridden", false);
     timeslotOverridden = false;
     validTimetables = [];
@@ -435,81 +529,106 @@ export const generateTimetables = (sortOption) => {
     const courses = Object.values(courseData);
     const timeSlots = getTimeSlots();
 
-    const allCourseCombinations = courses.map((course) => generateSingleCourseCombinations(course, timeSlots));
+    // Start timer only when we begin actual generation work
+    performanceMetrics.generationStartTime = performance.now();
 
-    if (allCourseCombinations.some((combinations) => combinations.length === 0)) {
-        validTimetables.push({ courses: [] });
-        return;
-    }
-    let allPossibleTimetables = generateCombinationsIteratively(allCourseCombinations, maxComboThreshold);
-    
-    allPossibleTimetables.forEach((timetable) => {
-        if (isTimetableValid(timetable)) {
-            validTimetables.push({ courses: timetable });
+    try {
+        const allCourseCombinations = courses.map((course) => generateSingleCourseCombinations(course, timeSlots));
+
+        if (allCourseCombinations.some((combinations) => combinations.length === 0)) {
+            validTimetables.push({ courses: [] });
+            return;
         }
-    });
 
-    if (validTimetables.length === 0 && lastBlockedComponents.length > 0) {
-        lastBlockedComponents.sort((a, b) => a.blockedPercentage - b.blockedPercentage);
+        let allPossibleTimetables = generateCombinationsIteratively(allCourseCombinations, maxComboThreshold);
 
-        for (let i = 0; i < lastBlockedComponents.length; i++) {
-            const leastBlockedGroup = lastBlockedComponents[i].group;
+        allPossibleTimetables.forEach((timetable) => {
+            if (isTimetableValid(timetable)) {
+                validTimetables.push({ courses: timetable });
+                performanceMetrics.validTimetablesFound++;
+            }
+        });
 
-            for (const component of leastBlockedGroup) {
-                const { days, time } = component.schedule;
-                if (!time) continue;
-                const [startSlot, endSlot] = time.split("-").map((t) => timeToSlot(t.trim()));
-                const daysArray = days.replace(/\s/g, "").split("");
-                for (let day of daysArray) {
-                    for (let s = startSlot; s < endSlot; s++) {
-                        timeSlots[day][s] = false; 
+        if (validTimetables.length === 0 && lastBlockedComponents.length > 0) {
+            lastBlockedComponents.sort((a, b) => a.blockedPercentage - b.blockedPercentage);
+
+            for (let i = 0; i < lastBlockedComponents.length; i++) {
+                const leastBlockedGroup = lastBlockedComponents[i].group;
+
+                for (const component of leastBlockedGroup) {
+                    const { days, time } = component.schedule;
+                    if (!time) continue;
+                    const [startSlot, endSlot] = time.split("-").map((t) => timeToSlot(t.trim()));
+                    const daysArray = days.replace(/\s/g, "").split("");
+                    for (let day of daysArray) {
+                        for (let s = startSlot; s < endSlot; s++) {
+                            timeSlots[day][s] = false; 
+                        }
                     }
                 }
-            }
 
-            timeslotOverridden = true;
-            validTimetables = [];
+                timeslotOverridden = true;
+                validTimetables = [];
 
-            const courseData = getCourseData();
-            const courses = Object.values(courseData);
+                const retryCourseCombinations = courses.map((course) => generateSingleCourseCombinations(course, timeSlots));
 
-            const retryCourseCombinations = courses.map((course) => generateSingleCourseCombinations(course, timeSlots));
-
-            if (retryCourseCombinations.some((combinations) => combinations.length === 0)) {
-                continue;
-            }
-
-            let retryAllPossibleTimetables = generateCombinationsIteratively(retryCourseCombinations, maxComboThreshold);
-            retryAllPossibleTimetables.forEach((timetable) => {
-                if (isTimetableValid(timetable)) {
-                    validTimetables.push({ courses: timetable });
+                if (retryCourseCombinations.some((combinations) => combinations.length === 0)) {
+                    continue;
                 }
-            });
 
-        
-            if (validTimetables.length > 0) break;
+                let retryAllPossibleTimetables = generateCombinationsIteratively(retryCourseCombinations, maxComboThreshold);
+                retryAllPossibleTimetables.forEach((timetable) => {
+                    if (isTimetableValid(timetable)) {
+                        validTimetables.push({ courses: timetable });
+                    }
+                });
+            
+                if (validTimetables.length > 0) break;
+            }
+
+            if (timeslotOverridden) {
+                performanceMetrics.timeSlotOverrides++;
+                eventBus.emit("overridden", true);
+                eventBus.emit("snackbar", {
+                    message:
+                        "All available options for one or more course components were blocked. One or more user-defined time blocks has been overridden to find a valid timetable.",
+                    variant: "warning",
+                });
+            }
         }
-    }
-    
 
-    if (sortOption === "sortByWaitingTime") {
-        validTimetables.sort((a, b) => {
-            const waitingTimeDiff = calculateWaitingTime(a.courses) - calculateWaitingTime(b.courses);
-            if (waitingTimeDiff !== 0) return waitingTimeDiff;
-            return calculateClassDays(a.courses) - calculateClassDays(b.courses);
-        });
-    } else if (sortOption === "minimizeClassDays") {
-        validTimetables.sort((a, b) => calculateClassDays(a.courses) - calculateClassDays(b.courses));
-    }
-
-    if (timeslotOverridden) {
-        eventBus.emit("overridden", true);
-        eventBus.emit("snackbar", {
-            message:
-                "All available options for one or more course components were blocked. One or more user-defined time blocks has been overridden to find a valid timetable.",
-            variant: "warning",
-        });
+        // Sort after generation is complete
+        if (sortOption === "sortByWaitingTime") {
+            validTimetables.sort((a, b) => {
+                const waitingTimeDiff = calculateWaitingTime(a.courses) - calculateWaitingTime(b.courses);
+                if (waitingTimeDiff !== 0) return waitingTimeDiff;
+                return calculateClassDays(a.courses) - calculateClassDays(b.courses);
+            });
+        } else if (sortOption === "minimizeClassDays") {
+            validTimetables.sort((a, b) => calculateClassDays(a.courses) - calculateClassDays(b.courses));
+        }
+    } finally {
+        // Always set the end time, even if there's an error
+        performanceMetrics.generationEndTime = performance.now();
     }
 };
 
 export const getValidTimetables = () => validTimetables;
+
+export const getGenerationPerformance = () => {
+    const {
+        generationStartTime,
+        generationEndTime,
+        totalCombinationsProcessed,
+        validTimetablesFound,
+        timeSlotOverrides
+    } = performanceMetrics;
+
+    return {
+        generationStartTime,
+        generationEndTime,
+        totalCombinationsProcessed,
+        validTimetablesFound,
+        timeSlotOverrides
+    };
+};

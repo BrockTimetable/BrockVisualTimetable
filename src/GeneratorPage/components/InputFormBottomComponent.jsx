@@ -3,10 +3,10 @@ import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
 import CourseList from "./InputFormComponents/Sections/CourseList";
 import SourceCode from "./InputFormComponents/Sections/SourceCode";
+import PerformanceMetrics from "./InputFormComponents/Sections/PerformanceMetrics";
 import Tips from "./InputFormComponents/Sections/Tips";
 import { removeCourseData } from "../scripts/courseData";
 import { removePinnedComponent } from "../scripts/pinnedComponents";
-
 
 export default function InputFormBottomComponent({ addedCourses, setAddedCourses, setTimetables, sortOption, generateTimetables, getValidTimetables }) {
     const handleRemoveCourse = (course) => {
@@ -26,6 +26,9 @@ export default function InputFormBottomComponent({ addedCourses, setAddedCourses
                 </Grid>
                 <Grid item xs={12}>
                     <Tips />
+                </Grid>
+                <Grid item xs={12}>
+                    <PerformanceMetrics />
                 </Grid>
                 <Grid item xs={12}>
                     <SourceCode />
