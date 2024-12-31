@@ -49,6 +49,23 @@ let performanceMetrics = {
 };
 
 const timeToSlot = (time) => {
+    // Cache for common time conversions
+    const timeCache = {
+        '800': 0, '830': 1, '900': 2, '930': 3,
+        '1000': 4, '1030': 5, '1100': 6, '1130': 7,
+        '1200': 8, '1230': 9, '1300': 10, '1330': 11,
+        '1400': 12, '1430': 13, '1500': 14, '1530': 15,
+        '1600': 16, '1630': 17, '1700': 18, '1730': 19,
+        '1800': 20, '1830': 21, '1900': 22, '1930': 23,
+        '2000': 24, '2030': 25, '2100': 26, '2130': 27
+    };
+
+    // Try cache first
+    if (timeCache.hasOwnProperty(time)) {
+        return timeCache[time];
+    }
+
+    // Fall back to calculation for unusual times
     const [hours, minutes] =
         time.length === 3
             ? [parseInt(time[0]), parseInt(time[1] + "0")]
@@ -56,54 +73,47 @@ const timeToSlot = (time) => {
     return (hours - 8) * 2 + (minutes === 30 ? 1 : 0);
 };
 
+const isSlotAvailable = (timeSlots, day, startSlot, endSlot) => {
+    // Use TypedArray for better performance
+    const slots = timeSlots[day];
+    for (let i = startSlot; i < endSlot; i++) {
+        if (slots[i]) return false;
+    }
+    return true;
+};
+
 const filterComponentsAgainstTimeSlots = (components, timeSlots) => {
-    const isSlotAvailable = (day, startSlot, endSlot) => {
-        for (let i = startSlot; i < endSlot; i++) {
-            if (timeSlots[day][i]) return false;
-        }
-        return true;
-    };
-
-    const calculateBlockedPercentage = (component) => {
-        const { days, time } = component.schedule;
-        if (!time) return 0;
-        const [startSlot, endSlot] = time.split("-").map((t) => timeToSlot(t.trim()));
-        const daysArray = days.replace(/\s/g, "").split("");
-        const totalSlots = (endSlot - startSlot) * daysArray.length;
-
-        let blockedCount = 0;
-        for (let day of daysArray) {
-            for (let i = startSlot; i < endSlot; i++) {
-                if (timeSlots[day][i]) blockedCount++;
-            }
-        }
-        return (blockedCount / totalSlots) * 100;
-    };
-
-    const groupedComponents = components.reduce((acc, component) => {
-        const groupId = component.id;
-        if (!acc[groupId]) acc[groupId] = [];
-        acc[groupId].push(component);
-        return acc;
-    }, {});
-
+    // Pre-compile regex
+    const timeRegex = /[a-zA-Z]/;
+    
+    const groupedComponents = new Map();
     const blockedComponents = [];
     const availableGroups = [];
 
-    for (const group of Object.values(groupedComponents)) {
+    // Group components by ID
+    for (const component of components) {
+        const groupId = component.id;
+        if (!groupedComponents.has(groupId)) {
+            groupedComponents.set(groupId, []);
+        }
+        groupedComponents.get(groupId).push(component);
+    }
+
+    for (const [, group] of groupedComponents) {
         let isGroupBlocked = false;
         let blockedPercentage = 0;
 
         for (const component of group) {
             const { days, time } = component.schedule;
-            if (!time || /[a-zA-Z]/.test(time)) continue;
-            const [startSlot, endSlot] = time.split("-").map((t) => timeToSlot(t.trim()));
+            if (!time || timeRegex.test(time)) continue;
+
+            const [startSlot, endSlot] = time.split("-").map(t => timeToSlot(t.trim()));
             const daysArray = days.replace(/\s/g, "").split("");
 
-            for (let day of daysArray) {
-                if (!isSlotAvailable(day, startSlot, endSlot)) {
+            for (const day of daysArray) {
+                if (!isSlotAvailable(timeSlots, day, startSlot, endSlot)) {
                     isGroupBlocked = true;
-                    blockedPercentage += calculateBlockedPercentage(component);
+                    blockedPercentage += calculateBlockedPercentage(component, timeSlots);
                     break;
                 }
             }
@@ -124,30 +134,51 @@ const filterComponentsAgainstTimeSlots = (components, timeSlots) => {
         timeslotOverridden = true;
     }
 
-    lastBlockedComponents = lastBlockedComponents.concat(blockedComponents); //collects all components blocked by user-defined time constraints so we can reconsider them later
+    lastBlockedComponents = lastBlockedComponents.concat(blockedComponents);
     return availableGroups.flat();
 };
 
 const cartesianProduct = (arrays, limit) => {
+    // Early return if any array is empty
+    if (arrays.some(arr => arr.length === 0)) return [];
+    
+    // If we only have one array, return its items wrapped in arrays
+    if (arrays.length === 1) {
+        return arrays[0].map(item => [item]);
+    }
+
+    // Calculate total possible combinations to avoid unnecessary work
+    const totalPossible = arrays.reduce((acc, arr) => acc * arr.length, 1);
+    if (totalPossible > limit) {
+        eventBus.emit("truncation", true);
+        eventBus.emit("snackbar", {
+            message:
+                "The generated schedule results are truncated because the input is too broad. To ensure all results are considered pin down some courses!",
+            variant: "warning",
+        });
+        // Return early if we know we'll exceed the limit
+        return [];
+    }
+
     let result = [[]];
+    let total = 0;
+
     for (const array of arrays) {
-        const temp = [];
+        const temp = new Array(result.length * array.length);
+        let tempIndex = 0;
+
         for (const item of array) {
             for (const combination of result) {
-                temp.push([...combination, item]);
-                if (temp.length >= limit) {
-                    eventBus.emit("truncation", true);
-                    eventBus.emit("snackbar", {
-                        message:
-                            "The generated schedule results are truncated because the input is too broad. To ensure all results are considered pin down some courses!",
-                        variant: "warning",
-                    });
-                    return temp;
+                temp[tempIndex++] = [...combination, item];
+                total++;
+                if (total >= limit) {
+                    return temp.slice(0, tempIndex);
                 }
             }
         }
-        result = temp;
+        result = temp.slice(0, tempIndex);
     }
+    
     return result;
 };
 
@@ -301,11 +332,17 @@ const generateSingleCourseCombinations = (course, timeSlots) => {
 };
 
 const isTimetableValid = (timetable) => {
-    const occupiedSlots = {};
-
+    // Pre-compile regex
+    const timeRegex = /[a-zA-Z]/;
+    
+    // Use a more efficient data structure for occupied slots
+    const occupiedSlots = new Map();
+    
+    // Helper function to check overlap
     const overlap = (start1, end1, start2, end2) => start1 < end2 && start2 < end1;
 
     for (const course of timetable) {
+        // Get all components in one go
         const components = [
             ...course.mainComponents,
             course.secondaryComponents.lab,
@@ -315,26 +352,42 @@ const isTimetableValid = (timetable) => {
 
         for (const component of components) {
             const { days, time, startDate, endDate } = component.schedule;
-            if (!time || /[a-zA-Z]/.test(time)) continue;
-            const [startSlot, endSlot] = time.split("-").map((t) => timeToSlot(t.trim()));
-            const daysArray = days.split(" ").filter((day) => day);
+            if (!time || timeRegex.test(time)) continue;
+
+            // Convert time to slots once
+            const [startSlot, endSlot] = time.split("-").map(t => timeToSlot(t.trim()));
+            const daysArray = days.split(" ").filter(Boolean);
+
+            // Create date range key once
+            const dateKey = `${startDate}-${endDate}`;
 
             for (const day of daysArray) {
-                for (let i = startSlot; i < endSlot; i++) {
-                    if (!occupiedSlots[day]) occupiedSlots[day] = {};
-                    for (const [existingStartDate, existingEndDate] of Object.keys(occupiedSlots[day]).map((d) =>
-                        d.split("-").map(Number)
-                    )) {
-                        if (
-                            overlap(startDate, endDate, existingStartDate, existingEndDate) &&
-                            occupiedSlots[day][`${existingStartDate}-${existingEndDate}`].includes(i)
-                        ) {
-                            return false;
+                if (!occupiedSlots.has(day)) {
+                    occupiedSlots.set(day, new Map());
+                }
+                const daySlots = occupiedSlots.get(day);
+
+                // Check all existing slots for this day
+                for (const [existingDateKey, slots] of daySlots) {
+                    const [existingStartDate, existingEndDate] = existingDateKey.split("-").map(Number);
+                    
+                    if (overlap(startDate, endDate, existingStartDate, existingEndDate)) {
+                        // Check if any slot in the range is occupied
+                        for (let i = startSlot; i < endSlot; i++) {
+                            if (slots.has(i)) {
+                                return false;
+                            }
                         }
                     }
-                    if (!occupiedSlots[day][`${startDate}-${endDate}`])
-                        occupiedSlots[day][`${startDate}-${endDate}`] = [];
-                    occupiedSlots[day][`${startDate}-${endDate}`].push(i);
+                }
+
+                // If we get here, the slots are available. Mark them as occupied.
+                if (!daySlots.has(dateKey)) {
+                    daySlots.set(dateKey, new Set());
+                }
+                const slots = daySlots.get(dateKey);
+                for (let i = startSlot; i < endSlot; i++) {
+                    slots.add(i);
                 }
             }
         }
