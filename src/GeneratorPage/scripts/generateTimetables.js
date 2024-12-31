@@ -39,6 +39,15 @@ const maxComboThreshold = 50000; // Maximum number of possible combinations that
 let timeslotOverridden = false;
 let lastBlockedComponents = []; //Stores all components that were blocked by user time constraints, is used later as a fallback mechanicm to attempt to regenerate timetables if none were found.
 
+// Performance tracking variables
+let performanceMetrics = {
+    generationStartTime: 0,
+    generationEndTime: 0,
+    totalCombinationsProcessed: 0,
+    validTimetablesFound: 0,
+    timeSlotOverrides: 0
+};
+
 const timeToSlot = (time) => {
     const [hours, minutes] =
         time.length === 3
@@ -342,6 +351,7 @@ const generateCombinationsIteratively = (courseCombinations, maxCombinations) =>
         if (arrays.length === 0) {
             results.push(prefix);
             count++;
+            performanceMetrics.totalCombinationsProcessed++;
             if (count >= maxCombinations) {
                 eventBus.emit("truncation", true);
                 eventBus.emit("snackbar", {
@@ -428,6 +438,15 @@ const calculateClassDays = (timetable) => {
 };
 
 export const generateTimetables = (sortOption) => {
+    // Reset metrics but don't start timer yet
+    performanceMetrics = {
+        generationStartTime: 0,
+        generationEndTime: 0,
+        totalCombinationsProcessed: 0,
+        validTimetablesFound: 0,
+        timeSlotOverrides: 0
+    };
+
     eventBus.emit("overridden", false);
     timeslotOverridden = false;
     validTimetables = [];
@@ -435,91 +454,106 @@ export const generateTimetables = (sortOption) => {
     const courses = Object.values(courseData);
     const timeSlots = getTimeSlots();
 
-    const allCourseCombinations = courses.map((course) => generateSingleCourseCombinations(course, timeSlots));
+    // Start timer only when we begin actual generation work
+    performanceMetrics.generationStartTime = performance.now();
 
-    if (allCourseCombinations.some((combinations) => combinations.length === 0)) {
-        validTimetables.push({ courses: [] });
-        return;
-    }
+    try {
+        const allCourseCombinations = courses.map((course) => generateSingleCourseCombinations(course, timeSlots));
 
-    let allPossibleTimetables = generateCombinationsIteratively(allCourseCombinations, maxComboThreshold);
-
-    allPossibleTimetables.forEach((timetable) => {
-        if (isTimetableValid(timetable)) {
-            validTimetables.push({ courses: timetable });
-        }
-    });
-
-    if (sortOption === "sortByWaitingTime") {
-        validTimetables.sort((a, b) => {
-            const waitingTimeDiff = calculateWaitingTime(a.courses) - calculateWaitingTime(b.courses);
-            if (waitingTimeDiff !== 0) return waitingTimeDiff;
-            return calculateClassDays(a.courses) - calculateClassDays(b.courses);
-        });
-    } else if (sortOption === "minimizeClassDays") {
-        validTimetables.sort((a, b) => calculateClassDays(a.courses) - calculateClassDays(b.courses));
-    }
-
-    if (validTimetables.length === 0 && lastBlockedComponents.length > 0) {
-    lastBlockedComponents.sort((a, b) => a.blockedPercentage - b.blockedPercentage);
-
-    for (let i = 0; i < lastBlockedComponents.length; i++) {
-        const leastBlockedGroup = lastBlockedComponents[i].group;
-
-        for (const component of leastBlockedGroup) {
-            const { days, time } = component.schedule;
-            if (!time) continue;
-            const [startSlot, endSlot] = time.split("-").map((t) => timeToSlot(t.trim()));
-            const daysArray = days.replace(/\s/g, "").split("");
-            for (let day of daysArray) {
-                for (let s = startSlot; s < endSlot; s++) {
-                    timeSlots[day][s] = false; 
-                }
-            }
+        if (allCourseCombinations.some((combinations) => combinations.length === 0)) {
+            validTimetables.push({ courses: [] });
+            return;
         }
 
-        timeslotOverridden = true;
-        validTimetables = [];
+        let allPossibleTimetables = generateCombinationsIteratively(allCourseCombinations, maxComboThreshold);
 
-        const courseData = getCourseData();
-        const courses = Object.values(courseData);
-
-        const retryCourseCombinations = courses.map((course) => generateSingleCourseCombinations(course, timeSlots));
-
-        if (retryCourseCombinations.some((combinations) => combinations.length === 0)) {
-            continue;
-        }
-
-        let retryAllPossibleTimetables = generateCombinationsIteratively(retryCourseCombinations, maxComboThreshold);
-        retryAllPossibleTimetables.forEach((timetable) => {
+        allPossibleTimetables.forEach((timetable) => {
             if (isTimetableValid(timetable)) {
                 validTimetables.push({ courses: timetable });
+                performanceMetrics.validTimetablesFound++;
             }
         });
 
-    
-        if (validTimetables.length > 0) break;
-    }
+        if (validTimetables.length === 0 && lastBlockedComponents.length > 0) {
+            lastBlockedComponents.sort((a, b) => a.blockedPercentage - b.blockedPercentage);
 
-    if (sortOption === "sortByWaitingTime") {
-        validTimetables.sort((a, b) => {
-            const waitingTimeDiff = calculateWaitingTime(a.courses) - calculateWaitingTime(b.courses);
-            if (waitingTimeDiff !== 0) return waitingTimeDiff;
-            return calculateClassDays(a.courses) - calculateClassDays(b.courses);
-        });
-    } else if (sortOption === "minimizeClassDays") {
-        validTimetables.sort((a, b) => calculateClassDays(a.courses) - calculateClassDays(b.courses));
-    }
+            for (let i = 0; i < lastBlockedComponents.length; i++) {
+                const leastBlockedGroup = lastBlockedComponents[i].group;
 
-    if (timeslotOverridden) {
-        eventBus.emit("overridden", true);
-        eventBus.emit("snackbar", {
-            message:
-                "All available options for one or more course components were blocked. One or more user-defined time blocks has been overridden to find a valid timetable.",
-            variant: "warning",
-        });
+                for (const component of leastBlockedGroup) {
+                    const { days, time } = component.schedule;
+                    if (!time) continue;
+                    const [startSlot, endSlot] = time.split("-").map((t) => timeToSlot(t.trim()));
+                    const daysArray = days.replace(/\s/g, "").split("");
+                    for (let day of daysArray) {
+                        for (let s = startSlot; s < endSlot; s++) {
+                            timeSlots[day][s] = false; 
+                        }
+                    }
+                }
+
+                timeslotOverridden = true;
+                validTimetables = [];
+
+                const retryCourseCombinations = courses.map((course) => generateSingleCourseCombinations(course, timeSlots));
+
+                if (retryCourseCombinations.some((combinations) => combinations.length === 0)) {
+                    continue;
+                }
+
+                let retryAllPossibleTimetables = generateCombinationsIteratively(retryCourseCombinations, maxComboThreshold);
+                retryAllPossibleTimetables.forEach((timetable) => {
+                    if (isTimetableValid(timetable)) {
+                        validTimetables.push({ courses: timetable });
+                    }
+                });
+            
+                if (validTimetables.length > 0) break;
+            }
+
+            if (timeslotOverridden) {
+                performanceMetrics.timeSlotOverrides++;
+                eventBus.emit("overridden", true);
+                eventBus.emit("snackbar", {
+                    message:
+                        "All available options for one or more course components were blocked. One or more user-defined time blocks has been overridden to find a valid timetable.",
+                    variant: "warning",
+                });
+            }
+        }
+
+        // Sort after generation is complete
+        if (sortOption === "sortByWaitingTime") {
+            validTimetables.sort((a, b) => {
+                const waitingTimeDiff = calculateWaitingTime(a.courses) - calculateWaitingTime(b.courses);
+                if (waitingTimeDiff !== 0) return waitingTimeDiff;
+                return calculateClassDays(a.courses) - calculateClassDays(b.courses);
+            });
+        } else if (sortOption === "minimizeClassDays") {
+            validTimetables.sort((a, b) => calculateClassDays(a.courses) - calculateClassDays(b.courses));
+        }
+    } finally {
+        // Always set the end time, even if there's an error
+        performanceMetrics.generationEndTime = performance.now();
     }
-}
 };
 
 export const getValidTimetables = () => validTimetables;
+
+export const getGenerationPerformance = () => {
+    const {
+        generationStartTime,
+        generationEndTime,
+        totalCombinationsProcessed,
+        validTimetablesFound,
+        timeSlotOverrides
+    } = performanceMetrics;
+
+    return {
+        generationStartTime,
+        generationEndTime,
+        totalCombinationsProcessed,
+        validTimetablesFound,
+        timeSlotOverrides
+    };
+};
