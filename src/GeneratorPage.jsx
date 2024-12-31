@@ -81,7 +81,7 @@ function GeneratorPage() {
                         </Grid>
                         {isSmallScreen && (
                             <Grid item xs={12}>
-                                <Box m={2} mt={0}>
+                                <Box m={2} mt={2}>
                                     <InputFormBottomComponent
                                         addedCourses={addedCourses}
                                         setAddedCourses={setAddedCourses}

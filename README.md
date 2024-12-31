@@ -4,7 +4,7 @@
 
 Brock Visual TimeTable is a tool created by Brock students for Brock students. The goal of this project is to simplify and enhance the way students plan their academic schedules. With a clean user-friendly interface this tool allows students to quickly & visually map out their lectures, seminars, tutorials, and labs by simply typing in their course codes. This tool is especially beneficial for first-year students who are unfamiliar with the complexities of university scheduling.
 
-![ezgif-3-2129ecbf0a](https://github.com/user-attachments/assets/4067707b-43ca-4c12-a94a-54e061a6dda7)
+![newgif](https://github.com/user-attachments/assets/005bfe09-d6e6-48a0-a729-3952481aef60)
 
 ### Key Features:
 * **Conflict-Free Scheduling:** Automatically generates timetables without class overlaps, ensuring all options are viable.
