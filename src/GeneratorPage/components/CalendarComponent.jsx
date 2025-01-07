@@ -341,6 +341,10 @@ export default function CalendarComponent({
         }
     };
 
+    const handleSelectAllow = (selectionInfo) => {
+        return true; 
+    };
+
     const handleCloseTruncationDialog = () => {
         setTruncationDialogOpen(false);
     };
@@ -478,7 +482,7 @@ export default function CalendarComponent({
                 selectable={true}
                 selectMinDistance={25}
                 select={handleSelect}
-                selectAllow={true}
+                selectAllow={handleSelectAllow}
                 longPressDelay={0}
                 selectLongPressDelay={500}
             />
