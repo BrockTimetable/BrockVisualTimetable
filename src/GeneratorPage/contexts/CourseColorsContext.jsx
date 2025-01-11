@@ -26,9 +26,14 @@ export const CourseColorsProvider = ({ children }) => {
     const [courseColors, setCourseColors] = useState({});
     const [usedColors, setUsedColors] = useState([]);
     const [timetableHandlers, setTimetableHandlers] = useState(null);
+    const [calendarHandler, setCalendarHandler] = useState(null);
 
     const setTimetableUpdateHandlers = (handlers) => {
         setTimetableHandlers(handlers);
+    };
+
+    const setCalendarUpdateHandler = (handler) => {
+        setCalendarHandler(handler);
     };
 
     const updateTimetables = () => {
@@ -36,6 +41,12 @@ export const CourseColorsProvider = ({ children }) => {
             const { generateTimetables, getValidTimetables, setTimetables, sortOption } = timetableHandlers;
             generateTimetables(sortOption);
             setTimetables(getValidTimetables());
+        }
+    };
+
+    const updateCalendarColors = () => {
+        if (calendarHandler) {
+            calendarHandler();
         }
     };
 
@@ -61,7 +72,8 @@ export const CourseColorsProvider = ({ children }) => {
                 [courseCode]: color
             };
         });
-        updateTimetables();
+        // Just update calendar colors instead of regenerating timetables
+        updateCalendarColors();
     };
 
     const getDefaultColorForCourse = (courseCode) => {
@@ -69,7 +81,12 @@ export const CourseColorsProvider = ({ children }) => {
             return courseColors[courseCode];
         }
         const newColor = getNextColor();
-        updateCourseColor(courseCode, newColor);
+        // Update the colors state immediately to ensure consistency
+        setCourseColors(prev => ({
+            ...prev,
+            [courseCode]: newColor
+        }));
+        setUsedColors(current => [...current, newColor]);
         return newColor;
     };
 
@@ -78,7 +95,8 @@ export const CourseColorsProvider = ({ children }) => {
             courseColors, 
             updateCourseColor, 
             getDefaultColorForCourse,
-            setTimetableUpdateHandlers 
+            setTimetableUpdateHandlers,
+            setCalendarUpdateHandler
         }}>
             {children}
         </CourseColorsContext.Provider>
