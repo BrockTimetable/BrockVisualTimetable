@@ -5,7 +5,7 @@ import List from "@mui/material/List";
 import { CourseDetailsContext } from "../../contexts/CourseDetailsContext";
 import { useTheme } from "@mui/material/styles";
 
-export default function CourseListComponent({ courses = [], onRemoveCourse }) {
+export default function CourseListComponent({ courses = [], onRemoveCourse, setTimetables, sortOption }) {
     const { courseDetails } = useContext(CourseDetailsContext);
 
     const getCourseDetail = (course) => {
@@ -27,6 +27,8 @@ export default function CourseListComponent({ courses = [], onRemoveCourse }) {
                             course={course}
                             courseDetail={getCourseDetail(course)}
                             removeCourse={onRemoveCourse}
+                            setTimetables={setTimetables}
+                            sortOption={sortOption}
                             key={course}
                         />
                     ))}

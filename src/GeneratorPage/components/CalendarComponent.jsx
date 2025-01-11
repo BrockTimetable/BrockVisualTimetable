@@ -47,6 +47,7 @@ import { setBlockedTimeSlots, setOpenTimeSlots } from "../scripts/timeSlots";
 import { getCourseData } from "../scripts/courseData";
 import { CourseDetailsContext } from "../contexts/CourseDetailsContext";
 import eventBus from "../../SiteWide/Buses/eventBus";
+import { CourseColorsContext } from "../contexts/CourseColorsContext";
 import { Typography } from "@mui/material";
 
 export default function CalendarComponent({
@@ -63,6 +64,7 @@ export default function CalendarComponent({
     const [currentTimetableIndex, setCurrentTimetableIndex] = useState(0);
     const theme = useTheme();
     const { setCourseDetails } = useContext(CourseDetailsContext);
+    const { courseColors } = useContext(CourseColorsContext);
     const [isTruncated, setIsTruncated] = useState(false);
     const [truncationDialogOpen, setTruncationDialogOpen] = useState(false);
     const [noTimetablesGenerated, setNoTimetablesGenerated] = useState(false);
@@ -151,7 +153,7 @@ export default function CalendarComponent({
         if (timetables.length > 0 && timetables[0].courses.length > 0) {
             setNoCourses(false);
             const timetable = timetables[currentTimetableIndex];
-            const newEvents = createCalendarEvents(timetable, getDaysOfWeek);
+            const newEvents = createCalendarEvents(timetable, getDaysOfWeek, courseColors);
 
             const courseDetails = newEvents
                 .filter((event) => event.description)
@@ -171,7 +173,7 @@ export default function CalendarComponent({
             setNoTimetablesGenerated(false);
         } else {
             setNoCourses(true);
-            const newEvents = createCalendarEvents(null, getDaysOfWeek);
+            const newEvents = createCalendarEvents(null, getDaysOfWeek, courseColors);
             setCourseDetails([]);
             setEvents(newEvents);
             if (Object.keys(getCourseData()).length > 0) {

@@ -1,6 +1,6 @@
 let timeBlockEvents = [];
 
-export const createCalendarEvents = (timetable, getDaysOfWeek) => {
+export const createCalendarEvents = (timetable, getDaysOfWeek, courseColors = {}) => {
     const newEvents = [];
 
     /*
@@ -18,8 +18,9 @@ export const createCalendarEvents = (timetable, getDaysOfWeek) => {
         return uniqueId;
     };
 
-    const createEvent = (course, component, color, isAllDay) => {
+    const createEvent = (course, component, defaultColor, isAllDay, courseColors) => {
         const uniqueId = getUniqueId(component.id);
+        const customColor = courseColors[course.courseCode] || defaultColor;
         const event = {
             id: uniqueId,
             title: `${course.courseCode} ${component.type} ${component.sectionNumber}`,
@@ -27,7 +28,7 @@ export const createCalendarEvents = (timetable, getDaysOfWeek) => {
             startRecur: formatDate(component.schedule.startDate),
             endRecur: formatDate(component.schedule.endDate),
             description: component.instructor,
-            color: color,
+            color: customColor,
             isPinned: component.pinned,
         };
 
@@ -42,12 +43,12 @@ export const createCalendarEvents = (timetable, getDaysOfWeek) => {
         newEvents.push(event);
     };
 
-    const addAllDayEvent = (course, component, color = "default") => {
-        createEvent(course, component, color, true);
+    const addAllDayEvent = (course, component, color = "default", courseColors) => {
+        createEvent(course, component, color, true, courseColors);
     };
 
-    const addTimedEvent = (course, component, color = "default") => {
-        createEvent(course, component, color, false);
+    const addTimedEvent = (course, component, color = "default", courseColors) => {
+        createEvent(course, component, color, false, courseColors);
     };
 
     const addTimeBlockEvent = (block) => {
@@ -81,9 +82,9 @@ export const createCalendarEvents = (timetable, getDaysOfWeek) => {
                 while project courses and field trip courses do and do not have specific assigned times.
                 */
                 if (!mainComponent.schedule.time || /[a-zA-Z]/.test(mainComponent.schedule.time)) {
-                    addAllDayEvent(course, mainComponent);
+                    addAllDayEvent(course, mainComponent, "default", courseColors);
                 } else {
-                    addTimedEvent(course, mainComponent);
+                    addTimedEvent(course, mainComponent, "default", courseColors);
                 }
             });
         }
@@ -93,25 +94,25 @@ export const createCalendarEvents = (timetable, getDaysOfWeek) => {
 
             if (lab) {
                 if (!lab.schedule.time) {
-                    addAllDayEvent(course, lab, "green");
+                    addAllDayEvent(course, lab, "default", courseColors);
                 } else {
-                    addTimedEvent(course, lab, "green");
+                    addTimedEvent(course, lab, "default", courseColors);
                 }
             }
 
             if (tutorial) {
                 if (!tutorial.schedule.time) {
-                    addAllDayEvent(course, tutorial, "red");
+                    addAllDayEvent(course, tutorial, "default", courseColors);
                 } else {
-                    addTimedEvent(course, tutorial, "red");
+                    addTimedEvent(course, tutorial, "default", courseColors);
                 }
             }
 
             if (seminar) {
                 if (!seminar.schedule.time) {
-                    addAllDayEvent(course, seminar, "#ABBD39");
+                    addAllDayEvent(course, seminar, "default", courseColors);
                 } else {
-                    addTimedEvent(course, seminar, "#ABBD39");
+                    addTimedEvent(course, seminar, "default", courseColors);
                 }
             }
         }
