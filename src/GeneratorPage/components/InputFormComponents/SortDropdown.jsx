@@ -11,7 +11,7 @@ export default function SortDropdown({ value, onChange }) {
             <FormControl fullWidth>
                 <Select value={value} onChange={onChange} displayEmpty>
                     <MenuItem value="default">Default</MenuItem>
-                    <MenuItem value="sortByWaitingTime">Sort by Waiting Time</MenuItem>
+                    <MenuItem value="sortByWaitingTime">Minimize Class Gaps</MenuItem>
                     <MenuItem value="minimizeClassDays">Minimize Class Days</MenuItem>
                 </Select>
             </FormControl>
