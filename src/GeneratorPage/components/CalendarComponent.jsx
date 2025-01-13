@@ -2,37 +2,18 @@ import React, { useState, useEffect, useContext } from "react";
 import FullCalendar from "@fullcalendar/react";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
-import Button from "@mui/material/Button";
-import FormControl from "@mui/material/FormControl";
-import Select from "@mui/material/Select";
-import InputLabel from "@mui/material/InputLabel";
-import MenuItem from "@mui/material/MenuItem";
-import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
-import NavigateNextIcon from "@mui/icons-material/NavigateNext";
-import NavigateFirstIcon from "@mui/icons-material/FirstPage";
-import NavigateLastIcon from "@mui/icons-material/LastPage";
 import BlockIcon from "@mui/icons-material/Block";
 import PinIcon from "@mui/icons-material/PushPin";
-import Box from "@mui/material/Box";
 import { useTheme } from "@mui/material/styles";
 import { useSnackbar } from "notistack";
 import MultiLineSnackbar from "../../SiteWide/components/MultiLineSnackbar";
-import IconButton from "@mui/material/IconButton";
-import InfoIcon from "@mui/icons-material/Info";
-import CancelIcon from "@mui/icons-material/Cancel";
-import Dialog from "@mui/material/Dialog";
-import DialogActions from "@mui/material/DialogActions";
-import DialogContent from "@mui/material/DialogContent";
-import DialogContentText from "@mui/material/DialogContentText";
-import DialogTitle from "@mui/material/DialogTitle";
 import CalendarNavBar from "./CalendarNavBar";
 import TruncationDialog from "./TruncationDialog";
 import NoTimetablesDialog from "./NoTimetablesDialog";
 import BlockedSlotsDialog from "./BlockedSlotsDialog";
 import BorderBox from "./InputFormComponents/Sections/BorderBox";
-
 import "../css/Calendar.css";
-import "../css/CustomCalendar.css"; // Add this line to import the new CSS file
+import "../css/CustomCalendar.css";
 import {
     createCalendarEvents,
     getDaysOfWeek,
@@ -47,7 +28,6 @@ import { setBlockedTimeSlots, setOpenTimeSlots } from "../scripts/timeSlots";
 import { getCourseData } from "../scripts/courseData";
 import { CourseDetailsContext } from "../contexts/CourseDetailsContext";
 import eventBus from "../../SiteWide/Buses/eventBus";
-import { Typography } from "@mui/material";
 
 export default function CalendarComponent({
     timetables,
@@ -232,7 +212,7 @@ export default function CalendarComponent({
                 addPinnedComponent(courseCode + " " + split[1] + " " + clickInfo.event.id.substring(0, 7));
             }
         } else {
-            const blockId = clickInfo.event.id.split("-")[1];
+            const blockId = clickInfo.event.id.replace('block-', '');
             const blockEvent = getTimeBlockEvents().find((block) => block.id === blockId);
 
             if (blockEvent) {
@@ -278,7 +258,8 @@ export default function CalendarComponent({
     const handleSelect = (selectInfo) => {
         const startDateTime = new Date(selectInfo.startStr);
         const endDateTime = new Date(selectInfo.endStr);
-        const startDay = startDateTime.toLocaleString("en-US", { weekday: "short" });
+        const startTime = startDateTime.getHours() + ":" + (startDateTime.getMinutes() || "00");
+        const endTime = endDateTime.getHours() + ":" + (endDateTime.getMinutes() || "00");
         const slotStart = (startDateTime.getHours() - 8) * 2 + startDateTime.getMinutes() / 30;
         const slotEnd = (endDateTime.getHours() - 8) * 2 + endDateTime.getMinutes() / 30;
 
@@ -290,72 +271,78 @@ export default function CalendarComponent({
             Fri: "F",
         };
 
-        if (dayMapping[startDay]) {
+        // Get all days between start and end date
+        const days = [];
+        let currentDate = new Date(startDateTime);
+        while (currentDate <= endDateTime) {
+            const dayName = currentDate.toLocaleString("en-US", { weekday: "short" });
+            if (dayMapping[dayName]) {
+                days.push(dayMapping[dayName]);
+            }
+            currentDate.setDate(currentDate.getDate() + 1);
+        }
+
+        if (days.length > 0) {
             const slotsToBlock = [];
             for (let i = slotStart; i <= slotEnd - 1; i++) {
                 slotsToBlock.push(i);
             }
 
-            const existingBlocks = getTimeBlockEvents();
-            let combinedSlotStart = slotStart;
-            let combinedSlotEnd = slotEnd;
-            let blocksToRemove = [];
+            // Handle each day separately
+            days.forEach(day => {
+                const existingBlocks = getTimeBlockEvents();
+                let combinedSlotStart = slotStart;
+                let combinedSlotEnd = slotEnd;
+                let blocksToRemove = [];
 
-            for (let block of existingBlocks) {
-                if (block.daysOfWeek.trim() === dayMapping[startDay]) {
-                    const existingStartParts = block.startTime.split(":");
-                    const existingSlotStart =
-                        (parseInt(existingStartParts[0]) - 8) * 2 + parseInt(existingStartParts[1]) / 30;
-                    const existingEndParts = block.endTime.split(":");
-                    const existingSlotEnd =
-                        (parseInt(existingEndParts[0]) - 8) * 2 + parseInt(existingEndParts[1]) / 30;
+                for (let block of existingBlocks) {
+                    if (block.daysOfWeek.trim() === day) {
+                        const existingStartParts = block.startTime.split(":");
+                        const existingSlotStart =
+                            (parseInt(existingStartParts[0]) - 8) * 2 + parseInt(existingStartParts[1]) / 30;
+                        const existingEndParts = block.endTime.split(":");
+                        const existingSlotEnd =
+                            (parseInt(existingEndParts[0]) - 8) * 2 + parseInt(existingEndParts[1]) / 30;
 
-                    if (!(slotStart >= existingSlotEnd || slotEnd <= existingSlotStart)) {
-                        combinedSlotStart = Math.min(combinedSlotStart, existingSlotStart);
-                        combinedSlotEnd = Math.max(combinedSlotEnd, existingSlotEnd);
-                        blocksToRemove.push(block.id);
+                        if (!(slotStart >= existingSlotEnd || slotEnd <= existingSlotStart)) {
+                            combinedSlotStart = Math.min(combinedSlotStart, existingSlotStart);
+                            combinedSlotEnd = Math.max(combinedSlotEnd, existingSlotEnd);
+                            blocksToRemove.push(block.id);
+                        }
                     }
                 }
-            }
 
-            const combinedSlots = [];
-            for (let i = combinedSlotStart; i < combinedSlotEnd; i++) {
-                combinedSlots.push(i);
-            }
+                const combinedSlots = [];
+                for (let i = combinedSlotStart; i < combinedSlotEnd; i++) {
+                    combinedSlots.push(i);
+                }
 
-            const combinedSlotsObject = { [dayMapping[startDay]]: combinedSlots };
+                const combinedSlotsObject = { [day]: combinedSlots };
+                setBlockedTimeSlots(combinedSlotsObject);
 
-            setBlockedTimeSlots(combinedSlotsObject);
+                for (let blockId of blocksToRemove) {
+                    removeTimeBlockEvent(blockId);
+                }
 
-            for (let blockId of blocksToRemove) {
-                removeTimeBlockEvent(blockId);
-            }
-
-            const blockId = Date.now().toString();
-            const block = {
-                id: blockId,
-                daysOfWeek: dayMapping[startDay],
-                startTime: `${Math.floor(combinedSlotStart / 2) + 8}:${combinedSlotStart % 2 === 0 ? "00" : "30"}`,
-                endTime: `${Math.floor(combinedSlotEnd / 2) + 8}:${combinedSlotEnd % 2 === 0 ? "00" : "30"}`,
-                startRecur: "1970-01-01",
-                endRecur: "9999-12-31",
-            };
-            addTimeBlockEvent(block);
+                const blockId = Date.now().toString() + "-" + day;
+                const block = {
+                    id: blockId,
+                    daysOfWeek: day,
+                    startTime: `${Math.floor(combinedSlotStart / 2) + 8}:${combinedSlotStart % 2 === 0 ? "00" : "30"}`,
+                    endTime: `${Math.floor(combinedSlotEnd / 2) + 8}:${combinedSlotEnd % 2 === 0 ? "00" : "30"}`,
+                    startRecur: "1970-01-01",
+                    endRecur: "9999-12-31",
+                };
+                addTimeBlockEvent(block);
+            });
+            setCurrentTimetableIndex(0);
+            generateTimetables(sortOption);
+            setTimetables(getValidTimetables());
         }
-        setCurrentTimetableIndex(0);
-        generateTimetables(sortOption);
-        setTimetables(getValidTimetables());
     };
 
     const handleSelectAllow = (selectionInfo) => {
-        let startDate = selectionInfo.start;
-        let endDate = selectionInfo.end;
-        endDate.setSeconds(endDate.getSeconds() - 1);
-        if (startDate.getDate() === endDate.getDate()) {
-            return true;
-        } else {
-            return false;
-        }
+        return true; 
     };
 
     const handleCloseTruncationDialog = () => {
