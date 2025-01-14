@@ -129,6 +129,7 @@ export default function CalendarComponent({
 
     useEffect(() => {
         courseColorsRef.current = courseColors;
+        updateCalendarEvents();
     }, [courseColors]);
 
     useEffect(() => {

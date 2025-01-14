@@ -30,7 +30,10 @@ export default function CourseListComponent({ course, courseDetail, removeCourse
     }
 
     const handleColorChange = (event) => {
-        updateCourseColor(courseCode, event.target.value);
+        const newColor = event.target.value;
+        if (newColor && newColor !== courseColors[courseCode]) {
+            updateCourseColor(courseCode, newColor);
+        }
     };
 
     // Get the current color, falling back to the default color system
@@ -74,6 +77,7 @@ export default function CourseListComponent({ course, courseDetail, removeCourse
                             type="color"
                             value={currentColor}
                             onChange={handleColorChange}
+                            onInput={handleColorChange}
                             style={{
                                 position: 'absolute',
                                 width: '100%',
