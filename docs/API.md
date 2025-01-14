@@ -110,7 +110,7 @@ curl "https://api.brocktimetable.com/api/getCourse?courseCode=COSC1P02&timetable
 ```
 ### 3. Get Date of Data Update
 
-**Endpoint:** `GET /api/getNameList`
+**Endpoint:** `GET /api/dataAge`
 
 **Description:** Retrieves a timestamp of when the data for the timetable & session was last updated.
 
