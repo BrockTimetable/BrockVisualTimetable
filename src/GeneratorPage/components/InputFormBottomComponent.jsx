@@ -22,7 +22,12 @@ export default function InputFormBottomComponent({ addedCourses, setAddedCourses
         <Box>
             <Grid container spacing={2}>
                 <Grid item xs={12}>
-                    <CourseList addedCourses={addedCourses} removeCourse={handleRemoveCourse} />
+                    <CourseList 
+                        addedCourses={addedCourses} 
+                        removeCourse={handleRemoveCourse} 
+                        setTimetables={setTimetables}
+                        sortOption={sortOption}
+                    />
                 </Grid>
                 <Grid item xs={12}>
                     <Tips />

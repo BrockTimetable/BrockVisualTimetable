@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext, useCallback } from "react";
 import FullCalendar from "@fullcalendar/react";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
@@ -28,6 +28,7 @@ import { setBlockedTimeSlots, setOpenTimeSlots } from "../scripts/timeSlots";
 import { getCourseData } from "../scripts/courseData";
 import { CourseDetailsContext } from "../contexts/CourseDetailsContext";
 import eventBus from "../../SiteWide/Buses/eventBus";
+import { CourseColorsContext } from "../contexts/CourseColorsContext";
 
 export default function CalendarComponent({
     timetables,
@@ -39,10 +40,14 @@ export default function CalendarComponent({
 }) {
     const { enqueueSnackbar } = useSnackbar();
     const calendarRef = React.useRef(null);
+    const timetablesRef = React.useRef(timetables);
+    const currentTimetableIndexRef = React.useRef(0);
+    const courseColorsRef = React.useRef({});
     const [events, setEvents] = useState([]);
     const [currentTimetableIndex, setCurrentTimetableIndex] = useState(0);
     const theme = useTheme();
     const { setCourseDetails } = useContext(CourseDetailsContext);
+    const { courseColors, setCalendarUpdateHandler, getDefaultColorForCourse } = useContext(CourseColorsContext);
     const [isTruncated, setIsTruncated] = useState(false);
     const [truncationDialogOpen, setTruncationDialogOpen] = useState(false);
     const [noTimetablesGenerated, setNoTimetablesGenerated] = useState(false);
@@ -95,6 +100,19 @@ export default function CalendarComponent({
     }, []);
 
     useEffect(() => {
+        timetablesRef.current = timetables;
+    }, [timetables]);
+
+    useEffect(() => {
+        currentTimetableIndexRef.current = currentTimetableIndex;
+    }, [currentTimetableIndex]);
+
+    useEffect(() => {
+        courseColorsRef.current = courseColors;
+        updateCalendarEvents();
+    }, [courseColors]);
+
+    useEffect(() => {
         updateCalendarEvents();
     }, [currentTimetableIndex, timetables]);
 
@@ -103,6 +121,10 @@ export default function CalendarComponent({
             handleCalendarViewClick(selectedDuration);
         }
     }, [selectedDuration]);
+
+    useEffect(() => {
+        setCalendarUpdateHandler(() => updateCalendarEvents);
+    }, []);
 
     useEffect(() => {
         const handleTruncation = (status) => {
@@ -124,14 +146,32 @@ export default function CalendarComponent({
         };
     }, []);
 
-    const updateCalendarEvents = () => {
-        if (currentTimetableIndex >= timetables.length && timetables.length > 0) {
+    const handleLast = useCallback(() => {
+        setCurrentTimetableIndex(timetables.length - 1);
+    }, [timetables.length]);
+
+    const updateCalendarEvents = useCallback(() => {
+        const currentTimetables = timetablesRef.current;
+        const currentIndex = currentTimetableIndexRef.current;
+        const currentColors = {...courseColorsRef.current};
+
+        // Ensure all courses have colors
+        if (currentTimetables.length > 0 && currentTimetables[0].courses.length > 0) {
+            currentTimetables[0].courses.forEach(course => {
+                const courseCode = course.courseCode;
+                if (!currentColors[courseCode]) {
+                    currentColors[courseCode] = getDefaultColorForCourse(courseCode);
+                }
+            });
+        }
+
+        if (currentIndex >= currentTimetables.length && currentTimetables.length > 0) {
             handleLast();
         }
-        if (timetables.length > 0 && timetables[0].courses.length > 0) {
+        if (currentTimetables.length > 0 && currentTimetables[0].courses.length > 0) {
             setNoCourses(false);
-            const timetable = timetables[currentTimetableIndex];
-            const newEvents = createCalendarEvents(timetable, getDaysOfWeek);
+            const timetable = currentTimetables[currentIndex];
+            const newEvents = createCalendarEvents(timetable, getDaysOfWeek, currentColors);
 
             const courseDetails = newEvents
                 .filter((event) => event.description)
@@ -151,7 +191,7 @@ export default function CalendarComponent({
             setNoTimetablesGenerated(false);
         } else {
             setNoCourses(true);
-            const newEvents = createCalendarEvents(null, getDaysOfWeek);
+            const newEvents = createCalendarEvents(null, getDaysOfWeek, currentColors);
             setCourseDetails([]);
             setEvents(newEvents);
             if (Object.keys(getCourseData()).length > 0) {
@@ -164,7 +204,7 @@ export default function CalendarComponent({
                 setNoTimetablesGenerated(true);
             }
         }
-    };
+    }, [getDefaultColorForCourse, enqueueSnackbar, setCourseDetails, setEvents, setNoCourses, setNoTimetablesGenerated, handleLast]);
 
     const handleCalendarViewClick = (durationLabel) => {
         const calendarApi = calendarRef.current.getApi();
@@ -250,9 +290,6 @@ export default function CalendarComponent({
 
     const handleFirst = () => {
         setCurrentTimetableIndex(0);
-    };
-    const handleLast = () => {
-        setCurrentTimetableIndex(timetables.length - 1);
     };
 
     const handleSelect = (selectInfo) => {
