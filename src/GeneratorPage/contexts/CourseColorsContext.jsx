@@ -1,4 +1,4 @@
-import React, { createContext, useState } from 'react';
+import React, { createContext, useState, useRef } from 'react';
 
 // Visually distinguishable colors that work well for both light and dark themes
 // Colors are ordered to maximize contrast between consecutive colors
@@ -60,20 +60,29 @@ export const CourseColorsProvider = ({ children }) => {
         return availableColors[0];
     };
 
+    const colourTimeoutRef = useRef(false);
     const updateCourseColor = (courseCode, color) => {
-        setCourseColors(prev => {
-            const oldColor = prev[courseCode];
-            if (oldColor) {
-                setUsedColors(current => current.filter(c => c !== oldColor));
-            }
-            setUsedColors(current => [...current, color]);
-            return {
-                ...prev,
-                [courseCode]: color
-            };
-        });
-        // Just update calendar colors instead of regenerating timetables
-        updateCalendarColors();
+        if (!colourTimeoutRef.current) {
+            colourTimeoutRef.current = true;
+
+            setCourseColors(prev => {
+                const oldColor = prev[courseCode];
+                if (oldColor) {
+                    setUsedColors(current => current.filter(c => c !== oldColor));
+                }
+                setUsedColors(current => [...current, color]);
+                return {
+                    ...prev,
+                    [courseCode]: color
+                };
+            });
+
+            updateCalendarColors();
+
+            setTimeout(() => {
+                colourTimeoutRef.current = false;
+            }, 50);
+        }
     };
 
     const getDefaultColorForCourse = (courseCode) => {
