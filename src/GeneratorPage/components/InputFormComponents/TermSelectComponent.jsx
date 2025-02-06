@@ -8,7 +8,7 @@ import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
 
 export default function TermSelectComponent({ onTermChange }) {
-  const [term, setTerm] = React.useState('FW');
+  const [term, setTerm] = React.useState('SP');
 
   function handleTermChange(event) {
     const selectedTerm = event.target.value;
@@ -28,9 +28,9 @@ export default function TermSelectComponent({ onTermChange }) {
             onChange={handleTermChange}
           >
             <MenuItem value={''}>Select Term</MenuItem>
-            <MenuItem disabled={false} value={'FW'}>Fall/Winter</MenuItem>
-            <MenuItem disabled={true} value={'SP'}>Spring</MenuItem>
-            <MenuItem disabled={true} value={'SU'}>Summer</MenuItem>
+            <MenuItem disabled={true} value={'FW'}>Fall/Winter</MenuItem>
+            <MenuItem disabled={false} value={'SP'}>Spring 2025</MenuItem>
+            <MenuItem disabled={false} value={'SU'}>Summer 2025</MenuItem>
           </Select>
         </FormControl>
       </Box>
