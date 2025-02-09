@@ -45,3 +45,7 @@ export const removeCourseData = (courseCode) => {
   const sanitizedCourseCode = courseCode.replace(" ", "");
   delete courseData[sanitizedCourseCode];
 };
+
+export const clearAllCourseData = () => {
+  courseData = {};
+};

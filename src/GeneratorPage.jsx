@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { NavbarComponent, CalendarComponent, InputFormBottomComponent, InputFormTopComponent } from "./GeneratorPage/components";
 import CssBaseline from "@mui/material/CssBaseline";
 import Grid from "@mui/material/Grid";
@@ -9,8 +9,8 @@ import { CourseColorsProvider, CourseColorsContext } from "./GeneratorPage/conte
 import ChangelogDialogComponent from "./GeneratorPage/components/ChangelogDialogComponent";
 import ReactGA from "react-ga4";
 import { generateTimetables, getValidTimetables } from "./GeneratorPage/scripts/generateTimetables";
-import { removeCourseData } from "./GeneratorPage/scripts/courseData";
-import { clearCoursePins } from "./GeneratorPage/scripts/pinnedComponents";
+import { removeCourseData, clearAllCourseData } from "./GeneratorPage/scripts/courseData";
+import { clearCoursePins, clearAllPins } from "./GeneratorPage/scripts/pinnedComponents";
 
 function GeneratorPage() {
     ReactGA.send({ hitType: "pageview", page: "Generator", title: "Brock Visual TimeTable" });
@@ -21,6 +21,19 @@ function GeneratorPage() {
     const [sortOption, setSortOption] = useState("");
     const [addedCourses, setAddedCourses] = useState([]);
     const isSmallScreen = useMediaQuery((theme) => theme.breakpoints.down('md'));
+
+    // Clear all state when component unmounts
+    useEffect(() => {
+        return () => {
+            clearAllCourseData();
+            clearAllPins();
+            setAddedCourses([]);
+            setTimetables([]);
+            setSelectedDuration("");
+            setDurations([]);
+            setSortOption("");
+        };
+    }, []);
 
     const handleOpenChangelog = () => {
         setIsChangelogOpen(true);
