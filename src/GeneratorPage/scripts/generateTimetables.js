@@ -31,6 +31,8 @@ Key function descriptions:
 import { getCourseData } from "./courseData";
 import { getTimeSlots } from "./timeSlots";
 import { getPinnedComponents } from "./pinnedComponents";
+import { timeSlotManager } from "./TimeSlotManager";
+import { timeToSlot, isAsyncOrOnline, doTimeRangesOverlap } from "./timeUtils";
 import eventBus from "../../SiteWide/Buses/eventBus";
 import ReactGA from "react-ga4";
 
@@ -48,34 +50,9 @@ let performanceMetrics = {
     timeSlotOverrides: 0
 };
 
-const timeToSlot = (time) => {
-    // Cache for common time conversions
-    const timeCache = {
-        '800': 0, '830': 1, '900': 2, '930': 3,
-        '1000': 4, '1030': 5, '1100': 6, '1130': 7,
-        '1200': 8, '1230': 9, '1300': 10, '1330': 11,
-        '1400': 12, '1430': 13, '1500': 14, '1530': 15,
-        '1600': 16, '1630': 17, '1700': 18, '1730': 19,
-        '1800': 20, '1830': 21, '1900': 22, '1930': 23,
-        '2000': 24, '2030': 25, '2100': 26, '2130': 27
-    };
-
-    // Try cache first
-    if (timeCache.hasOwnProperty(time)) {
-        return timeCache[time];
-    }
-
-    // Fall back to calculation for unusual times
-    const [hours, minutes] =
-        time.length === 3
-            ? [parseInt(time[0]), parseInt(time[1] + "0")]
-            : [parseInt(time.slice(0, 2)), parseInt(time.slice(2))];
-    return (hours - 8) * 2 + (minutes === 30 ? 1 : 0);
-};
-
 const calculateBlockedPercentage = (component, timeSlots) => {
     const { days, time } = component.schedule;
-    if (!time || /[a-zA-Z]/.test(time)) return 100; // If time is invalid, consider it fully blocked
+    if (isAsyncOrOnline(time)) return 100; // If time is invalid, consider it fully blocked
 
     const [startSlot, endSlot] = time.split("-").map(t => timeToSlot(t.trim()));
     const daysArray = days.replace(/\s/g, "").split("");
@@ -96,112 +73,130 @@ const calculateBlockedPercentage = (component, timeSlots) => {
 };
 
 const isSlotAvailable = (timeSlots, day, startSlot, endSlot) => {
-    // Use TypedArray for better performance
-    const slots = timeSlots[day];
-    for (let i = startSlot; i < endSlot; i++) {
-        if (slots[i]) return false;
-    }
-    return true;
+    return timeSlotManager.isSlotAvailable(day, startSlot, endSlot);
 };
 
 const filterComponentsAgainstTimeSlots = (components, timeSlots) => {
-    // Pre-compile regex
-    const timeRegex = /[a-zA-Z]/;
+    // Pre-compile regex and create efficient lookup
+    const componentGroups = new Map();
+    const blockedGroups = new Map();
     
-    const groupedComponents = new Map();
-    const blockedComponents = [];
-    const availableGroups = [];
-
-    // Group components by ID
+    // First pass: Group components and calculate blocked percentages
     for (const component of components) {
-        const groupId = component.id;
-        if (!groupedComponents.has(groupId)) {
-            groupedComponents.set(groupId, []);
+        const { id, schedule: { days, time } } = component;
+        
+        // Always include async/online components
+        if (isAsyncOrOnline(time)) {
+            if (!componentGroups.has(id)) {
+                componentGroups.set(id, []);
+            }
+            componentGroups.get(id).push(component);
+            continue;
         }
-        groupedComponents.get(groupId).push(component);
+        
+        if (!componentGroups.has(id)) {
+            componentGroups.set(id, []);
+            blockedGroups.set(id, { blockedPercentage: 0, count: 0 });
+        }
+        
+        const [startSlot, endSlot] = time.split("-").map(t => timeToSlot(t.trim()));
+        const daysArray = days.replace(/\s/g, "").split("");
+        let isBlocked = false;
+        
+        // Check availability using TimeSlotManager
+        for (const day of daysArray) {
+            if (!timeSlotManager.isSlotAvailable(day, startSlot, endSlot)) {
+                isBlocked = true;
+                blockedGroups.get(id).blockedPercentage += calculateBlockedPercentage(component, timeSlots);
+                blockedGroups.get(id).count++;
+                break;
+            }
+        }
+        
+        if (!isBlocked) {
+            componentGroups.get(id).push(component);
+        }
     }
-
-    for (const [, group] of groupedComponents) {
-        let isGroupBlocked = false;
-        let blockedPercentage = 0;
-
-        for (const component of group) {
-            const { days, time } = component.schedule;
-            if (!time || timeRegex.test(time)) continue;
-
-            const [startSlot, endSlot] = time.split("-").map(t => timeToSlot(t.trim()));
-            const daysArray = days.replace(/\s/g, "").split("");
-
-            for (const day of daysArray) {
-                if (!isSlotAvailable(timeSlots, day, startSlot, endSlot)) {
-                    isGroupBlocked = true;
-                    blockedPercentage += calculateBlockedPercentage(component, timeSlots);
-                    break;
+    
+    // Second pass: Select best available components
+    const availableComponents = [];
+    for (const [id, group] of componentGroups) {
+        if (group.length > 0) {
+            availableComponents.push(...group);
+        } else {
+            // If no unblocked components in group, use the least blocked one
+            const blocked = blockedGroups.get(id);
+            if (blocked?.count > 0) {
+                const leastBlockedComponent = components
+                    .filter(c => c.id === id)
+                    .sort((a, b) => calculateBlockedPercentage(a, timeSlots) - calculateBlockedPercentage(b, timeSlots))[0];
+                
+                if (leastBlockedComponent) {
+                    availableComponents.push(leastBlockedComponent);
+                    timeslotOverridden = true;
                 }
             }
-
-            if (isGroupBlocked) break;
-        }
-
-        if (isGroupBlocked) {
-            blockedComponents.push({ group, blockedPercentage });
-        } else {
-            availableGroups.push(group);
         }
     }
-
-    if (availableGroups.length === 0 && blockedComponents.length > 0) {
-        blockedComponents.sort((a, b) => a.blockedPercentage - b.blockedPercentage);
-        availableGroups.push(blockedComponents[0].group);
-        timeslotOverridden = true;
-    }
-
-    lastBlockedComponents = lastBlockedComponents.concat(blockedComponents);
-    return availableGroups.flat();
+    
+    lastBlockedComponents = Array.from(blockedGroups.values());
+    return availableComponents;
 };
 
-const cartesianProduct = (arrays, limit) => {
-    // Early return if any array is empty
-    if (arrays.some(arr => arr.length === 0)) return [];
+function* combinationGenerator(arrays) {
+    if (arrays.length === 0) return;
     
-    // If we only have one array, return its items wrapped in arrays
-    if (arrays.length === 1) {
-        return arrays[0].map(item => [item]);
+    const indices = new Uint32Array(arrays.length).fill(0);
+    const maxIndices = arrays.map(arr => arr.length - 1);
+    
+    while (true) {
+        // Yield current combination
+        yield arrays.map((arr, i) => arr[indices[i]]);
+        
+        // Find the rightmost array that has more elements
+        let k = indices.length - 1;
+        while (k >= 0 && indices[k] === maxIndices[k]) k--;
+        
+        // If no such array exists, we're done
+        if (k < 0) break;
+        
+        // Increment the rightmost array that has more elements
+        indices[k]++;
+        
+        // Reset all arrays to the right
+        for (let i = k + 1; i < indices.length; i++) {
+            indices[i] = 0;
+        }
     }
+}
 
-    // Calculate total possible combinations to avoid unnecessary work
+const cartesianProduct = (arrays, limit) => {
+    // Early validation
+    if (arrays.some(arr => arr.length === 0)) return [];
+    if (arrays.length === 1) return arrays[0].map(item => [item]);
+    
+    // Calculate total possible combinations
     const totalPossible = arrays.reduce((acc, arr) => acc * arr.length, 1);
     if (totalPossible > limit) {
         eventBus.emit("truncation", true);
         eventBus.emit("snackbar", {
-            message:
-                "The generated schedule results are truncated because the input is too broad. To ensure all results are considered pin down some courses!",
+            message: "The generated schedule results are truncated because the input is too broad. To ensure all results are considered pin down some courses!",
             variant: "warning",
         });
-        // Return early if we know we'll exceed the limit
         return [];
     }
-
-    let result = [[]];
-    let total = 0;
-
-    for (const array of arrays) {
-        const temp = new Array(result.length * array.length);
-        let tempIndex = 0;
-
-        for (const item of array) {
-            for (const combination of result) {
-                temp[tempIndex++] = [...combination, item];
-                total++;
-                if (total >= limit) {
-                    return temp.slice(0, tempIndex);
-                }
-            }
-        }
-        result = temp.slice(0, tempIndex);
+    
+    // Use generator for memory-efficient combination generation
+    const generator = combinationGenerator(arrays);
+    const results = [];
+    
+    for (let i = 0; i < limit && i < totalPossible; i++) {
+        const next = generator.next();
+        if (next.done) break;
+        results.push(next.value);
     }
     
-    return result;
+    return results;
 };
 
 const filterPinned = (components, courseCode, componentType) => {
@@ -354,17 +349,9 @@ const generateSingleCourseCombinations = (course, timeSlots) => {
 };
 
 const isTimetableValid = (timetable) => {
-    // Pre-compile regex
-    const timeRegex = /[a-zA-Z]/;
-    
-    // Use a more efficient data structure for occupied slots
     const occupiedSlots = new Map();
-    
-    // Helper function to check overlap
-    const overlap = (start1, end1, start2, end2) => start1 < end2 && start2 < end1;
 
     for (const course of timetable) {
-        // Get all components in one go
         const components = [
             ...course.mainComponents,
             course.secondaryComponents.lab,
@@ -374,13 +361,11 @@ const isTimetableValid = (timetable) => {
 
         for (const component of components) {
             const { days, time, startDate, endDate } = component.schedule;
-            if (!time || timeRegex.test(time)) continue;
+            
+            if (isAsyncOrOnline(time)) continue;
 
-            // Convert time to slots once
             const [startSlot, endSlot] = time.split("-").map(t => timeToSlot(t.trim()));
             const daysArray = days.split(" ").filter(Boolean);
-
-            // Create date range key once
             const dateKey = `${startDate}-${endDate}`;
 
             for (const day of daysArray) {
@@ -389,12 +374,10 @@ const isTimetableValid = (timetable) => {
                 }
                 const daySlots = occupiedSlots.get(day);
 
-                // Check all existing slots for this day
                 for (const [existingDateKey, slots] of daySlots) {
                     const [existingStartDate, existingEndDate] = existingDateKey.split("-").map(Number);
                     
-                    if (overlap(startDate, endDate, existingStartDate, existingEndDate)) {
-                        // Check if any slot in the range is occupied
+                    if (doTimeRangesOverlap(startDate, endDate, existingStartDate, existingEndDate)) {
                         for (let i = startSlot; i < endSlot; i++) {
                             if (slots.has(i)) {
                                 return false;
@@ -403,7 +386,6 @@ const isTimetableValid = (timetable) => {
                     }
                 }
 
-                // If we get here, the slots are available. Mark them as occupied.
                 if (!daySlots.has(dateKey)) {
                     daySlots.set(dateKey, new Set());
                 }
