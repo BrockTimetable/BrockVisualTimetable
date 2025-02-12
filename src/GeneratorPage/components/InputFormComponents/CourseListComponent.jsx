@@ -13,6 +13,8 @@ export default function CourseListComponent({ courses = [], onRemoveCourse, setT
         return courseDetails.find((detail) => detail.name === courseName);
     };
 
+    const sortedCourses = [...courses].sort();
+
     return (
         <Box>
             {courses.length === 0 && <p style={{ textAlign: "center", bgcolor: "text.primary" }}>No courses added</p>}
@@ -22,7 +24,7 @@ export default function CourseListComponent({ courses = [], onRemoveCourse, setT
                     component="nav"
                     aria-labelledby="nested-list-subheader"
                 >
-                    {courses.map((course) => (
+                    {sortedCourses.map((course) => (
                         <CourseListItemComponent
                             course={course}
                             courseDetail={getCourseDetail(course)}
