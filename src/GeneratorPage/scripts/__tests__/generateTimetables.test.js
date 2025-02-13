@@ -555,4 +555,61 @@ describe('Timetable Generation', () => {
         expect(timetables[0].courses[0].mainComponents[0].schedule.time).toBe('TBA');
     });
 
+    it('should avoid blocked time slots when alternative sections are available', () => {
+        // mock course data with two sections, one overlapping blocked time, one not
+        const mockCourseData = {
+            'COSC 1P02': {
+                courseCode: 'COSC 1P02',
+                sections: [
+                    {
+                        id: '1',
+                        schedule: {
+                            days: 'M W',
+                            time: '0800-0930', // overlaps with blocked time
+                            duration: 'D2',
+                            startDate: 1,
+                            endDate: 60
+                        }
+                    },
+                    {
+                        id: '2',
+                        schedule: {
+                            days: 'M W',
+                            time: '1000-1130', // doesn't overlap with blocked time
+                            duration: 'D2',
+                            startDate: 1,
+                            endDate: 60
+                        }
+                    }
+                ],
+                labs: [],
+                tutorials: [],
+                seminars: []
+            }
+        };
+        getCourseData.mockReturnValue(mockCourseData);
+
+        // mock timeSlots to block morning slots (0800-0930)
+        const blockedTimeSlots = {
+            M: Array(28).fill(false).map((_, i) => i < 4), // block first 4 slots (until 0930)
+            T: Array(28).fill(false),
+            W: Array(28).fill(false).map((_, i) => i < 4), // block first 4 slots (until 0930)
+            R: Array(28).fill(false),
+            F: Array(28).fill(false)
+        };
+        getTimeSlots.mockReturnValue(blockedTimeSlots);
+
+        generateTimetables();
+        const timetables = getValidTimetables();
+
+        // should generate timetables
+        expect(timetables.length).toBeGreaterThan(0);
+
+        // all generated timetables should use section 2 (1000-1130) instead of section 1 (0800-0930)
+        timetables.forEach(timetable => {
+            const section = timetable.courses[0].mainComponents[0];
+            expect(section.id).toBe('2');
+            expect(section.schedule.time).toBe('1000-1130');
+        });
+    });
 }); 
