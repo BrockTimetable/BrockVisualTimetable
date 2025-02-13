@@ -1,4 +1,4 @@
-# API Documentation
+# API Documentation 
 
 This document provides an overview of the API endpoints available in this project, along with example requests and responses.
 
