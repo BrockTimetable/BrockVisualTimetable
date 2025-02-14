@@ -256,7 +256,7 @@ const handleCalendarViewClick = (durationLabel) => {
             });
 
             previousDuration = duration;
-
+            setCurrentTimetableIndex(0);
             if (didPinNewComponent) {
                 generateTimetables(sortOption);
                 setTimetables(getValidTimetables());
@@ -271,7 +271,6 @@ const handleCalendarViewClick = (durationLabel) => {
         }
 
         calendarApi.gotoDate(startDate);
-
         setSelectedDuration(durationLabel);
         enqueueSnackbar(
             <MultiLineSnackbar
