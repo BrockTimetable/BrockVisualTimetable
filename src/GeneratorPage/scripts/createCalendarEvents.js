@@ -17,8 +17,10 @@ export const createCalendarEvents = (timetable, getDaysOfWeek, courseColors = {}
         }
         return uniqueId;
     };
-
     const createEvent = (course, component, defaultColor, isAllDay, courseColors) => {
+        if (component.schedule.days == "MTWRF"){
+            component.schedule.days = "M T W R F"
+        }
         const uniqueId = getUniqueId(component.id);
         const customColor = courseColors[course.courseCode] || defaultColor;
         const event = {
