@@ -11,7 +11,9 @@ vi.mock('../timeSlots');
 vi.mock('../pinnedComponents');
 vi.mock('../../../SiteWide/Buses/eventBus', () => ({
     default: {
-        emit: vi.fn()
+        emit: vi.fn(),
+        on: vi.fn(),
+        events: {}
     }
 }));
 
