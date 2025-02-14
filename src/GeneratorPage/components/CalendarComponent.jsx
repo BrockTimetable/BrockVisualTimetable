@@ -101,6 +101,17 @@ export default function CalendarComponent({
     }, []);
 
     useEffect(() => {
+        eventBus.on("requestSetTimetableIndex", () => {
+            eventBus.emit("setTimetableIndex", setCurrentTimetableIndex);
+        });
+
+        return () => {
+            eventBus.off("requestSetTimetableIndex");
+        };
+    }, []);
+
+
+    useEffect(() => {
         timetablesRef.current = timetables;
     }, [timetables]);
 
