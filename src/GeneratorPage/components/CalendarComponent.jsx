@@ -29,7 +29,8 @@ import { getCourseData } from "../scripts/courseData";
 import { CourseDetailsContext } from "../contexts/CourseDetailsContext";
 import eventBus from "../../SiteWide/Buses/eventBus";
 import { CourseColorsContext } from "../contexts/CourseColorsContext";
-
+let previousDuration = null; 
+let aprioriDurationTimetable = null;
 export default function CalendarComponent({
     timetables,
     setTimetables,
@@ -171,6 +172,10 @@ export default function CalendarComponent({
         if (currentTimetables.length > 0 && currentTimetables[0].courses.length > 0) {
             setNoCourses(false);
             const timetable = currentTimetables[currentIndex];
+            if (previousDuration === selectedDuration.split("-")[2] && JSON.stringify(timetable)) {
+                aprioriDurationTimetable = JSON.parse(JSON.stringify(timetable));
+            }
+
             const newEvents = createCalendarEvents(timetable, getDaysOfWeek, currentColors);
 
             const courseDetails = newEvents
@@ -206,10 +211,59 @@ export default function CalendarComponent({
         }
     }, [getDefaultColorForCourse, enqueueSnackbar, setCourseDetails, setEvents, setNoCourses, setNoTimetablesGenerated, handleLast]);
 
-    const handleCalendarViewClick = (durationLabel) => {
-        const calendarApi = calendarRef.current.getApi();
+const handleCalendarViewClick = (durationLabel) => {
+    const calendarApi = calendarRef.current.getApi();
+    const [startUnix, endUnix, duration] = durationLabel.split("-");
 
-        const [startUnix, endUnix, duration] = durationLabel.split("-");
+    if (previousDuration == null) {
+        previousDuration = duration;
+    } else if (previousDuration !== duration) {
+        if (aprioriDurationTimetable && aprioriDurationTimetable.courses) {
+            const pinnedComponents = getPinnedComponents();
+            let didPinNewComponent = false;
+
+            aprioriDurationTimetable.courses.forEach((course) => {
+                const courseCode = course.courseCode;
+
+                if (course.mainComponents) {
+                    course.mainComponents.forEach((component) => {
+                        if (component.schedule && component.schedule.duration == previousDuration) {
+                            const pinString = `${courseCode} MAIN ${component.id}`;
+                            if (!pinnedComponents.includes(pinString)) {
+                                addPinnedComponent(pinString);
+                                didPinNewComponent = true;
+                            }
+                        }
+                    });
+                }
+
+                if (course.secondaryComponents) {
+                    Object.entries(course.secondaryComponents).forEach(([type, component]) => {
+                        if (component && component.schedule && component.schedule.duration == previousDuration) {
+                            const formattedType =
+                                type.toLowerCase() === "tutorial" ? "TUT" :
+                                type.toLowerCase() === "seminar" ? "SEM" :
+                                type.toUpperCase();
+
+                            const pinString = `${courseCode} ${formattedType} ${component.id}`;
+                            if (!pinnedComponents.includes(pinString)) {
+                                addPinnedComponent(pinString);
+                                didPinNewComponent = true;
+                            }
+                        }
+                    });
+                }
+            });
+
+            previousDuration = duration;
+
+            if (didPinNewComponent) {
+                generateTimetables(sortOption);
+                setTimetables(getValidTimetables());
+            }
+        }
+    }
+    
         const startDate = new Date(startUnix * 1000);
 
         if (startDate.getDay() != 1) {
