@@ -13,6 +13,7 @@ import { useTheme } from "@mui/material/styles";
 import Divider from '@mui/material/Divider';
 import { CourseColorsContext } from "../../contexts/CourseColorsContext";
 import ColorLensIcon from '@mui/icons-material/ColorLens';
+import { clearCoursePins } from "../../scripts/pinnedComponents";
 
 export default function CourseListComponent({ course, courseDetail, removeCourse }) {
     const theme = useTheme();
@@ -27,6 +28,7 @@ export default function CourseListComponent({ course, courseDetail, removeCourse
     const handleRemoveClick = () => {
         setOpen(false);
         removeCourse(course);
+        clearCoursePins(course.split(" ")[0] + course.split(" ")[1]);
     }
 
     const handleColorChange = (event) => {

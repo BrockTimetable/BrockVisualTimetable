@@ -511,8 +511,18 @@ const calculateClassDays = (timetable) => {
 
     return daysWithClasses.size;
 };
-
+let previousSortOption = "default";
 export const generateTimetables = (sortOption) => {
+    if (previousSortOption != sortOption){
+        eventBus.on("setTimetableIndex", (setCurrentTimetableIndex) => {
+            if (setCurrentTimetableIndex) {
+                setCurrentTimetableIndex(0);
+            }
+        });
+
+        eventBus.emit("requestSetTimetableIndex");
+        previousSortOption = sortOption;
+    }
     // Reset metrics but don't start timer yet
     performanceMetrics = {
         generationStartTime: 0,
