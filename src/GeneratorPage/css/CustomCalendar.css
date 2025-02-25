@@ -53,6 +53,12 @@ body.dark-mode .fc-event {
     box-shadow: 0 0 1px var(--calendar-grid-color-dark);
 }
 
+.fc-event,
+.fc-event-main,
+.fc-timegrid-event {
+    cursor: pointer;
+}
+
 .fc-timegrid-event .fc-event-main {
     padding: 0;
 }
