@@ -4,6 +4,7 @@ import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
 import Button from "@mui/material/Button";
+import FeedbackIcon from "@mui/icons-material/Feedback";
 
 const ChangelogDialogComponent = ({ open, handleClose }) => {
     return (
@@ -33,6 +34,16 @@ const ChangelogDialogComponent = ({ open, handleClose }) => {
             </DialogContent>
 
             <DialogActions>
+                <Button 
+                    startIcon={<FeedbackIcon />}
+                    component="a"
+                    href="https://github.com/BrockTimetable/BrockVisualTimetable/issues"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    color="primary"
+                >
+                    Feedback
+                </Button>
                 <Button onClick={handleClose}>Close</Button>
             </DialogActions>
         </Dialog>
