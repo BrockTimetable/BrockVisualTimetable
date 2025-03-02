@@ -56,6 +56,7 @@ export default function CalendarComponent({
     const [noCourses, setNoCourses] = useState(true);
     const [timeslotsOverridden, setTimeslotsOverridden] = useState(false);
     const [timeslotsOverriddenDialogOpen, setTimeslotsOverriddenDialogOpen] = useState(false);
+    const [showWeekends, setShowWeekends] = useState(false);
 
     useEffect(() => {
         const calendarElement = document.getElementById("Calendar");
@@ -162,6 +163,53 @@ export default function CalendarComponent({
         setCurrentTimetableIndex(timetables.length - 1);
     }, [timetables.length]);
 
+    // Check if any courses have weekend classes
+    const checkForWeekendClasses = useCallback((timetable) => {
+        if (!timetable || !timetable.courses) {
+            return false;
+        }
+        
+        for (const course of timetable.courses) {
+            const { mainComponents, secondaryComponents } = course;
+            
+            // Check main components
+            if (mainComponents) {
+                for (const component of mainComponents) {
+                    if (component.schedule.days && 
+                        (component.schedule.days.includes('S') || 
+                         component.schedule.days.includes('U'))) {
+                        return true;
+                    }
+                }
+            }
+            
+            // Check secondary components
+            if (secondaryComponents) {
+                const { lab, tutorial, seminar } = secondaryComponents;
+                
+                if (lab && lab.schedule.days && 
+                    (lab.schedule.days.includes('S') || 
+                     lab.schedule.days.includes('U'))) {
+                    return true;
+                }
+                
+                if (tutorial && tutorial.schedule.days && 
+                    (tutorial.schedule.days.includes('S') || 
+                     tutorial.schedule.days.includes('U'))) {
+                    return true;
+                }
+                
+                if (seminar && seminar.schedule.days && 
+                    (seminar.schedule.days.includes('S') || 
+                     seminar.schedule.days.includes('U'))) {
+                    return true;
+                }
+            }
+        }
+        
+        return false;
+    }, []);
+
     const updateCalendarEvents = useCallback(() => {
         const currentTimetables = timetablesRef.current;
         const currentIndex = currentTimetableIndexRef.current;
@@ -183,6 +231,11 @@ export default function CalendarComponent({
         if (currentTimetables.length > 0 && currentTimetables[0].courses.length > 0) {
             setNoCourses(false);
             const timetable = currentTimetables[currentIndex];
+            
+            // Check if any courses have weekend classes
+            const hasWeekendClasses = checkForWeekendClasses(timetable);
+            setShowWeekends(hasWeekendClasses);
+            
             if (previousDuration === selectedDuration.split("-")[2] && JSON.stringify(timetable)) {
                 aprioriDurationTimetable = JSON.parse(JSON.stringify(timetable));
             }
@@ -220,7 +273,7 @@ export default function CalendarComponent({
                 setNoTimetablesGenerated(true);
             }
         }
-    }, [getDefaultColorForCourse, enqueueSnackbar, setCourseDetails, setEvents, setNoCourses, setNoTimetablesGenerated, handleLast]);
+    }, [getDefaultColorForCourse, enqueueSnackbar, setCourseDetails, setEvents, setNoCourses, setNoTimetablesGenerated, handleLast, checkForWeekendClasses]);
 
 const handleCalendarViewClick = (durationLabel) => {
     const calendarApi = calendarRef.current.getApi();
@@ -566,7 +619,7 @@ const handleCalendarViewClick = (durationLabel) => {
                 ref={calendarRef}
                 plugins={[timeGridPlugin, interactionPlugin]}
                 initialView="timeGridWeek"
-                weekends={false}
+                weekends={showWeekends}
                 headerToolbar={false}
                 height={835}
                 dayHeaderFormat={{ weekday: "short" }}
