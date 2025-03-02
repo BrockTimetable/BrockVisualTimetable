@@ -14,8 +14,17 @@ import Drawer from "@mui/material/Drawer";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import ListItemText from "@mui/material/ListItemText";
-import { ListItemButton } from "@mui/material";
+import { ListItemButton, Divider, Avatar, ListItemIcon } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
+// Import additional icons
+import HomeIcon from "@mui/icons-material/Home";
+import MenuBookIcon from "@mui/icons-material/MenuBook";
+import InfoIcon from "@mui/icons-material/Info";
+import FeedbackIcon from "@mui/icons-material/Feedback";
+import AddIcon from "@mui/icons-material/Add";
+import SaveIcon from "@mui/icons-material/Save";
+import SettingsIcon from "@mui/icons-material/Settings";
+import GitHubIcon from "@mui/icons-material/GitHub";
 
 const NavbarComponent = () => {
     const theme = useTheme();
@@ -31,15 +40,74 @@ const NavbarComponent = () => {
     };
 
     const drawerContent = (
-        <Box sx={{ width: 250 }} role="presentation" onClick={toggleDrawer(false)} onKeyDown={toggleDrawer(false)}>
+        <Box sx={{ width: 280 }} role="presentation" onClick={toggleDrawer(false)} onKeyDown={toggleDrawer(false)}>
+            
+            <Box sx={{ p: 3, borderBottom: `1px solid ${theme.palette.divider}` }}>
+                <Typography variant="h6" component="div" sx={{ fontWeight: "bold" }}>
+                    📚 Brock Visual TimeTable
+                </Typography>
+            </Box>
+            
             <List>
                 <ListItemButton component={Link} to="/">
+                    <ListItemIcon>
+                        <HomeIcon />
+                    </ListItemIcon>
                     <ListItemText primary="Generator" />
                 </ListItemButton>
                 <ListItemButton component={Link} to="/guide">
+                    <ListItemIcon>
+                        <MenuBookIcon />
+                    </ListItemIcon>
                     <ListItemText primary="Guide" />
                 </ListItemButton>
             </List>
+            
+            <Divider />
+            
+            <List>
+                <ListItemButton 
+                    component="a"
+                    href="https://github.com/BrockTimetable/BrockVisualTimetable/issues"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                >
+                    <ListItemIcon>
+                        <FeedbackIcon />
+                    </ListItemIcon>
+                    <ListItemText primary="Feedback" />
+                </ListItemButton>
+            </List>
+            
+            <Box sx={{ 
+                display: 'flex', 
+                justifyContent: 'center', 
+                p: 2, 
+                mt: 'auto' 
+            }}>
+                <IconButton 
+                    aria-label="github" 
+                    size="large"
+                    component="a"
+                    href="https://github.com/BrockTimetable/BrockVisualTimetable"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                >
+                    <GitHubIcon />
+                </IconButton>
+            </Box>
+            
+            <Typography 
+                variant="caption" 
+                sx={{ 
+                    textAlign: 'center', 
+                    display: 'block', 
+                    mb: 1,
+                    color: theme.palette.text.secondary
+                }}
+            >
+                Version 1.0.0
+            </Typography>
         </Box>
     );
 
