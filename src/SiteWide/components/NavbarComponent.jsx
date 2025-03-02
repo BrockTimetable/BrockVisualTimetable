@@ -79,6 +79,8 @@ const NavbarComponent = () => {
                 </ListItemButton>
             </List>
             
+            <Divider />
+
             <Box sx={{ 
                 display: 'flex', 
                 justifyContent: 'center', 
@@ -96,18 +98,6 @@ const NavbarComponent = () => {
                     <GitHubIcon />
                 </IconButton>
             </Box>
-            
-            <Typography 
-                variant="caption" 
-                sx={{ 
-                    textAlign: 'center', 
-                    display: 'block', 
-                    mb: 1,
-                    color: theme.palette.text.secondary
-                }}
-            >
-                Version 1.0.0
-            </Typography>
         </Box>
     );
 
