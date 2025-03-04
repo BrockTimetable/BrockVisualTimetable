@@ -34,6 +34,40 @@
     text-decoration: none;
 }
 
+/* Course Timeline styles */
+.course-timeline-container {
+  margin: 0.5rem 0 1rem;
+  max-width: 100%;
+}
+
+/* Styles for clickable course bars */
+.course-timeline-bar {
+  transition: all 0.2s ease;
+}
+
+.course-timeline-bar:hover {
+  transform: scale(1.03);
+  filter: brightness(1.1);
+  cursor: pointer;
+}
+
+.course-timeline-bar:active {
+  transform: scale(0.98);
+  filter: brightness(1.2);
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.3);
+}
+
+/* Animation for navigating to date */
+@keyframes pulse-navigate {
+  0% { filter: brightness(1); }
+  50% { filter: brightness(1.3); }
+  100% { filter: brightness(1); }
+}
+
+.course-timeline-bar.navigate {
+  animation: pulse-navigate 0.7s ease-in-out;
+}
+
 @media (max-width: 1325px) {
     .fc-event-main {
         font-size: 10px;
@@ -80,6 +114,10 @@
 
     #calendarTimetableNumber {
         margin: 10px 0;
+    }
+
+    .course-timeline-container {
+        margin: 0.5rem 0 0.75rem;
     }
 }
 
@@ -129,5 +167,9 @@
 
     #calendarTimetableNumber {
         margin: 10px 0;
+    }
+
+    .course-timeline-container {
+        margin: 0.5rem 0 0.75rem;
     }
 }
