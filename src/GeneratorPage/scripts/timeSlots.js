@@ -1,5 +1,5 @@
 /*
-NOTE: This code manages the availability of time slots for a weekly schedule (Monday to Friday) between 8 AM and 10 PM.
+NOTE: This code manages the availability of time slots for a weekly schedule (Monday to Sunday) between 8 AM and 10 PM.
 
 The timeSlots object is a JavaScript object where each key (representing a day, like 'M' for Monday) maps to a 1D array. 
 Each array contains boolean values indicating whether a time slot is open (false) or blocked (true).
@@ -7,7 +7,7 @@ Each array contains boolean values indicating whether a time slot is open (false
 let timeSlots = {};
 
 const initializeTimeSlots = () => {
-    const days = ['M', 'T', 'W', 'R', 'F'];
+    const days = ['M', 'T', 'W', 'R', 'F', 'S', 'U'];
     const slotsPerDay = (22 - 8) * 2; // Each hour has 2 slots (30 minutes each)
 
     days.forEach(day => {

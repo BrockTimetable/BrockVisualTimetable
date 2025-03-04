@@ -27,8 +27,8 @@ export const createCalendarEvents = (timetable, getDaysOfWeek, courseColors = {}
             id: uniqueId,
             title: `${course.courseCode} ${component.type} ${component.sectionNumber}`,
             daysOfWeek: getDaysOfWeek(component.schedule.days || "M T W R F"),
-            startRecur: formatDate(component.schedule.startDate),
-            endRecur: formatDate(component.schedule.endDate),
+            startRecur: formatDate(component.schedule.startDate, false),
+            endRecur: formatDate(component.schedule.endDate, true),
             description: component.instructor,
             color: customColor,
             isPinned: component.pinned,
@@ -79,14 +79,50 @@ export const createCalendarEvents = (timetable, getDaysOfWeek, courseColors = {}
 
         if (mainComponents) {
             mainComponents.forEach((mainComponent) => {
-                /*
-                NOTE: Alphabetic character test check is needed as actual times do not contain alphabetic characters
-                while project courses and field trip courses do and do not have specific assigned times.
-                */
-                if (!mainComponent.schedule.time || /[a-zA-Z]/.test(mainComponent.schedule.time)) {
+                // Handle both SYN and HYF formats
+                const isSynchronousOnline = 
+                    mainComponent.type.startsWith('SYN') || 
+                    mainComponent.type.startsWith('HYF');
+
+                if (!mainComponent.schedule.time) {
+                    addAllDayEvent(course, mainComponent, "default", courseColors);
+                } else if (isSynchronousOnline) {
+                    // Clean up the time string by removing spaces
+                    const cleanTime = mainComponent.schedule.time.replace(/\s+/g, '');
+                    
+                    // For HYF/SYN events, use the time directly if it's in the correct format
+                    if (/^\d{3,4}-\d{3,4}$/.test(cleanTime)) {
+                        const modifiedComponent = { ...mainComponent };
+                        modifiedComponent.schedule = { ...mainComponent.schedule, time: cleanTime };
+                        // Ensure days are properly formatted
+                        if (modifiedComponent.schedule.days && !modifiedComponent.schedule.days.includes(' ')) {
+                            modifiedComponent.schedule.days = modifiedComponent.schedule.days.split('').join(' ');
+                        }
+                        addTimedEvent(course, modifiedComponent, "default", courseColors);
+                    } else {
+                        // Try to extract time if it's in the "SYN time" or "HYF time" format
+                        const timeMatch = mainComponent.schedule.time.match(/(SYN|HYF)\s*(\d{3,4}\s*-\s*\d{3,4})/);
+                        if (timeMatch) {
+                            const modifiedComponent = { ...mainComponent };
+                            const extractedTime = timeMatch[2].replace(/\s+/g, '');
+                            modifiedComponent.schedule = { ...mainComponent.schedule, time: extractedTime };
+                            // Ensure days are properly formatted
+                            if (modifiedComponent.schedule.days && !modifiedComponent.schedule.days.includes(' ')) {
+                                modifiedComponent.schedule.days = modifiedComponent.schedule.days.split('').join(' ');
+                            }
+                            addTimedEvent(course, modifiedComponent, "default", courseColors);
+                        } else {
+                            addAllDayEvent(course, mainComponent, "default", courseColors);
+                        }
+                    }
+                } else if (/[a-zA-Z]/.test(mainComponent.schedule.time)) {
                     addAllDayEvent(course, mainComponent, "default", courseColors);
                 } else {
-                    addTimedEvent(course, mainComponent, "default", courseColors);
+                    // Clean up the time string for regular events too
+                    const cleanTime = mainComponent.schedule.time.replace(/\s+/g, '');
+                    const modifiedComponent = { ...mainComponent };
+                    modifiedComponent.schedule = { ...mainComponent.schedule, time: cleanTime };
+                    addTimedEvent(course, modifiedComponent, "default", courseColors);
                 }
             });
         }
@@ -94,29 +130,50 @@ export const createCalendarEvents = (timetable, getDaysOfWeek, courseColors = {}
         if (secondaryComponents) {
             const { lab, tutorial, seminar } = secondaryComponents;
 
-            if (lab) {
-                if (!lab.schedule.time) {
-                    addAllDayEvent(course, lab, "default", courseColors);
-                } else {
-                    addTimedEvent(course, lab, "default", courseColors);
-                }
-            }
+            const handleComponent = (component) => {
+                if (!component) return;
 
-            if (tutorial) {
-                if (!tutorial.schedule.time) {
-                    addAllDayEvent(course, tutorial, "default", courseColors);
-                } else {
-                    addTimedEvent(course, tutorial, "default", courseColors);
-                }
-            }
+                const isSynchronousOnline = 
+                    component.type.startsWith('SYN') || 
+                    component.type.startsWith('HYF');
 
-            if (seminar) {
-                if (!seminar.schedule.time) {
-                    addAllDayEvent(course, seminar, "default", courseColors);
+                if (!component.schedule.time) {
+                    addAllDayEvent(course, component, "default", courseColors);
+                } else if (isSynchronousOnline) {
+                    // Clean up the time string by removing spaces
+                    const cleanTime = component.schedule.time.replace(/\s+/g, '');
+                    
+                    // For HYF/SYN events, use the time directly if it's in the correct format
+                    if (/^\d{3,4}-\d{3,4}$/.test(cleanTime)) {
+                        const modifiedComponent = { ...component };
+                        modifiedComponent.schedule = { ...component.schedule, time: cleanTime };
+                        addTimedEvent(course, modifiedComponent, "default", courseColors);
+                    } else {
+                        // Try to extract time if it's in the "SYN time" or "HYF time" format
+                        const timeMatch = component.schedule.time.match(/(SYN|HYF)\s*(\d{3,4}\s*-\s*\d{3,4})/);
+                        if (timeMatch) {
+                            const modifiedComponent = { ...component };
+                            const extractedTime = timeMatch[2].replace(/\s+/g, '');
+                            modifiedComponent.schedule = { ...component.schedule, time: extractedTime };
+                            addTimedEvent(course, modifiedComponent, "default", courseColors);
+                        } else {
+                            addAllDayEvent(course, component, "default", courseColors);
+                        }
+                    }
+                } else if (/[a-zA-Z]/.test(component.schedule.time)) {
+                    addAllDayEvent(course, component, "default", courseColors);
                 } else {
-                    addTimedEvent(course, seminar, "default", courseColors);
+                    // Clean up the time string for regular events too
+                    const cleanTime = component.schedule.time.replace(/\s+/g, '');
+                    const modifiedComponent = { ...component };
+                    modifiedComponent.schedule = { ...component.schedule, time: cleanTime };
+                    addTimedEvent(course, modifiedComponent, "default", courseColors);
                 }
-            }
+            };
+
+            handleComponent(lab);
+            handleComponent(tutorial);
+            handleComponent(seminar);
         }
     });
 
@@ -133,7 +190,10 @@ export const getDaysOfWeek = (days) => {
         S: "6",
         U: "0",
     };
-    return days.split(" ").map((day) => dayMap[day]);
+
+    // Handle both space-separated and non-space-separated formats
+    const dayArray = days.includes(" ") ? days.split(" ") : days.split("");
+    return dayArray.map(day => dayMap[day]);
 };
 
 const formatTime = (time) => {
@@ -149,8 +209,12 @@ const formatTime = (time) => {
     return time;
 };
 
-const formatDate = (timestamp) => {
+const formatDate = (timestamp, isEndDate) => {
     const date = new Date(timestamp * 1000);
+    // Always add one day to end dates to make them inclusive
+    if (isEndDate) {
+        date.setDate(date.getDate() + 1);
+    }
     const year = date.getUTCFullYear();
     const month = ("0" + (date.getUTCMonth() + 1)).slice(-2);
     const day = ("0" + date.getUTCDate()).slice(-2);

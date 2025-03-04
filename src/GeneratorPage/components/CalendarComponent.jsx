@@ -423,6 +423,8 @@ const handleCalendarViewClick = (durationLabel) => {
             Wed: "W",
             Thu: "R",
             Fri: "F",
+            Sat: "S",
+            Sun: "U",
         };
 
         // Get all days between start and end date
