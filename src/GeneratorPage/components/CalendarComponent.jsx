@@ -711,6 +711,14 @@ const handleCalendarViewClick = (durationLabel) => {
     return (
         <div id="Calendar">
         <BorderBox title="Calendar">
+            {/* Course Timeline Visualization - moved to the very top */}
+            <CourseTimelineComponent 
+                addedCourses={coursesForTimeline} 
+                setSelectedDuration={setSelectedDuration}
+                durations={durations}
+                navigateToDate={navigateToDate}
+            />
+            
             <CalendarNavBar
                 isTruncated={isTruncated}
                 noTimetablesGenerated={noTimetablesGenerated}
@@ -755,14 +763,6 @@ const handleCalendarViewClick = (durationLabel) => {
                 selectLongPressDelay={500}
                 firstDay={1}
                 events={events}
-            />
-            
-            {/* Course Timeline Visualization - moved below calendar */}
-            <CourseTimelineComponent 
-                addedCourses={coursesForTimeline} 
-                setSelectedDuration={setSelectedDuration}
-                durations={durations}
-                navigateToDate={navigateToDate}
             />
             
             <TruncationDialog

@@ -1,7 +1,9 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Tooltip from '@mui/material/Tooltip';
+import Fade from '@mui/material/Fade';
+import { alpha } from '@mui/material/styles';
 import { CourseDetailsContext } from '../contexts/CourseDetailsContext';
 import { CourseColorsContext } from '../contexts/CourseColorsContext';
 
@@ -23,19 +25,11 @@ export default function CourseTimelineComponent({
 }) {
   const { courseDetails } = useContext(CourseDetailsContext);
   const { courseColors, getDefaultColorForCourse } = useContext(CourseColorsContext);
+  const [hoveredCourse, setHoveredCourse] = useState(null);
   
   // Function to handle click on a course bar
   const handleCourseClick = (course, event) => {
     try {
-      // Add navigation animation to the clicked element
-      if (event && event.currentTarget) {
-        event.currentTarget.classList.add('navigate');
-        // Remove the class after animation completes
-        setTimeout(() => {
-          event.currentTarget.classList.remove('navigate');
-        }, 800);
-      }
-      
       // Navigate to the course's start date + 1 day if available
       if (course.startDate && navigateToDate) {
         // Create a new date object for the next day
@@ -52,7 +46,20 @@ export default function CourseTimelineComponent({
   // If no courses, return empty component
   if (!addedCourses || addedCourses.length === 0) {
     return (
-      <Box sx={{ textAlign: 'center', py: 1 }} className="course-timeline-container">
+      <Box 
+        sx={{ 
+          textAlign: 'center', 
+          py: 1.5,
+          px: 2,
+          borderRadius: 1,
+          backgroundColor: 'transparent',
+          border: '1px solid',
+          borderColor: 'var(--calendar-grid-color-light)',
+          '.dark-mode &': {
+            borderColor: 'var(--calendar-grid-color-dark)'
+          }
+        }}
+      >
         <Typography variant="caption" color="text.secondary">
           Add courses to see timeline visualization
         </Typography>
@@ -196,7 +203,20 @@ export default function CourseTimelineComponent({
     // If still no courses, show a message
     if (coursesWithDates.length === 0) {
       return (
-        <Box sx={{ textAlign: 'center', py: 1 }} className="course-timeline-container">
+        <Box 
+          sx={{ 
+            textAlign: 'center', 
+            py: 1.5,
+            px: 2,
+            borderRadius: 1,
+            backgroundColor: 'transparent',
+            border: '1px solid',
+            borderColor: 'var(--calendar-grid-color-light)',
+            '.dark-mode &': {
+              borderColor: 'var(--calendar-grid-color-dark)'
+            }
+          }}
+        >
           <Typography variant="caption" color="text.secondary">
             No course date information available
           </Typography>
@@ -254,35 +274,24 @@ export default function CourseTimelineComponent({
   }
 
   return (
-    <Box sx={{ mt: 1, mb: 2 }} className="course-timeline-container">
-      <Box 
-        sx={{ 
-          display: 'flex', 
-          justifyContent: 'space-between', 
-          alignItems: 'center',
-          mb: 0.5
-        }}
-      >
-        <Typography variant="caption" color="text.secondary" fontSize="0.7rem">
-          {formatDate(earliestDate)}
-        </Typography>
-        <Typography variant="caption" sx={{ fontSize: '0.7rem', fontWeight: 500 }}>
-          Course Timeline
-        </Typography>
-        <Typography variant="caption" color="text.secondary" fontSize="0.7rem">
-          {formatDate(latestDate)}
-        </Typography>
-      </Box>
-      
+    <Box 
+      sx={{ 
+        mt: 1.5, 
+        mb: 2.5,
+        px: 0.5
+      }}
+    >
       {/* Timeline container */}
       <Box 
         sx={{
           position: 'relative',
-          height: coursesWithDates.length * 16 + 18,
+          height: coursesWithDates.length * 24 + 20,
           width: '100%',
           backgroundColor: 'transparent',
-          borderRadius: 1,
-          overflow: 'hidden'
+          borderRadius: 1.5,
+          overflow: 'hidden',
+          transition: 'all 0.2s ease-in-out',
+          mt: 1.5 // Add top margin for labels
         }}
       >
         {/* Background with subtle grid */}
@@ -293,10 +302,14 @@ export default function CourseTimelineComponent({
             left: 0,
             right: 0,
             bottom: 0,
-            backgroundColor: theme => theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.02)' : 'rgba(0, 0, 0, 0.02)',
+            backgroundColor: 'transparent',
             border: '1px solid',
-            borderColor: theme => theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
-            borderRadius: 1
+            borderColor: 'var(--calendar-grid-color-light)',
+            '.dark-mode &': {
+              borderColor: 'var(--calendar-grid-color-dark)'
+            },
+            borderRadius: 1.5,
+            transition: 'all 0.2s ease-in-out'
           }}
         />
         
@@ -311,7 +324,10 @@ export default function CourseTimelineComponent({
                 top: 0,
                 height: '100%',
                 width: '1px',
-                backgroundColor: theme => theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.07)',
+                backgroundColor: 'var(--calendar-grid-color-light)',
+                '.dark-mode &': {
+                  backgroundColor: 'var(--calendar-grid-color-dark)'
+                },
                 zIndex: 1,
                 pointerEvents: 'none'
               }}
@@ -325,11 +341,14 @@ export default function CourseTimelineComponent({
                   left: `${marker.position}%`,
                   bottom: 2,
                   transform: 'translateX(-50%)',
-                  color: theme => theme.palette.text.secondary,
-                  fontSize: '0.6rem',
-                  opacity: 0.8,
+                  color: theme => alpha(theme.palette.text.secondary, 0.9),
+                  fontSize: '0.65rem',
+                  fontWeight: 500,
                   whiteSpace: 'nowrap',
-                  pointerEvents: 'none'
+                  pointerEvents: 'none',
+                  textShadow: theme => theme.palette.mode === 'dark'
+                    ? '0 1px 2px rgba(0,0,0,0.3)'
+                    : '0 1px 0 rgba(255,255,255,0.8)'
                 }}
               >
                 {marker.label}
@@ -338,39 +357,117 @@ export default function CourseTimelineComponent({
           </React.Fragment>
         ))}
         
-        {/* Course bars */}
+        {/* Course bars with labels */}
         {coursesWithDates.map((course, index) => (
-          <Tooltip 
-            key={course.code} 
-            title={`${course.fullName}: ${formatDate(course.startDate)} - ${formatDate(course.endDate)}`}
-            arrow
-            placement="top"
-          >
-            <Box
-              className="course-timeline-bar"
-              sx={{
-                position: 'absolute',
-                left: `${course.startPercent}%`,
-                top: 4 + (index * 16),
-                width: `${course.widthPercent}%`,
-                height: '10px',
-                backgroundColor: course.color,
-                opacity: 0.85,
-                borderRadius: '4px',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease',
-                '&:hover': {
-                  opacity: 1,
+          <React.Fragment key={course.code}>
+            {/* Course label */}
+            <Tooltip 
+              title={`${course.fullName}: ${formatDate(course.startDate)} - ${formatDate(course.endDate)}`}
+              arrow
+              placement="top"
+              TransitionComponent={Fade}
+              TransitionProps={{ timeout: 300 }}
+            >
+              <Typography
+                variant="caption"
+                onClick={(event) => handleCourseClick(course, event)}
+                onMouseEnter={() => setHoveredCourse(course.code)}
+                onMouseLeave={() => setHoveredCourse(null)}
+                sx={{
+                  position: 'absolute',
+                  left: `${course.startPercent}%`,
+                  top: 12 + (index * 24),
                   height: '12px',
-                  top: 3 + (index * 16),
-                  boxShadow: theme => `0 1px 3px ${theme.palette.mode === 'dark' ? 'rgba(0, 0, 0, 0.5)' : 'rgba(0, 0, 0, 0.2)'}`
-                },
-                zIndex: 2
-              }}
-              onClick={(event) => handleCourseClick(course, event)}
-            />
-          </Tooltip>
+                  transform: 'translateY(-50%)',
+                  fontSize: '0.65rem',
+                  fontWeight: 600,
+                  color: theme => theme.palette.text.primary,
+                  whiteSpace: 'nowrap',
+                  marginLeft: '4px',
+                  zIndex: 4,
+                  display: 'flex',
+                  alignItems: 'center',
+                  textShadow: theme => theme.palette.mode === 'dark'
+                    ? '0 1px 2px rgba(0,0,0,0.5)'
+                    : '0 1px 0 rgba(255,255,255,0.9)',
+                  backgroundColor: theme => alpha(theme.palette.background.paper, 0.85),
+                  padding: '0 4px',
+                  borderRadius: '3px',
+                  cursor: 'pointer',
+                  transition: 'all 0.15s cubic-bezier(0.4, 0, 0.2, 1)',
+                  boxShadow: hoveredCourse === course.code 
+                    ? '0 1px 2px rgba(0,0,0,0.1)'
+                    : 'none',
+                  '&:hover': {
+                    backgroundColor: theme => alpha(theme.palette.background.paper, 0.95),
+                  },
+                  '&:active': {
+                    transform: 'translateY(-45%) scale(0.98)',
+                  }
+                }}
+              >
+                {course.code}
+              </Typography>
+            </Tooltip>
+            
+            {/* Course bar */}
+            <Tooltip 
+              title={`${course.fullName}: ${formatDate(course.startDate)} - ${formatDate(course.endDate)}`}
+              arrow
+              placement="top"
+              TransitionComponent={Fade}
+              TransitionProps={{ timeout: 300 }}
+            >
+              <Box
+                onMouseEnter={() => setHoveredCourse(course.code)}
+                onMouseLeave={() => setHoveredCourse(null)}
+                onClick={(event) => handleCourseClick(course, event)}
+                sx={{
+                  position: 'absolute',
+                  left: `${course.startPercent}%`,
+                  top: 12 + (index * 24),
+                  width: `${course.widthPercent}%`,
+                  height: '12px',
+                  backgroundColor: course.color,
+                  opacity: hoveredCourse === course.code ? 1 : 0.85,
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  transition: 'all 0.15s cubic-bezier(0.4, 0, 0.2, 1)',
+                  transform: hoveredCourse === course.code ? 'translateY(-1px)' : 'none',
+                  boxShadow: hoveredCourse === course.code 
+                    ? theme => `0 2px 4px ${alpha(course.color, 0.4)}, 0 0 1px ${alpha(theme.palette.common.black, 0.2)}`
+                    : 'none',
+                  '&:hover': {
+                    opacity: 1,
+                    transform: 'translateY(-1px)',
+                  },
+                  '&:active': {
+                    transform: 'translateY(0px) scale(0.98)',
+                    transition: 'all 0.1s cubic-bezier(0.4, 0, 0.2, 1)',
+                  },
+                  zIndex: hoveredCourse === course.code ? 3 : 2
+                }}
+              />
+            </Tooltip>
+          </React.Fragment>
         ))}
+      </Box>
+      
+      {/* Date range indicators at the bottom */}
+      <Box 
+        sx={{ 
+          display: 'flex', 
+          justifyContent: 'space-between', 
+          alignItems: 'center',
+          mt: 0.5
+        }}
+      >
+        <Typography variant="caption" color="text.secondary" fontSize="0.7rem" sx={{ fontWeight: 500 }}>
+          {formatDate(earliestDate)}
+        </Typography>
+        <Typography variant="caption" color="text.secondary" fontSize="0.7rem" sx={{ fontWeight: 500 }}>
+          {formatDate(latestDate)}
+        </Typography>
       </Box>
     </Box>
   );
