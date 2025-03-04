@@ -2,6 +2,7 @@ import React, { useState, useEffect, useContext, useCallback } from "react";
 import FullCalendar from "@fullcalendar/react";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
+import dayGridPlugin from "@fullcalendar/daygrid";
 import BlockIcon from "@mui/icons-material/Block";
 import PinIcon from "@mui/icons-material/PushPin";
 import { useTheme } from "@mui/material/styles";
@@ -278,7 +279,13 @@ export default function CalendarComponent({
 const handleCalendarViewClick = (durationLabel) => {
     const calendarApi = calendarRef.current.getApi();
     const [startUnix, endUnix, duration] = durationLabel.split("-");
-
+    
+    // Convert Unix timestamps to dates
+    const startDate = new Date(parseInt(startUnix) * 1000);
+    
+    // Navigate to the start date
+    calendarApi.gotoDate(startDate);
+    
     if (previousDuration == null) {
         previousDuration = duration;
     } else if (previousDuration !== duration) {
@@ -328,23 +335,16 @@ const handleCalendarViewClick = (durationLabel) => {
         }
     }
     
-        const startDate = new Date(startUnix * 1000);
-
-        if (startDate.getDay() != 1) {
-            startDate.setDate(startDate.getDate() + 7);
+    setSelectedDuration(durationLabel);
+    enqueueSnackbar(
+        <MultiLineSnackbar
+            message={"Calendar View: " + startDate.toLocaleString("default", { month: "long", year: "numeric" })}
+        />,
+        {
+            variant: "info",
         }
-
-        calendarApi.gotoDate(startDate);
-        setSelectedDuration(durationLabel);
-        enqueueSnackbar(
-            <MultiLineSnackbar
-                message={"Calendar View: " + startDate.toLocaleString("default", { month: "long", year: "numeric" })}
-            />,
-            {
-                variant: "info",
-            }
-        );
-    };
+    );
+};
 
     const handleEventClick = (clickInfo) => {
         if (!clickInfo.event.extendedProps.isBlocked) {
@@ -424,7 +424,7 @@ const handleCalendarViewClick = (durationLabel) => {
             Thu: "R",
             Fri: "F",
             Sat: "S",
-            Sun: "U",
+            Sun: "U"
         };
 
         // Get all days between start and end date
@@ -626,8 +626,6 @@ const handleCalendarViewClick = (durationLabel) => {
                 height={835}
                 dayHeaderFormat={{ weekday: "short" }}
                 dayCellClassNames={(arg) => (arg.date.getDay() === new Date().getDay() ? "fc-day-today" : "")}
-                initialDate="2024-09-10"
-                events={events}
                 slotMinTime="08:00:00"
                 slotMaxTime="23:00:00"
                 slotDuration="00:30:00"
@@ -641,6 +639,8 @@ const handleCalendarViewClick = (durationLabel) => {
                 selectAllow={handleSelectAllow}
                 longPressDelay={0}
                 selectLongPressDelay={500}
+                firstDay={1}
+                events={events}
             />
             <TruncationDialog
                 truncationDialogOpen={truncationDialogOpen}
