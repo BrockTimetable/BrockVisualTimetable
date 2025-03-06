@@ -26,7 +26,9 @@ describe('Time Slot Conflict Handling', () => {
             T: Array(28).fill(false),
             W: Array(28).fill(false),
             R: Array(28).fill(false),
-            F: Array(28).fill(false)
+            F: Array(28).fill(false),
+            S: Array(28).fill(false),
+            U: Array(28).fill(false)
         };
         getTimeSlots.mockReturnValue(emptyTimeSlots);
         getPinnedComponents.mockReturnValue([]);
@@ -209,7 +211,9 @@ describe('Time Slot Conflict Handling', () => {
             T: Array(28).fill(false),
             W: Array(28).fill(false).map((_, i) => i < 4),
             R: Array(28).fill(false),
-            F: Array(28).fill(false)
+            F: Array(28).fill(false),
+            S: Array(28).fill(false),
+            U: Array(28).fill(false)
         };
         getTimeSlots.mockReturnValue(blockedTimeSlots);
 
@@ -223,5 +227,46 @@ describe('Time Slot Conflict Handling', () => {
             expect(section.id).toBe('2');
             expect(section.schedule.time).toBe('1000-1130');
         });
+    });
+
+    it('should handle weekend time slots correctly', () => {
+        const mockCourseData = {
+            'COSC 1P02': {
+                courseCode: 'COSC 1P02',
+                sections: [
+                    {
+                        id: '1',
+                        schedule: {
+                            days: 'S U',
+                            time: '0800-0930',
+                            duration: 'D2',
+                            startDate: 1,
+                            endDate: 60
+                        }
+                    }
+                ],
+                labs: [],
+                tutorials: [],
+                seminars: []
+            }
+        };
+        getCourseData.mockReturnValue(mockCourseData);
+
+        const blockedTimeSlots = {
+            M: Array(28).fill(false),
+            T: Array(28).fill(false),
+            W: Array(28).fill(false),
+            R: Array(28).fill(false),
+            F: Array(28).fill(false),
+            S: Array(28).fill(false).map((_, i) => i < 4),
+            U: Array(28).fill(false)
+        };
+        getTimeSlots.mockReturnValue(blockedTimeSlots);
+
+        generateTimetables();
+        const timetables = getValidTimetables();
+
+        expect(timetables.length).toBeGreaterThan(0);
+        expect(timetables[0].courses[0].mainComponents[0].schedule.days).toBe('S U');
     });
 }); 
