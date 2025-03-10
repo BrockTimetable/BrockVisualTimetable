@@ -2,6 +2,7 @@ import React, { useState, useEffect, useContext, useCallback } from "react";
 import FullCalendar from "@fullcalendar/react";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
+import dayGridPlugin from "@fullcalendar/daygrid";
 import BlockIcon from "@mui/icons-material/Block";
 import PinIcon from "@mui/icons-material/PushPin";
 import { useTheme } from "@mui/material/styles";
@@ -56,6 +57,7 @@ export default function CalendarComponent({
     const [noCourses, setNoCourses] = useState(true);
     const [timeslotsOverridden, setTimeslotsOverridden] = useState(false);
     const [timeslotsOverriddenDialogOpen, setTimeslotsOverriddenDialogOpen] = useState(false);
+    const [showWeekends, setShowWeekends] = useState(false);
 
     useEffect(() => {
         const calendarElement = document.getElementById("Calendar");
@@ -162,6 +164,53 @@ export default function CalendarComponent({
         setCurrentTimetableIndex(timetables.length - 1);
     }, [timetables.length]);
 
+    // Check if any courses have weekend classes
+    const checkForWeekendClasses = useCallback((timetable) => {
+        if (!timetable || !timetable.courses) {
+            return false;
+        }
+        
+        for (const course of timetable.courses) {
+            const { mainComponents, secondaryComponents } = course;
+            
+            // Check main components
+            if (mainComponents) {
+                for (const component of mainComponents) {
+                    if (component.schedule.days && 
+                        (component.schedule.days.includes('S') || 
+                         component.schedule.days.includes('U'))) {
+                        return true;
+                    }
+                }
+            }
+            
+            // Check secondary components
+            if (secondaryComponents) {
+                const { lab, tutorial, seminar } = secondaryComponents;
+                
+                if (lab && lab.schedule.days && 
+                    (lab.schedule.days.includes('S') || 
+                     lab.schedule.days.includes('U'))) {
+                    return true;
+                }
+                
+                if (tutorial && tutorial.schedule.days && 
+                    (tutorial.schedule.days.includes('S') || 
+                     tutorial.schedule.days.includes('U'))) {
+                    return true;
+                }
+                
+                if (seminar && seminar.schedule.days && 
+                    (seminar.schedule.days.includes('S') || 
+                     seminar.schedule.days.includes('U'))) {
+                    return true;
+                }
+            }
+        }
+        
+        return false;
+    }, []);
+
     const updateCalendarEvents = useCallback(() => {
         const currentTimetables = timetablesRef.current;
         const currentIndex = currentTimetableIndexRef.current;
@@ -183,6 +232,11 @@ export default function CalendarComponent({
         if (currentTimetables.length > 0 && currentTimetables[0].courses.length > 0) {
             setNoCourses(false);
             const timetable = currentTimetables[currentIndex];
+            
+            // Check if any courses have weekend classes
+            const hasWeekendClasses = checkForWeekendClasses(timetable);
+            setShowWeekends(hasWeekendClasses);
+            
             if (previousDuration === selectedDuration.split("-")[2] && JSON.stringify(timetable)) {
                 aprioriDurationTimetable = JSON.parse(JSON.stringify(timetable));
             }
@@ -220,12 +274,18 @@ export default function CalendarComponent({
                 setNoTimetablesGenerated(true);
             }
         }
-    }, [getDefaultColorForCourse, enqueueSnackbar, setCourseDetails, setEvents, setNoCourses, setNoTimetablesGenerated, handleLast]);
+    }, [getDefaultColorForCourse, enqueueSnackbar, setCourseDetails, setEvents, setNoCourses, setNoTimetablesGenerated, handleLast, checkForWeekendClasses]);
 
 const handleCalendarViewClick = (durationLabel) => {
     const calendarApi = calendarRef.current.getApi();
     const [startUnix, endUnix, duration] = durationLabel.split("-");
-
+    
+    // Convert Unix timestamps to dates
+    const startDate = new Date(parseInt(startUnix) * 1000);
+    
+    // Navigate to the start date
+    calendarApi.gotoDate(startDate);
+    
     if (previousDuration == null) {
         previousDuration = duration;
     } else if (previousDuration !== duration) {
@@ -275,23 +335,16 @@ const handleCalendarViewClick = (durationLabel) => {
         }
     }
     
-        const startDate = new Date(startUnix * 1000);
-
-        if (startDate.getDay() != 1) {
-            startDate.setDate(startDate.getDate() + 7);
+    setSelectedDuration(durationLabel);
+    enqueueSnackbar(
+        <MultiLineSnackbar
+            message={"Calendar View: " + startDate.toLocaleString("default", { month: "long", year: "numeric" })}
+        />,
+        {
+            variant: "info",
         }
-
-        calendarApi.gotoDate(startDate);
-        setSelectedDuration(durationLabel);
-        enqueueSnackbar(
-            <MultiLineSnackbar
-                message={"Calendar View: " + startDate.toLocaleString("default", { month: "long", year: "numeric" })}
-            />,
-            {
-                variant: "info",
-            }
-        );
-    };
+    );
+};
 
     const handleEventClick = (clickInfo) => {
         if (!clickInfo.event.extendedProps.isBlocked) {
@@ -303,17 +356,17 @@ const handleCalendarViewClick = (durationLabel) => {
 
             const pinnedComponents = getPinnedComponents();
             /*
-            NOTE: substring(0,7) is used as ID's are 7 characters long.
+            NOTE: substring(0,6) is used as ID's are 6 characters long.
 
             If there are multiple main components (such as two LECs) the 
             additional main components will have and index counter extension
             which is what the substring is trying to strip for the purpose
             of pinning.
             */
-            if (pinnedComponents.includes(courseCode + " " + split[1] + " " + clickInfo.event.id.substring(0, 7))) {
-                removePinnedComponent(courseCode + " " + split[1] + " " + clickInfo.event.id.substring(0, 7));
+            if (pinnedComponents.includes(courseCode + " " + split[1] + " " + clickInfo.event.id.substring(0, 6))) {
+                removePinnedComponent(courseCode + " " + split[1] + " " + clickInfo.event.id.substring(0, 6));
             } else {
-                addPinnedComponent(courseCode + " " + split[1] + " " + clickInfo.event.id.substring(0, 7));
+                addPinnedComponent(courseCode + " " + split[1] + " " + clickInfo.event.id.substring(0, 6));
             }
         } else {
             const blockId = clickInfo.event.id.replace('block-', '');
@@ -370,6 +423,8 @@ const handleCalendarViewClick = (durationLabel) => {
             Wed: "W",
             Thu: "R",
             Fri: "F",
+            Sat: "S",
+            Sun: "U"
         };
 
         // Get all days between start and end date
@@ -566,13 +621,11 @@ const handleCalendarViewClick = (durationLabel) => {
                 ref={calendarRef}
                 plugins={[timeGridPlugin, interactionPlugin]}
                 initialView="timeGridWeek"
-                weekends={false}
+                weekends={showWeekends}
                 headerToolbar={false}
                 height={835}
                 dayHeaderFormat={{ weekday: "short" }}
                 dayCellClassNames={(arg) => (arg.date.getDay() === new Date().getDay() ? "fc-day-today" : "")}
-                initialDate="2024-09-10"
-                events={events}
                 slotMinTime="08:00:00"
                 slotMaxTime="23:00:00"
                 slotDuration="00:30:00"
@@ -586,6 +639,8 @@ const handleCalendarViewClick = (durationLabel) => {
                 selectAllow={handleSelectAllow}
                 longPressDelay={0}
                 selectLongPressDelay={500}
+                firstDay={1}
+                events={events}
             />
             <TruncationDialog
                 truncationDialogOpen={truncationDialogOpen}
