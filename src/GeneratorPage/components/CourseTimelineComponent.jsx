@@ -30,7 +30,62 @@ export default function CourseTimelineComponent({
   // Function to handle click on a course bar
   const handleCourseClick = (course, event) => {
     try {
-      // Navigate to the course's start date + 1 day if available
+      // First, check if we have both setSelectedDuration and durations available
+      if (setSelectedDuration && durations && durations.length > 0 && course.duration) {
+        // Get the duration code (D1, D2, D3, etc.) and course dates
+        const durationCode = course.duration;
+        
+        // Convert start and end dates to Unix timestamps
+        const startTimestamp = Math.floor(course.startDate.getTime() / 1000);
+        const endTimestamp = Math.floor(course.endDate.getTime() / 1000);
+        
+        // Try to find an exact match in the durations array
+        let matchedDuration = durations.find(d => {
+          const [durStartUnix, durEndUnix, durCode] = d.split("-");
+          return durCode === durationCode && 
+                 // Allow some flexibility in date matching (within 2 weeks)
+                 Math.abs(parseInt(durStartUnix) - startTimestamp) < 1209600 && 
+                 Math.abs(parseInt(durEndUnix) - endTimestamp) < 1209600;
+        });
+        
+        // If no exact match, try to find by duration code only
+        if (!matchedDuration) {
+          matchedDuration = durations.find(d => {
+            const [_, __, durCode] = d.split("-");
+            return durCode === durationCode;
+          });
+        }
+        
+        // If still no match, just use the date range to find the most appropriate duration
+        if (!matchedDuration) {
+          // Find the duration with closest date range
+          let closestMatch = null;
+          let smallestDiff = Infinity;
+          
+          durations.forEach(d => {
+            const [durStartUnix, durEndUnix] = d.split("-");
+            const startDiff = Math.abs(parseInt(durStartUnix) - startTimestamp);
+            const endDiff = Math.abs(parseInt(durEndUnix) - endTimestamp);
+            const totalDiff = startDiff + endDiff;
+            
+            if (totalDiff < smallestDiff) {
+              smallestDiff = totalDiff;
+              closestMatch = d;
+            }
+          });
+          
+          if (closestMatch) {
+            matchedDuration = closestMatch;
+          }
+        }
+        
+        // If we found a matching duration, set it
+        if (matchedDuration) {
+          setSelectedDuration(matchedDuration);
+        }
+      }
+      
+      // Additionally, navigate to the course's start date + 1 day if available
       if (course.startDate && navigateToDate) {
         // Create a new date object for the next day
         const nextDay = new Date(course.startDate);
