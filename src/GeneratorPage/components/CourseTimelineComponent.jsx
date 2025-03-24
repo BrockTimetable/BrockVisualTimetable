@@ -21,14 +21,17 @@ export default function CourseTimelineComponent({
   addedCourses = [], 
   setSelectedDuration, 
   durations = [],
-  navigateToDate
+  navigateToDate,
+  selectedDuration
 }) {
   const { courseDetails } = useContext(CourseDetailsContext);
   const { courseColors, getDefaultColorForCourse } = useContext(CourseColorsContext);
   const [hoveredCourse, setHoveredCourse] = useState(null);
+  const [mousePosition, setMousePosition] = useState(null);
   
   const handleCourseClick = (course, event) => {
     try {
+      event.stopPropagation(); // Stop the click from reaching the timeline background
       if (setSelectedDuration && durations && durations.length > 0 && course.duration) {
         const durationCode = course.duration;
         
@@ -91,27 +94,84 @@ export default function CourseTimelineComponent({
     }
   };
 
+  const getClosestDuration = (date) => {
+    if (!durations || durations.length === 0) return null;
+    
+    let closestMatch = null;
+    let smallestDiff = Infinity;
+
+    durations.forEach(d => {
+      const [startUnix, endUnix] = d.split("-");
+      const startDate = new Date(parseInt(startUnix) * 1000);
+      const endDate = new Date(parseInt(endUnix) * 1000);
+      
+      // Calculate the difference between the date and the duration's date range
+      const startDiff = Math.abs(date - startDate);
+      const endDiff = Math.abs(date - endDate);
+      const totalDiff = startDiff + endDiff;
+      
+      if (totalDiff < smallestDiff) {
+        smallestDiff = totalDiff;
+        closestMatch = d;
+      }
+    });
+
+    return closestMatch;
+  };
+
+  const handleTimelineMouseMove = (event) => {
+    try {
+      const rect = event.currentTarget.getBoundingClientRect();
+      const clickX = event.clientX - rect.left;
+      const clickPercent = (clickX / rect.width) * 100;
+
+      // Calculate the date based on click position
+      const dayOffset = (clickPercent / 100) * totalDays;
+      const hoverDate = new Date(earliestDate.getTime() + (dayOffset * 24 * 60 * 60 * 1000));
+
+      // Find the closest duration to the hover date
+      const closestDuration = getClosestDuration(hoverDate);
+      if (closestDuration) {
+        const [startUnix] = closestDuration.split("-");
+        const startDate = new Date(parseInt(startUnix) * 1000);
+        const dayOffset = (startDate - earliestDate) / (1000 * 60 * 60 * 24);
+        const position = (dayOffset / totalDays) * 100;
+        setMousePosition(position);
+      }
+    } catch (error) {
+      console.error("Error handling timeline mouse move:", error);
+    }
+  };
+
+  const handleTimelineClick = (event) => {
+    try {
+      if (!setSelectedDuration || !durations || durations.length === 0) return;
+
+      // Get the click position relative to the timeline container
+      const rect = event.currentTarget.getBoundingClientRect();
+      const clickX = event.clientX - rect.left;
+      const clickPercent = (clickX / rect.width) * 100;
+
+      // Calculate the date based on click position
+      const dayOffset = (clickPercent / 100) * totalDays;
+      const clickedDate = new Date(earliestDate.getTime() + (dayOffset * 24 * 60 * 60 * 1000));
+
+      // Find the closest duration to the clicked date
+      const closestMatch = getClosestDuration(clickedDate);
+      if (closestMatch) {
+        setSelectedDuration(closestMatch);
+      }
+    } catch (error) {
+      console.error("Error handling timeline click:", error);
+    }
+  };
+
+  const handleTimelineMouseLeave = () => {
+    setMousePosition(null);
+  };
+
   if (!addedCourses?.length) {
-    return (
-      <Box 
-        sx={{ 
-          textAlign: 'center', 
-          py: 1.5,
-          px: 2,
-          borderRadius: 1,
-          backgroundColor: 'transparent',
-          border: '1px solid',
-          borderColor: 'var(--calendar-grid-color-light)',
-          '.dark-mode &': {
-            borderColor: 'var(--calendar-grid-color-dark)'
-          }
-        }}
-      >
-        <Typography variant="caption" color="text.secondary">
-          Add courses to see timeline visualization
-        </Typography>
-      </Box>
-    );
+    return null;
   }
 
   const coursesWithDates = addedCourses
@@ -142,8 +202,7 @@ export default function CourseTimelineComponent({
           startDate,
           endDate,
           color: courseColors[courseName] || getDefaultColorForCourse(courseName),
-          duration: course.duration || "",
-          term: startDate.getMonth() < 5 ? 'spring' : 'summer'
+          duration: course.duration || ""
         };
       } catch (error) {
         console.error("Error processing course:", error);
@@ -222,13 +281,15 @@ export default function CourseTimelineComponent({
   return (
     <Box 
       sx={{ 
-        mt: 1.5, 
-        mb: 2.5,
+        mb: 0.5,
         px: 0.5
       }}
     >
       {/* Timeline container */}
       <Box 
+        onClick={handleTimelineClick}
+        onMouseMove={handleTimelineMouseMove}
+        onMouseLeave={handleTimelineMouseLeave}
         sx={{
           position: 'relative',
           height: coursesWithDates.length * 24 + 20,
@@ -237,7 +298,10 @@ export default function CourseTimelineComponent({
           borderRadius: 1.5,
           overflow: 'hidden',
           transition: 'all 0.2s ease-in-out',
-          mt: 1.5
+          cursor: 'pointer',
+          '&:hover': {
+            backgroundColor: theme => alpha(theme.palette.action.hover, 0.04),
+          }
         }}
       >
         {/* Background with subtle grid */}
@@ -258,6 +322,23 @@ export default function CourseTimelineComponent({
             transition: 'all 0.2s ease-in-out'
           }}
         />
+        
+        {/* Preview line */}
+        {mousePosition !== null && (
+          <Box
+            sx={{
+              position: 'absolute',
+              left: `${mousePosition}%`,
+              top: 0,
+              height: '100%',
+              width: '2px',
+              backgroundColor: theme => alpha(theme.palette.primary.main, 0.3),
+              zIndex: 4,
+              pointerEvents: 'none',
+              transition: 'left 0.1s ease-out'
+            }}
+          />
+        )}
         
         {/* Month markers */}
         {monthMarkers.map((marker, index) => (
@@ -302,6 +383,50 @@ export default function CourseTimelineComponent({
             )}
           </React.Fragment>
         ))}
+
+        {/* Current date line */}
+        {(() => {
+          let selectedDate = null;
+          if (selectedDuration) {
+            const [startUnix] = selectedDuration.split("-");
+            selectedDate = new Date(parseInt(startUnix) * 1000);
+          }
+          
+          if (selectedDate && selectedDate >= earliestDate && selectedDate <= latestDate) {
+            const dayOffset = (selectedDate - earliestDate) / (1000 * 60 * 60 * 24);
+            const position = (dayOffset / totalDays) * 100;
+            
+            return (
+              <>
+                <Box
+                  sx={{
+                    position: 'absolute',
+                    left: `${position}%`,
+                    top: 0,
+                    height: '100%',
+                    width: '2px',
+                    backgroundColor: theme => theme.palette.primary.main,
+                    zIndex: 5,
+                    pointerEvents: 'none',
+                    animation: 'pulse 2s infinite',
+                    '@keyframes pulse': {
+                      '0%': {
+                        opacity: 0.4,
+                      },
+                      '50%': {
+                        opacity: 1,
+                      },
+                      '100%': {
+                        opacity: 0.4,
+                      }
+                    }
+                  }}
+                />
+              </>
+            );
+          }
+          return null;
+        })()}
         
         {/* Course bars with labels */}
         {coursesWithDates.map((course, index) => (

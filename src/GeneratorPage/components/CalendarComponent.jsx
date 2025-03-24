@@ -717,6 +717,7 @@ const handleCalendarViewClick = (durationLabel) => {
                 setSelectedDuration={setSelectedDuration}
                 durations={durations}
                 navigateToDate={navigateToDate}
+                selectedDuration={selectedDuration}
             />
             
             <CalendarNavBar
