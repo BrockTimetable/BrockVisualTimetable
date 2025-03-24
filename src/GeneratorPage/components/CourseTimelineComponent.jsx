@@ -27,12 +27,9 @@ export default function CourseTimelineComponent({
   const { courseColors, getDefaultColorForCourse } = useContext(CourseColorsContext);
   const [hoveredCourse, setHoveredCourse] = useState(null);
   
-  // Function to handle click on a course bar
   const handleCourseClick = (course, event) => {
     try {
-      // First, check if we have both setSelectedDuration and durations available
       if (setSelectedDuration && durations && durations.length > 0 && course.duration) {
-        // Get the duration code (D1, D2, D3, etc.) and course dates
         const durationCode = course.duration;
         
         // Convert start and end dates to Unix timestamps
@@ -58,7 +55,6 @@ export default function CourseTimelineComponent({
         
         // If still no match, just use the date range to find the most appropriate duration
         if (!matchedDuration) {
-          // Find the duration with closest date range
           let closestMatch = null;
           let smallestDiff = Infinity;
           
@@ -79,15 +75,12 @@ export default function CourseTimelineComponent({
           }
         }
         
-        // If we found a matching duration, set it
         if (matchedDuration) {
           setSelectedDuration(matchedDuration);
         }
       }
       
-      // Additionally, navigate to the course's start date + 1 day if available
       if (course.startDate && navigateToDate) {
-        // Create a new date object for the next day
         const nextDay = new Date(course.startDate);
         nextDay.setDate(nextDay.getDate() + 1);
         
@@ -98,8 +91,7 @@ export default function CourseTimelineComponent({
     }
   };
 
-  // If no courses, return empty component
-  if (!addedCourses || addedCourses.length === 0) {
+  if (!addedCourses?.length) {
     return (
       <Box 
         sx={{ 
@@ -122,170 +114,73 @@ export default function CourseTimelineComponent({
     );
   }
 
-  const coursesWithDates = [];
-  
-  for (const course of addedCourses) {
-    try {
-      const courseName = course.code?.toUpperCase();
-      const courseString = course.string || `${course.code} ${course.section || ''} (${course.duration || ''})`;
-      
-      let startDate = null;
-      let endDate = null;
-      
-      if (course.startDate && course.endDate) {
-        startDate = new Date(course.startDate);
-        endDate = new Date(course.endDate);
-      }
-      
-      if (!startDate || !endDate || isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
-        const detail = courseDetails?.find(d => d && d.name === courseName);
+  const coursesWithDates = addedCourses
+    .map(course => {
+      try {
+        const courseName = course.code?.toUpperCase();
+        const courseString = course.string || `${course.code} ${course.section || ''} (${course.duration || ''})`;
         
-        if (detail && detail.startDate && detail.endDate) {
-          startDate = new Date(detail.startDate);
-          endDate = new Date(detail.endDate);
-        }
-      }
-      
-      if (!startDate || !endDate || isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
-        let durationCode = course.duration || "";
-        if (!durationCode) {
-          const durationMatch = courseString.match(/\(([^)]+)\)/);
-          if (durationMatch && durationMatch[1]) {
-            durationCode = durationMatch[1];
+        let startDate = course.startDate ? new Date(course.startDate) : null;
+        let endDate = course.endDate ? new Date(course.endDate) : null;
+        
+        if (!startDate || !endDate || isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+          const detail = courseDetails?.find(d => d?.name === courseName);
+          if (detail?.startDate && detail?.endDate) {
+            startDate = new Date(detail.startDate);
+            endDate = new Date(detail.endDate);
           }
         }
         
-        // Set date ranges based on duration code
-        if (durationCode.includes("D1")) {
-          // First half of term
-          startDate = new Date(2023, 0, 1); // Jan 1
-          endDate = new Date(2023, 5, 1);   // June 1
-        } else if (durationCode.includes("D2")) {
-          // Second half of term
-          startDate = new Date(2023, 5, 1);  // June 1
-          endDate = new Date(2023, 11, 31);  // Dec 31
-        } else if (durationCode.includes("D3")) {
-          // Full duration
-          startDate = new Date(2023, 0, 1);  // Jan 1
-          endDate = new Date(2023, 11, 31);  // Dec 31
-        } else {
-          // Default duration with staggered dates
-          const index = coursesWithDates.length;
-          startDate = new Date(2023, 0 + index, 1);
-          endDate = new Date(2023, 6 + index, 1);
+        // Skip courses without valid dates
+        if (!startDate || !endDate || isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+          return null;
         }
-      }
-      
-      const color = courseColors[courseName] || getDefaultColorForCourse(courseName);
-      
-      // Determine term based on dates
-      let term = '';
-      if (startDate) {
-        // Use month to determine term - typically spring is before June, summer is June or later
-        const month = startDate.getMonth();
-        term = month < 5 ? 'spring' : 'summer'; // 5 = June (0-indexed months)
-      }
-      
-      coursesWithDates.push({
-        code: courseName,
-        fullName: courseString,
-        startDate,
-        endDate,
-        color,
-        // Store the duration for use in click handler
-        duration: course.duration || "",
-        term: term
-      });
-    } catch (error) {
-      // Even on error, try to add the course with default dates
-      try {
-        const index = coursesWithDates.length;
-        const courseName = course.code?.toUpperCase() || "COURSE" + index;
-        const courseString = course.string || `Course ${index}`;
-        const color = courseColors[courseName] || getDefaultColorForCourse(courseName);
         
-        // Create fallback dates
-        const startDate = new Date(2023, 0 + index, 1);
-        const endDate = new Date(2023, 6 + index, 1);
-        
-        // Determine term for fallback dates
-        const term = startDate.getMonth() < 5 ? 'spring' : 'summer';
-        
-        coursesWithDates.push({
+        return {
           code: courseName,
           fullName: courseString,
           startDate,
           endDate,
-          color,
+          color: courseColors[courseName] || getDefaultColorForCourse(courseName),
           duration: course.duration || "",
-          term
-        });
-      } catch (innerError) {
-        console.error("Failed to add fallback course:", innerError);
+          term: startDate.getMonth() < 5 ? 'spring' : 'summer'
+        };
+      } catch (error) {
+        console.error("Error processing course:", error);
+        return null;
       }
-    }
-  }
-  
-  if (coursesWithDates.length === 0) {
-    // If we still have no courses with dates, create some default ones based on the course names
-    if (addedCourses.length > 0) {
-      for (let i = 0; i < addedCourses.length; i++) {
-        try {
-          const course = addedCourses[i];
-          const parts = course.split(" ");
-          const courseName = parts.length >= 2 ? 
-            (parts[0] + parts[1]).toUpperCase() : 
-            course.toUpperCase();
-          
-          const startDate = new Date(2023, 0 + i, 1);
-          const endDate = new Date(2023, 3 + i, 1);
-          
-          const color = courseColors[courseName] || getDefaultColorForCourse(courseName);
-          
-          coursesWithDates.push({
-            code: courseName,
-            fullName: course,
-            startDate,
-            endDate,
-            color
-          });
-        } catch (error) {
-          console.error("Error creating fallback course:", error);
-        }
-      }
-    }
-    
-    // If still no courses, show a message
-    if (coursesWithDates.length === 0) {
-      return (
-        <Box 
-          sx={{ 
-            textAlign: 'center', 
-            py: 1.5,
-            px: 2,
-            borderRadius: 1,
-            backgroundColor: 'transparent',
-            border: '1px solid',
-            borderColor: 'var(--calendar-grid-color-light)',
-            '.dark-mode &': {
-              borderColor: 'var(--calendar-grid-color-dark)'
-            }
-          }}
-        >
-          <Typography variant="caption" color="text.secondary">
-            No course date information available
-          </Typography>
-        </Box>
-      );
-    }
+    })
+    .filter(Boolean);
+
+  if (!coursesWithDates.length) {
+    return (
+      <Box 
+        sx={{ 
+          textAlign: 'center', 
+          py: 1.5,
+          px: 2,
+          borderRadius: 1,
+          backgroundColor: 'transparent',
+          border: '1px solid',
+          borderColor: 'var(--calendar-grid-color-light)',
+          '.dark-mode &': {
+            borderColor: 'var(--calendar-grid-color-dark)'
+          }
+        }}
+      >
+        <Typography variant="caption" color="text.secondary">
+          No valid course date information available
+        </Typography>
+      </Box>
+    );
   }
 
-  // Calculate the timeline range
-  const startTimes = coursesWithDates.map(c => c.startDate.getTime());
-  const endTimes = coursesWithDates.map(c => c.endDate.getTime());
-  
-  const earliestDate = new Date(Math.min(...startTimes));
-  const latestDate = new Date(Math.max(...endTimes));
+  // Calculate timeline range using reduce instead of map + spread
+  const { earliestDate, latestDate } = coursesWithDates.reduce((acc, course) => ({
+    earliestDate: course.startDate < acc.earliestDate ? course.startDate : acc.earliestDate,
+    latestDate: course.endDate > acc.latestDate ? course.endDate : acc.latestDate
+  }), { earliestDate: coursesWithDates[0].startDate, latestDate: coursesWithDates[0].endDate });
+
   const totalDays = Math.ceil((latestDate - earliestDate) / (1000 * 60 * 60 * 24)) + 1;
 
   // Calculate position and width percentages for each course
@@ -304,18 +199,14 @@ export default function CourseTimelineComponent({
   const endYear = latestDate.getFullYear();
   const endMonth = latestDate.getMonth();
   
-  // Calculate the total number of months in the range
   const totalMonths = (endYear - startYear) * 12 + (endMonth - startMonth) + 1;
   
-  // Generate markers for each month
   for (let i = 0; i <= totalMonths; i++) {
     const year = startYear + Math.floor((startMonth + i) / 12);
     const month = (startMonth + i) % 12;
     
-    // Create date for the 1st of the month
     const monthDate = new Date(year, month, 1);
     
-    // Only add if the month starts after or on the earliest date and before or on the latest date
     if (monthDate >= earliestDate && monthDate <= latestDate) {
       const dayOffset = (monthDate - earliestDate) / (1000 * 60 * 60 * 24);
       const position = (dayOffset / totalDays) * 100;
@@ -346,7 +237,7 @@ export default function CourseTimelineComponent({
           borderRadius: 1.5,
           overflow: 'hidden',
           transition: 'all 0.2s ease-in-out',
-          mt: 1.5 // Add top margin for labels
+          mt: 1.5
         }}
       >
         {/* Background with subtle grid */}
