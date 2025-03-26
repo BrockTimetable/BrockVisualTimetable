@@ -34,6 +34,14 @@
     text-decoration: none;
 }
 
+/* Course Timeline styles */
+.course-timeline-container {
+  margin: 0.5rem 0 1rem;
+  max-width: 100%;
+}
+
+/* Timeline styles moved to inline Material UI styles */
+
 @media (max-width: 1325px) {
     .fc-event-main {
         font-size: 10px;
@@ -80,6 +88,10 @@
 
     #calendarTimetableNumber {
         margin: 10px 0;
+    }
+
+    .course-timeline-container {
+        margin: 0.5rem 0 0.75rem;
     }
 }
 
@@ -129,5 +141,9 @@
 
     #calendarTimetableNumber {
         margin: 10px 0;
+    }
+
+    .course-timeline-container {
+        margin: 0.5rem 0 0.75rem;
     }
 }
