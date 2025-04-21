@@ -596,17 +596,18 @@ export const generateTimetables = (sortOption) => {
                 if (validTimetables.length > 0) break;
             }
 
-            if (timeslotOverridden) {
-                performanceMetrics.timeSlotOverrides++;
-                eventBus.emit("overridden", true);
-                eventBus.emit("snackbar", {
-                    message:
-                        "All available options for one or more course components were blocked. One or more user-defined time blocks has been overridden to find a valid timetable.",
-                    variant: "warning",
-                });
-            }
         }
-
+        
+        if (timeslotOverridden) {
+            performanceMetrics.timeSlotOverrides++;
+            eventBus.emit("overridden", true);
+            eventBus.emit("snackbar", {
+                message:
+                    "All available options for one or more course components were blocked. One or more user-defined time blocks has been overridden to find a valid timetable.",
+                variant: "warning",
+            });
+        }
+        
         // Sort after generation is complete
         if (sortOption === "sortByWaitingTime") {
             validTimetables.sort((a, b) => {
