@@ -1,4 +1,5 @@
 let timeBlockEvents = [];
+import { updateExportData } from "./ExportCal";
 
 export const createCalendarEvents = (timetable, getDaysOfWeek, courseColors = {}) => {
     const newEvents = [];
@@ -177,6 +178,7 @@ export const createCalendarEvents = (timetable, getDaysOfWeek, courseColors = {}
         }
     });
 
+    updateExportData(timetable);
     return newEvents;
 };
 
