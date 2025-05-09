@@ -5,6 +5,7 @@ import CourseList from "./InputFormComponents/Sections/CourseList";
 import SourceCode from "./InputFormComponents/Sections/SourceCode";
 import PerformanceMetrics from "./InputFormComponents/Sections/PerformanceMetrics";
 import Tips from "./InputFormComponents/Sections/Tips";
+import ExportOptions from "./InputFormComponents/Sections/ExportOptions";
 import { removeCourseData } from "../scripts/courseData";
 import { removePinnedComponent } from "../scripts/pinnedComponents";
 
@@ -31,6 +32,9 @@ export default function InputFormBottomComponent({ addedCourses, setAddedCourses
                 </Grid>
                 <Grid item xs={12}>
                     <Tips />
+                </Grid>
+                <Grid item xs={12}>
+                    <ExportOptions />
                 </Grid>
                 <Grid item xs={12}>
                     <PerformanceMetrics />
