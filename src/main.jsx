@@ -30,10 +30,10 @@ const App = () => {
         contrastText: '#ffffff',
       },
       secondary: {
-        main: '#cc0000',
-        light: '#ff6666',
-        dark: '#990000',
-        contrastText: '#ffffff',
+        main: '#ffcdd2',
+        light: '#ffebee',
+        dark: '#ef9a9a',
+        contrastText: '#000000',
       },
       error: {
         main: '#f44336',

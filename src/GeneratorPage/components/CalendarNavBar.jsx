@@ -6,7 +6,6 @@ import NavigateFirstIcon from "@mui/icons-material/FirstPage";
 import NavigateLastIcon from "@mui/icons-material/LastPage";
 import InfoIcon from "@mui/icons-material/Info";
 import CancelIcon from "@mui/icons-material/Cancel";
-import { exportCal } from './../scripts/ExportCal.js';
 
 export default function CalendarNavBar({
     isTruncated,
@@ -101,11 +100,6 @@ export default function CalendarNavBar({
                         ))}
                     </Select>
                 </FormControl>
-            </Box>
-            <Box id="exportButton" sx={{ flex: 1, display: 'flex', justifyContent: 'flex-end', paddingTop: '4px', paddingBottom: '4px', marginRight: '4px' }}>
-                    <Button variant="contained" onClick={exportCal}>
-                        Export Calendar
-                    </Button>
             </Box>
         </Box>
     );
