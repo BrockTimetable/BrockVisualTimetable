@@ -4,7 +4,7 @@ import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import ListItemText from "@mui/material/ListItemText";
 
-export default function SourceCode() {
+export default function Tips() {
     return (
         <BorderBox title="Tips">
             <List sx={{ listStyle: "disc", pl: 2 }}>
