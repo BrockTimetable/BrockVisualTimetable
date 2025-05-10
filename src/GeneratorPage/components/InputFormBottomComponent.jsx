@@ -42,9 +42,6 @@ export default function InputFormBottomComponent({ addedCourses, setAddedCourses
                     <ExportOptions />
                 </Grid>
                 <Grid item xs={12}>
-                    <PerformanceMetrics />
-                </Grid>
-                <Grid item xs={12}>
                     <SourceCode />
                 </Grid>
             </Grid>
