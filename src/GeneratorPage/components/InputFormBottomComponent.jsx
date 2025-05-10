@@ -32,9 +32,11 @@ export default function InputFormBottomComponent({ addedCourses, setAddedCourses
                 <Grid item xs={12}>
                     <Tips />
                 </Grid>
-                <Grid item xs={12}>
-                    <PerformanceMetrics />
-                </Grid>
+                {process.env.NODE_ENV === 'development' && (
+                    <Grid item xs={12}>
+                        <PerformanceMetrics />
+                    </Grid>
+                )}
                 <Grid item xs={12}>
                     <SourceCode />
                 </Grid>
