@@ -29,7 +29,7 @@ export default function TermSelectComponent({ onTermChange }) {
           >
             <MenuItem value={''}>Select Term</MenuItem>
             <MenuItem disabled={true} value={'FW'}>Fall/Winter</MenuItem>
-            <MenuItem disabled={false} value={'SP'}>Spring 2025</MenuItem>
+            <MenuItem disabled={true} value={'SP'}>Spring 2025</MenuItem>
             <MenuItem disabled={false} value={'SU'}>Summer 2025</MenuItem>
           </Select>
         </FormControl>
