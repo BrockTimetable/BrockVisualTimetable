@@ -287,7 +287,23 @@ const handleCalendarViewClick = (durationLabel) => {
     const [startUnix, endUnix, duration] = durationLabel.split("-");
     
     const startDate = new Date(parseInt(startUnix) * 1000);
-    calendarApi.gotoDate(startDate);
+    const dayOfWeek = startDate.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+    
+    let navigationDate = new Date(startDate);
+    
+    // If classes start on Tuesday-Saturday, navigate to the following week
+    // so we can see the full recurring pattern (Monday-Friday)
+    if (dayOfWeek >= 2 && dayOfWeek <= 6) {
+        // Add days to get to the Monday of the following week
+        const daysToAdd = 8 - dayOfWeek; // Days until next Monday
+        navigationDate.setDate(navigationDate.getDate() + daysToAdd);
+    } else {
+        // If classes start on Sunday or Monday, navigate to the Monday of that week
+        const daysToSubtract = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+        navigationDate.setDate(navigationDate.getDate() - daysToSubtract);
+    }
+    
+    calendarApi.gotoDate(navigationDate);
     
     if (previousDuration == null) {
         previousDuration = duration;
