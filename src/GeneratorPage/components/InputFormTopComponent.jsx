@@ -16,7 +16,7 @@ import SortOptions from "./InputFormComponents/Sections/SortOptions";
 
 export default function InputFormTop({ setTimetables, setSelectedDuration, setDurations, setSortOption, addedCourses, setAddedCourses }) {
     const { enqueueSnackbar } = useSnackbar();
-    const [term, setTerm] = useState("SP");
+    const [term, setTerm] = useState("FW");
     const [courseCode, setCourseCode] = useState("");
     const [courseInputValue, setCourseInputValue] = useState("");
     const [timetableType, setTimetableType] = useState("UG");
