@@ -15,6 +15,24 @@ import { CourseColorsContext } from "../../contexts/CourseColorsContext";
 import ColorLensIcon from '@mui/icons-material/ColorLens';
 import { clearCoursePins } from "../../scripts/pinnedComponents";
 
+// Helper function to parse start dates (ISO format YYYY-MM-DD)
+const parseStartDate = (dateStr) => {
+    if (!dateStr) return "N/A";
+    
+    const [year, month, day] = dateStr.split('-').map(Number);
+    const date = new Date(year, month - 1, day); // month is 0-indexed
+    return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+};
+
+// Helper function to parse end dates (ISO format YYYY-MM-DD, subtract 1 day since they're stored as exclusive end dates)
+const parseEndDate = (dateStr) => {
+    if (!dateStr) return "N/A";
+    
+    const [year, month, day] = dateStr.split('-').map(Number);
+    const date = new Date(year, month - 1, day - 1); // month is 0-indexed, subtract 1 day
+    return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+};
+
 export default function CourseListComponent({ course, courseDetail, removeCourse }) {
     const theme = useTheme();
     const [open, setOpen] = React.useState(false);
@@ -108,11 +126,17 @@ export default function CourseListComponent({ course, courseDetail, removeCourse
                     </ListItem>
                     <Divider />
                     <ListItem>
-                        <ListItemText primary={courseDetail ? `${new Date(courseDetail.startDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}` : "N/A"} secondary="Start Date" />
+                        <ListItemText 
+                            primary={courseDetail ? parseStartDate(courseDetail.startDate) : "N/A"} 
+                            secondary="Start Date" 
+                        />
                     </ListItem>
                     <Divider />
                     <ListItem>
-                        <ListItemText primary={courseDetail ? `${new Date(courseDetail.endDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}` : "N/A"} secondary="End Date" />
+                        <ListItemText 
+                            primary={courseDetail ? parseEndDate(courseDetail.endDate) : "N/A"} 
+                            secondary="End Date" 
+                        />
                     </ListItem>
                 </List>
             </Collapse>

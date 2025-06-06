@@ -7,6 +7,18 @@ import NavigateLastIcon from "@mui/icons-material/LastPage";
 import InfoIcon from "@mui/icons-material/Info";
 import CancelIcon from "@mui/icons-material/Cancel";
 
+// Helper function to format duration display text from Unix timestamps
+const formatDurationText = (duration) => {
+    const [startUnix, endUnix, dur] = duration.split("-");
+    const startDate = new Date(parseInt(startUnix, 10) * 1000);
+    const endDate = new Date(parseInt(endUnix, 10) * 1000);
+    
+    const startMonth = startDate.toLocaleString("default", { month: "short" });
+    const endMonth = endDate.toLocaleString("default", { month: "short" });
+    
+    return `${startMonth} - ${endMonth} (D${dur})`;
+};
+
 export default function CalendarNavBar({
     isTruncated,
     noTimetablesGenerated,
@@ -84,18 +96,7 @@ export default function CalendarNavBar({
                     >
                         {sortByBracketContent(durations).map((duration, index) => (
                             <MenuItem key={index} value={duration}>
-                                {(() => {
-                                    const [startUnix, endUnix, dur] = duration.split("-");
-                                    const startMonth = new Date(parseInt(startUnix, 10) * 1000).toLocaleString(
-                                        "default",
-                                        { month: "short" }
-                                    );
-                                    const endMonth = new Date(parseInt(endUnix, 10) * 1000).toLocaleString(
-                                        "default",
-                                        { month: "short" }
-                                    );
-                                    return `${startMonth} - ${endMonth} (D${dur})`;
-                                })()}
+                                {formatDurationText(duration)}
                             </MenuItem>
                         ))}
                     </Select>
