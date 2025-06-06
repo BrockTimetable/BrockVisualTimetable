@@ -48,6 +48,18 @@ let performanceMetrics = {
     timeSlotOverrides: 0
 };
 
+// Helper function to extract base component ID by removing suffix extensions
+const getBaseComponentId = (componentId) => {
+    if (!componentId) return componentId;
+    
+    // Remove any suffix extensions like "-1", "-2" etc.
+    const dashIndex = componentId.indexOf('-');
+    if (dashIndex !== -1) {
+        return componentId.substring(0, dashIndex);
+    }
+    return componentId;
+};
+
 const timeToSlot = (time) => {
     // Cache for common time conversions
     const timeCache = {
@@ -112,9 +124,9 @@ const filterComponentsAgainstTimeSlots = (components, timeSlots) => {
     const blockedComponents = [];
     const availableGroups = [];
 
-    // Group components by ID
+    // Group components by base ID (removing suffix extensions)
     for (const component of components) {
-        const groupId = component.id;
+        const groupId = getBaseComponentId(component.id);
         if (!groupedComponents.has(groupId)) {
             groupedComponents.set(groupId, []);
         }
@@ -218,7 +230,8 @@ const filterPinned = (components, courseCode, componentType) => {
     return components.filter((component) => {
         return coursePinnedComponents.some((pinned) => {
             const [, , id] = pinned.split(" ");
-            if (component.id === id) {
+            const baseComponentId = getBaseComponentId(component.id);
+            if (baseComponentId === id) {
                 component.pinned = true;
                 return true;
             }
@@ -250,7 +263,7 @@ const generateSingleCourseCombinations = (course, timeSlots) => {
 
     const groupedMainComponents = Object.values(
         validMainComponents.reduce((acc, component) => {
-            const groupId = component.id;
+            const groupId = getBaseComponentId(component.id);
             if (!acc[groupId]) acc[groupId] = [];
             acc[groupId].push(component);
             return acc;
@@ -308,35 +321,44 @@ const generateSingleCourseCombinations = (course, timeSlots) => {
         };
 
         const validLabsForMainComponent = validLabs.filter(
-            (lab) =>
-                lab.schedule.duration === mainComponentDuration &&
-                ((isOnlyMainSection && mainComponentGroup[0].id !== "0") ||
-                    lab.id.charAt(getMatchingCharIndex(lab.id)) === mainComponentGroup[0].id.charAt(getMatchingCharIndex(mainComponentGroup[0].id)))
+            (lab) => {
+                const labBaseId = getBaseComponentId(lab.id);
+                const mainBaseId = getBaseComponentId(mainComponentGroup[0].id);
+                return lab.schedule.duration === mainComponentDuration &&
+                    ((isOnlyMainSection && mainBaseId !== "0") ||
+                        labBaseId.charAt(getMatchingCharIndex(labBaseId)) === mainBaseId.charAt(getMatchingCharIndex(mainBaseId)));
+            }
         );
 
         const validTutorialsForMainComponent = validTutorials.filter(
-            (tutorial) =>
-                tutorial.schedule.duration === mainComponentDuration &&
-                ((isOnlyMainSection && mainComponentGroup[0].id !== "0") ||
-                    tutorial.id.charAt(getMatchingCharIndex(tutorial.id)) === mainComponentGroup[0].id.charAt(getMatchingCharIndex(mainComponentGroup[0].id)))
+            (tutorial) => {
+                const tutorialBaseId = getBaseComponentId(tutorial.id);
+                const mainBaseId = getBaseComponentId(mainComponentGroup[0].id);
+                return tutorial.schedule.duration === mainComponentDuration &&
+                    ((isOnlyMainSection && mainBaseId !== "0") ||
+                        tutorialBaseId.charAt(getMatchingCharIndex(tutorialBaseId)) === mainBaseId.charAt(getMatchingCharIndex(mainBaseId)));
+            }
         );
 
         const validSeminarsForMainComponent = validSeminars.filter(
-            (seminar) =>
-                seminar.schedule.duration === mainComponentDuration &&
-                ((isOnlyMainSection && mainComponentGroup[0].id !== "0") ||
-                    seminar.id.charAt(getMatchingCharIndex(seminar.id)) === mainComponentGroup[0].id.charAt(getMatchingCharIndex(mainComponentGroup[0].id)))
+            (seminar) => {
+                const seminarBaseId = getBaseComponentId(seminar.id);
+                const mainBaseId = getBaseComponentId(mainComponentGroup[0].id);
+                return seminar.schedule.duration === mainComponentDuration &&
+                    ((isOnlyMainSection && mainBaseId !== "0") ||
+                        seminarBaseId.charAt(getMatchingCharIndex(seminarBaseId)) === mainBaseId.charAt(getMatchingCharIndex(mainBaseId)));
+            }
         );
 
         const pinnedLab = pinnedComponents.find((p) => p.includes("LAB") && p.split(" ")[0] === course.courseCode);
         const pinnedTut = pinnedComponents.find((p) => p.includes("TUT") && p.split(" ")[0] === course.courseCode);
         const pinnedSem = pinnedComponents.find((p) => p.includes("SEM") && p.split(" ")[0] === course.courseCode);
 
-        const isLabValid = !pinnedLab || validLabsForMainComponent.some((lab) => lab.id === pinnedLab.split(" ")[2]);
+        const isLabValid = !pinnedLab || validLabsForMainComponent.some((lab) => getBaseComponentId(lab.id) === pinnedLab.split(" ")[2]);
         const isTutValid =
-            !pinnedTut || validTutorialsForMainComponent.some((tut) => tut.id === pinnedTut.split(" ")[2]);
+            !pinnedTut || validTutorialsForMainComponent.some((tut) => getBaseComponentId(tut.id) === pinnedTut.split(" ")[2]);
         const isSemValid =
-            !pinnedSem || validSeminarsForMainComponent.some((sem) => sem.id === pinnedSem.split(" ")[2]);
+            !pinnedSem || validSeminarsForMainComponent.some((sem) => getBaseComponentId(sem.id) === pinnedSem.split(" ")[2]);
 
         if (!isLabValid || !isTutValid || !isSemValid) return;
 
@@ -365,14 +387,16 @@ const isTimetableValid = (timetable) => {
     // Pre-compile regex
     const timeRegex = /[a-zA-Z]/;
     
-    // Use a more efficient data structure for occupied slots
-    const occupiedSlots = new Map();
+    // Helper function to check date range overlap
+    const dateRangesOverlap = (start1, end1, start2, end2) => start1 <= end2 && start2 <= end1;
     
-    // Helper function to check overlap
-    const overlap = (start1, end1, start2, end2) => start1 < end2 && start2 < end1;
+    // Helper function to check time slot overlap
+    const timeSlotsOverlap = (start1, end1, start2, end2) => start1 < end2 && start2 < end1;
 
+    // Collect all components with their schedule info
+    const allComponents = [];
+    
     for (const course of timetable) {
-        // Get all components in one go
         const components = [
             ...course.mainComponents,
             course.secondaryComponents.lab,
@@ -384,41 +408,52 @@ const isTimetableValid = (timetable) => {
             const { days, time, startDate, endDate } = component.schedule;
             if (!time || timeRegex.test(time)) continue;
 
-            // Convert time to slots once
+            // Convert time to slots
             const [startSlot, endSlot] = time.split("-").map(t => timeToSlot(t.trim()));
-            const daysArray = days.split(" ").filter(Boolean);
+            
+            // Parse days - handle both "MWF" format and "M W F" format
+            let daysArray;
+            if (days.includes(" ")) {
+                daysArray = days.split(" ").filter(Boolean);
+            } else {
+                // Split individual characters for formats like "MWF", "TR", etc.
+                daysArray = days.replace(/\s/g, "").split("");
+            }
 
-            // Create date range key once
-            const dateKey = `${startDate}-${endDate}`;
+            allComponents.push({
+                courseCode: course.courseCode,
+                componentId: component.id,
+                baseComponentId: getBaseComponentId(component.id),
+                days: daysArray,
+                startSlot,
+                endSlot,
+                startDate,
+                endDate
+            });
+        }
+    }
 
-            for (const day of daysArray) {
-                if (!occupiedSlots.has(day)) {
-                    occupiedSlots.set(day, new Map());
-                }
-                const daySlots = occupiedSlots.get(day);
+    // Check for overlaps between all pairs of components
+    for (let i = 0; i < allComponents.length; i++) {
+        for (let j = i + 1; j < allComponents.length; j++) {
+            const comp1 = allComponents[i];
+            const comp2 = allComponents[j];
 
-                // Check all existing slots for this day
-                for (const [existingDateKey, slots] of daySlots) {
-                    const [existingStartDate, existingEndDate] = existingDateKey.split("-").map(Number);
-                    
-                    if (overlap(startDate, endDate, existingStartDate, existingEndDate)) {
-                        // Check if any slot in the range is occupied
-                        for (let i = startSlot; i < endSlot; i++) {
-                            if (slots.has(i)) {
-                                return false;
-                            }
-                        }
-                    }
-                }
+            // Check if date ranges overlap
+            if (!dateRangesOverlap(comp1.startDate, comp1.endDate, comp2.startDate, comp2.endDate)) {
+                continue; // No date overlap, so no conflict
+            }
 
-                // If we get here, the slots are available. Mark them as occupied.
-                if (!daySlots.has(dateKey)) {
-                    daySlots.set(dateKey, new Set());
-                }
-                const slots = daySlots.get(dateKey);
-                for (let i = startSlot; i < endSlot; i++) {
-                    slots.add(i);
-                }
+            // Check if they share any common days
+            const commonDays = comp1.days.filter(day => comp2.days.includes(day));
+            if (commonDays.length === 0) {
+                continue; // No common days, so no conflict
+            }
+
+            // Check if time slots overlap
+            if (timeSlotsOverlap(comp1.startSlot, comp1.endSlot, comp2.startSlot, comp2.endSlot)) {
+                // We have an overlap - this timetable is invalid
+                return false;
             }
         }
     }
@@ -479,7 +514,14 @@ const calculateWaitingTime = (timetable) => {
             const { days, time } = component.schedule;
             if (!time || /[a-zA-z]/.test(time)) return;
             const [startSlot, endSlot] = time.split("-").map((t) => timeToSlot(t.trim()));
-            const daysArray = days.split(" ").filter((day) => day);
+            
+            // Parse days consistently - handle both "MWF" format and "M W F" format
+            let daysArray;
+            if (days.includes(" ")) {
+                daysArray = days.split(" ").filter(Boolean);
+            } else {
+                daysArray = days.replace(/\s/g, "").split("");
+            }
 
             daysArray.forEach((day) => {
                 if (!daySlots[day]) daySlots[day] = [];
@@ -512,7 +554,15 @@ const calculateClassDays = (timetable) => {
         components.forEach((component) => {
             const { days } = component.schedule;
             if (!days) return;
-            const daysArray = days.split(" ").filter((day) => day);
+            
+            // Parse days consistently - handle both "MWF" format and "M W F" format
+            let daysArray;
+            if (days.includes(" ")) {
+                daysArray = days.split(" ").filter(Boolean);
+            } else {
+                daysArray = days.replace(/\s/g, "").split("");
+            }
+            
             daysArray.forEach((day) => daysWithClasses.add(day));
         });
     });
@@ -577,7 +627,15 @@ export const generateTimetables = (sortOption) => {
                     const { days, time } = component.schedule;
                     if (!time) continue;
                     const [startSlot, endSlot] = time.split("-").map((t) => timeToSlot(t.trim()));
-                    const daysArray = days.replace(/\s/g, "").split("");
+                    
+                    // Parse days consistently - handle both "MWF" format and "M W F" format
+                    let daysArray;
+                    if (days.includes(" ")) {
+                        daysArray = days.split(" ").filter(Boolean);
+                    } else {
+                        daysArray = days.replace(/\s/g, "").split("");
+                    }
+                    
                     for (let day of daysArray) {
                         for (let s = startSlot; s < endSlot; s++) {
                             timeSlots[day][s] = false; 
