@@ -17,6 +17,39 @@ const formatDate = (dateString) => {
   }
 };
 
+// Helper function to parse Unix timestamp to Date object
+const parseUnixTimestamp = (unixTimestamp) => {
+  return new Date(parseInt(unixTimestamp, 10) * 1000);
+};
+
+// Helper function to parse start dates (ISO format YYYY-MM-DD)
+const parseStartDate = (dateStr) => {
+  if (!dateStr) return null;
+  
+  // Check if it's an ISO date string (YYYY-MM-DD)
+  if (typeof dateStr === 'string' && dateStr.match(/^\d{4}-\d{2}-\d{2}$/)) {
+    const [year, month, day] = dateStr.split('-').map(Number);
+    return new Date(year, month - 1, day); // month is 0-indexed
+  }
+  
+  // For other formats, use regular Date parsing
+  return new Date(dateStr);
+};
+
+// Helper function to parse end dates (ISO format YYYY-MM-DD, subtract 1 day since they're stored as exclusive end dates)
+const parseEndDate = (dateStr) => {
+  if (!dateStr) return null;
+  
+  // Check if it's an ISO date string (YYYY-MM-DD)
+  if (typeof dateStr === 'string' && dateStr.match(/^\d{4}-\d{2}-\d{2}$/)) {
+    const [year, month, day] = dateStr.split('-').map(Number);
+    return new Date(year, month - 1, day - 1); // month is 0-indexed, subtract 1 day
+  }
+  
+  // For other formats, use regular Date parsing
+  return new Date(dateStr);
+};
+
 export default function CourseTimelineComponent({ 
   addedCourses = [], 
   setSelectedDuration, 
@@ -84,10 +117,22 @@ export default function CourseTimelineComponent({
       }
       
       if (course.startDate && navigateToDate) {
-        const nextDay = new Date(course.startDate);
-        nextDay.setDate(nextDay.getDate() + 1);
+        const dayOfWeek = course.startDate.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+        let navigationDate = new Date(course.startDate);
         
-        navigateToDate(nextDay.toISOString());
+        // If classes start on Tuesday-Saturday, navigate to the following week
+        // so we can see the full recurring pattern (Monday-Friday)
+        if (dayOfWeek >= 2 && dayOfWeek <= 6) {
+          // Add days to get to the Monday of the following week
+          const daysToAdd = 8 - dayOfWeek; // Days until next Monday
+          navigationDate.setDate(navigationDate.getDate() + daysToAdd);
+        } else {
+          // If classes start on Sunday or Monday, navigate to the Monday of that week
+          const daysToSubtract = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+          navigationDate.setDate(navigationDate.getDate() - daysToSubtract);
+        }
+        
+        navigateToDate(navigationDate.toISOString());
       }
     } catch (error) {
       console.error("Error handling course click:", error);
@@ -102,8 +147,8 @@ export default function CourseTimelineComponent({
 
     durations.forEach(d => {
       const [startUnix, endUnix] = d.split("-");
-      const startDate = new Date(parseInt(startUnix) * 1000);
-      const endDate = new Date(parseInt(endUnix) * 1000);
+      const startDate = parseUnixTimestamp(startUnix);
+      const endDate = parseUnixTimestamp(endUnix);
       
       // Calculate the difference between the date and the duration's date range
       const startDiff = Math.abs(date - startDate);
@@ -133,7 +178,7 @@ export default function CourseTimelineComponent({
       const closestDuration = getClosestDuration(hoverDate);
       if (closestDuration) {
         const [startUnix] = closestDuration.split("-");
-        const startDate = new Date(parseInt(startUnix) * 1000);
+        const startDate = parseUnixTimestamp(startUnix);
         const dayOffset = (startDate - earliestDate) / (1000 * 60 * 60 * 24);
         const position = (dayOffset / totalDays) * 100;
         setMousePosition(position);
@@ -180,14 +225,14 @@ export default function CourseTimelineComponent({
         const courseName = course.code?.toUpperCase();
         const courseString = course.string || `${course.code} ${course.section || ''} (${course.duration || ''})`;
         
-        let startDate = course.startDate ? new Date(course.startDate) : null;
-        let endDate = course.endDate ? new Date(course.endDate) : null;
+        let startDate = course.startDate ? parseStartDate(course.startDate) : null;
+        let endDate = course.endDate ? parseEndDate(course.endDate) : null;
         
         if (!startDate || !endDate || isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
           const detail = courseDetails?.find(d => d?.name === courseName);
           if (detail?.startDate && detail?.endDate) {
-            startDate = new Date(detail.startDate);
-            endDate = new Date(detail.endDate);
+            startDate = parseStartDate(detail.startDate);
+            endDate = parseEndDate(detail.endDate);
           }
         }
         
@@ -389,7 +434,7 @@ export default function CourseTimelineComponent({
           let selectedDate = null;
           if (selectedDuration) {
             const [startUnix] = selectedDuration.split("-");
-            selectedDate = new Date(parseInt(startUnix) * 1000);
+            selectedDate = parseUnixTimestamp(startUnix);
           }
           
           if (selectedDate && selectedDate >= earliestDate && selectedDate <= latestDate) {

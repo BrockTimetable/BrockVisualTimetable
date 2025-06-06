@@ -287,7 +287,23 @@ const handleCalendarViewClick = (durationLabel) => {
     const [startUnix, endUnix, duration] = durationLabel.split("-");
     
     const startDate = new Date(parseInt(startUnix) * 1000);
-    calendarApi.gotoDate(startDate);
+    const dayOfWeek = startDate.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+    
+    let navigationDate = new Date(startDate);
+    
+    // If classes start on Tuesday-Saturday, navigate to the following week
+    // so we can see the full recurring pattern (Monday-Friday)
+    if (dayOfWeek >= 2 && dayOfWeek <= 6) {
+        // Add days to get to the Monday of the following week
+        const daysToAdd = 8 - dayOfWeek; // Days until next Monday
+        navigationDate.setDate(navigationDate.getDate() + daysToAdd);
+    } else {
+        // If classes start on Sunday or Monday, navigate to the Monday of that week
+        const daysToSubtract = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+        navigationDate.setDate(navigationDate.getDate() - daysToSubtract);
+    }
+    
+    calendarApi.gotoDate(navigationDate);
     
     if (previousDuration == null) {
         previousDuration = duration;
@@ -359,17 +375,22 @@ const handleCalendarViewClick = (durationLabel) => {
 
             const pinnedComponents = getPinnedComponents();
             /*
-            NOTE: substring(0,6) is used as ID's are 6 characters long.
-
-            If there are multiple main components (such as two LECs) the 
-            additional main components will have and index counter extension
-            which is what the substring is trying to strip for the purpose
-            of pinning.
+            NOTE: We need to extract the base course component ID by removing any suffix extensions.
+            Course IDs can be 6 or 7 digits long. If there are multiple main components (such as two LECs) 
+            the additional main components will have an index counter extension (e.g., "-1", "-2")
+            which we need to strip for the purpose of pinning.
             */
-            if (pinnedComponents.includes(courseCode + " " + split[1] + " " + clickInfo.event.id.substring(0, 6))) {
-                removePinnedComponent(courseCode + " " + split[1] + " " + clickInfo.event.id.substring(0, 6));
+            let baseComponentId = clickInfo.event.id;
+            // Remove any suffix extensions like "-1", "-2" etc.
+            const dashIndex = baseComponentId.indexOf('-');
+            if (dashIndex !== -1) {
+                baseComponentId = baseComponentId.substring(0, dashIndex);
+            }
+            
+            if (pinnedComponents.includes(courseCode + " " + split[1] + " " + baseComponentId)) {
+                removePinnedComponent(courseCode + " " + split[1] + " " + baseComponentId);
             } else {
-                addPinnedComponent(courseCode + " " + split[1] + " " + clickInfo.event.id.substring(0, 6));
+                addPinnedComponent(courseCode + " " + split[1] + " " + baseComponentId);
             }
         } else {
             const blockId = clickInfo.event.id.replace('block-', '');
