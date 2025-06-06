@@ -375,17 +375,22 @@ const handleCalendarViewClick = (durationLabel) => {
 
             const pinnedComponents = getPinnedComponents();
             /*
-            NOTE: substring(0,6) is used as ID's are 6 characters long.
-
-            If there are multiple main components (such as two LECs) the 
-            additional main components will have and index counter extension
-            which is what the substring is trying to strip for the purpose
-            of pinning.
+            NOTE: We need to extract the base course component ID by removing any suffix extensions.
+            Course IDs can be 6 or 7 digits long. If there are multiple main components (such as two LECs) 
+            the additional main components will have an index counter extension (e.g., "-1", "-2")
+            which we need to strip for the purpose of pinning.
             */
-            if (pinnedComponents.includes(courseCode + " " + split[1] + " " + clickInfo.event.id.substring(0, 6))) {
-                removePinnedComponent(courseCode + " " + split[1] + " " + clickInfo.event.id.substring(0, 6));
+            let baseComponentId = clickInfo.event.id;
+            // Remove any suffix extensions like "-1", "-2" etc.
+            const dashIndex = baseComponentId.indexOf('-');
+            if (dashIndex !== -1) {
+                baseComponentId = baseComponentId.substring(0, dashIndex);
+            }
+            
+            if (pinnedComponents.includes(courseCode + " " + split[1] + " " + baseComponentId)) {
+                removePinnedComponent(courseCode + " " + split[1] + " " + baseComponentId);
             } else {
-                addPinnedComponent(courseCode + " " + split[1] + " " + clickInfo.event.id.substring(0, 6));
+                addPinnedComponent(courseCode + " " + split[1] + " " + baseComponentId);
             }
         } else {
             const blockId = clickInfo.event.id.replace('block-', '');

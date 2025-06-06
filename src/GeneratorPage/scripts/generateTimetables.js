@@ -294,30 +294,38 @@ const generateSingleCourseCombinations = (course, timeSlots) => {
         NOTE: Certain main course components may only permit registering to certain secondary course components.
         There are cases where components such as seminars are section specific.
         
-        Generally, checking if 4th/middle character in the secondary component's ID matches to the main component's ID
+        Generally, checking if the middle character in the secondary component's ID matches to the main component's ID
         is a good way to determine if the secondary component is registerable with that main component. 
+        For 6-digit IDs, this is position 3 (4th character). For 7-digit IDs, this is position 3 (4th character).
         However, this does not apply if there is only one main section offered for the course.
         */
+
+        // Helper function to get the matching character position for component association
+        const getMatchingCharIndex = (componentId) => {
+            // For both 6-digit and 7-digit IDs, use position 3 (4th character)
+            // This maintains compatibility while working with the new format
+            return Math.min(3, componentId.length - 1);
+        };
 
         const validLabsForMainComponent = validLabs.filter(
             (lab) =>
                 lab.schedule.duration === mainComponentDuration &&
                 ((isOnlyMainSection && mainComponentGroup[0].id !== "0") ||
-                    lab.id.charAt(3) === mainComponentGroup[0].id.charAt(3))
+                    lab.id.charAt(getMatchingCharIndex(lab.id)) === mainComponentGroup[0].id.charAt(getMatchingCharIndex(mainComponentGroup[0].id)))
         );
 
         const validTutorialsForMainComponent = validTutorials.filter(
             (tutorial) =>
                 tutorial.schedule.duration === mainComponentDuration &&
                 ((isOnlyMainSection && mainComponentGroup[0].id !== "0") ||
-                    tutorial.id.charAt(3) === mainComponentGroup[0].id.charAt(3))
+                    tutorial.id.charAt(getMatchingCharIndex(tutorial.id)) === mainComponentGroup[0].id.charAt(getMatchingCharIndex(mainComponentGroup[0].id)))
         );
 
         const validSeminarsForMainComponent = validSeminars.filter(
             (seminar) =>
                 seminar.schedule.duration === mainComponentDuration &&
                 ((isOnlyMainSection && mainComponentGroup[0].id !== "0") ||
-                    seminar.id.charAt(3) === mainComponentGroup[0].id.charAt(3))
+                    seminar.id.charAt(getMatchingCharIndex(seminar.id)) === mainComponentGroup[0].id.charAt(getMatchingCharIndex(mainComponentGroup[0].id)))
         );
 
         const pinnedLab = pinnedComponents.find((p) => p.includes("LAB") && p.split(" ")[0] === course.courseCode);
