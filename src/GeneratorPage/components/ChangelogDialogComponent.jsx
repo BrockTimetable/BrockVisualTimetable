@@ -11,9 +11,9 @@ const ChangelogDialogComponent = ({ open, handleClose }) => {
         <Dialog open={open} onClose={handleClose}>
             <DialogContent>
                 <div>
-                    <h2 style={{ fontSize: '1.1rem' }}>Spring/Summer 2025 Update</h2>
+                    <h2 style={{ fontSize: '1.1rem' }}>Fall/Winter 2025-2026 Update</h2>
                     <p style={{ fontSize: '0.85rem' }}>
-                        Spring & Summer 2025 course offerings are now available in the timetable generator!<br></br><br></br>Registration opens Wednesday, March 5th 2025 at 6:00AM EST on your my.brocku.ca portal.
+                        Fall/Winter 2025-2026 course offerings are now available in the timetable generator!<br></br>Registration opens based on credit count at 6AM on the Brock portal!<br></br><br></br>New students: June 24, 2025<br></br>Transfer Students with over 5.0 credits: July 10, 2025<br></br>15.0 credits or more: July 3, 2025<br></br>10.0 credits or more: July 10, 2025<br></br>9.5 credits or less: July 17, 2025.
                     </p>
                     <h2 style={{ fontSize: '1.1rem' }}>Tutorial Video</h2>
                     <p style={{ fontSize: '0.85rem' }}>
