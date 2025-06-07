@@ -8,7 +8,7 @@ import MultiLineSnackbar from "../../SiteWide/components/MultiLineSnackbar";
 
 import { storeCourseData, removeCourseData } from "../scripts/courseData";
 import { getCourse, getNameList } from "../scripts/fetchData";
-import { generateTimetables, getValidTimetables } from "../scripts/generateTimetables";
+import { generateTimetables, getValidTimetables } from "../scripts/timetableGeneration/timetableGeneration";
 import { addPinnedComponent } from "../scripts/pinnedComponents";
 
 import CourseOptions from "./InputFormComponents/Sections/CourseOptions";

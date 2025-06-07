@@ -8,7 +8,7 @@ import { CourseDetailsProvider } from "./GeneratorPage/contexts/CourseDetailsCon
 import { CourseColorsProvider, CourseColorsContext } from "./GeneratorPage/contexts/CourseColorsContext";
 import ChangelogDialogComponent from "./GeneratorPage/components/ChangelogDialogComponent";
 import ReactGA from "react-ga4";
-import { generateTimetables, getValidTimetables } from "./GeneratorPage/scripts/generateTimetables";
+import { generateTimetables, getValidTimetables } from "./GeneratorPage/scripts/timetableGeneration/timetableGeneration";
 import { removeCourseData, clearAllCourseData } from "./GeneratorPage/scripts/courseData";
 import { clearCoursePins, clearAllPins } from "./GeneratorPage/scripts/pinnedComponents";
 
