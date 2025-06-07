@@ -24,7 +24,7 @@ import {
     removeTimeBlockEvent,
     isEventPinned,
 } from "../scripts/createCalendarEvents";
-import { generateTimetables, getValidTimetables } from "../scripts/generateTimetables";
+import { generateTimetables, getValidTimetables } from "../scripts/timetableGeneration/timetableGeneration";
 import { addPinnedComponent, getPinnedComponents, removePinnedComponent } from "../scripts/pinnedComponents";
 import { setBlockedTimeSlots, setOpenTimeSlots } from "../scripts/timeSlots";
 import { getCourseData } from "../scripts/courseData";

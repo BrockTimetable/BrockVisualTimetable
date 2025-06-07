@@ -1,6 +1,6 @@
 import React from 'react';
 import { Card, CardContent, Typography, Box } from '@mui/material';
-import { getGenerationPerformance } from '../../../scripts/generateTimetables';
+import { getGenerationPerformance } from '../../../scripts/timetableGeneration/timetableGeneration';
 
 export default function PerformanceMetrics() {
     // Only show in development mode
