@@ -344,23 +344,15 @@ const generateSingleCourseCombinations = (course, timeSlots) => {
             (seminar) => {
                 const seminarBaseId = getBaseComponentId(seminar.id);
                 const mainBaseId = getBaseComponentId(mainComponentGroup[0].id);
-                return seminar.schedule.duration === mainComponentDuration &&
-                    ((isOnlyMainSection && mainBaseId !== "0") ||
-                        seminarBaseId.charAt(getMatchingCharIndex(seminarBaseId)) === mainBaseId.charAt(getMatchingCharIndex(mainBaseId)));
+                const durationMatch = seminar.schedule.duration === mainComponentDuration;
+                const sectionMatch = (isOnlyMainSection && mainBaseId !== "0") ||
+                    seminarBaseId.charAt(getMatchingCharIndex(seminarBaseId)) === mainBaseId.charAt(getMatchingCharIndex(mainBaseId));
+                
+                return durationMatch && sectionMatch;
             }
         );
 
-        const pinnedLab = pinnedComponents.find((p) => p.includes("LAB") && p.split(" ")[0] === course.courseCode);
-        const pinnedTut = pinnedComponents.find((p) => p.includes("TUT") && p.split(" ")[0] === course.courseCode);
-        const pinnedSem = pinnedComponents.find((p) => p.includes("SEM") && p.split(" ")[0] === course.courseCode);
 
-        const isLabValid = !pinnedLab || validLabsForMainComponent.some((lab) => getBaseComponentId(lab.id) === pinnedLab.split(" ")[2]);
-        const isTutValid =
-            !pinnedTut || validTutorialsForMainComponent.some((tut) => getBaseComponentId(tut.id) === pinnedTut.split(" ")[2]);
-        const isSemValid =
-            !pinnedSem || validSeminarsForMainComponent.some((sem) => getBaseComponentId(sem.id) === pinnedSem.split(" ")[2]);
-
-        if (!isLabValid || !isTutValid || !isSemValid) return;
 
         const combinations = cartesianProduct(
             [
@@ -372,11 +364,13 @@ const generateSingleCourseCombinations = (course, timeSlots) => {
         );
 
         combinations.forEach(([lab, tutorial, seminar]) => {
-            singleCourseCombinations.push({
+            const combination = {
                 courseCode: course.courseCode,
                 mainComponents: mainComponentGroup,
                 secondaryComponents: { lab, tutorial, seminar },
-            });
+            };
+            
+            singleCourseCombinations.push(combination);
         });
     });
 
