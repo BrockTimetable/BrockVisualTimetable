@@ -122,7 +122,7 @@ export const generateSingleCourseCombinations = (course, timeSlots) => {
     const validSeminarsForMainComponent = matchSecondary(validSeminars);
 
     const pinnedLab = pinnedComponents.find(
-      (p) => p.includes("LAB") && p.split(" ")[0] === course.courseCode
+      (p) => p.includes("LAB") && !p.includes("LABR") && p.split(" ")[0] === course.courseCode
     );
     const pinnedTut = pinnedComponents.find(
       (p) => p.includes("TUT") && p.split(" ")[0] === course.courseCode
