@@ -1,10 +1,11 @@
-import { getBaseComponentId } from "./componentIDUtils";
 import {
   filterComponentsAgainstTimeSlots,
   filterPinned,
   filterByDuration,
 } from "./filterUtils";
+import { getBaseComponentId } from "./componentIDUtils";
 import { getPinnedComponents } from "../../pinnedComponents";
+import { emitTruncationWarning } from "./notifierUtils";
 
 const maxComboThreshold = 50000;
 
@@ -122,7 +123,10 @@ export const generateSingleCourseCombinations = (course, timeSlots) => {
     const validSeminarsForMainComponent = matchSecondary(validSeminars);
 
     const pinnedLab = pinnedComponents.find(
-      (p) => p.includes("LAB") && !p.includes("LABR") && p.split(" ")[0] === course.courseCode
+      (p) =>
+        p.includes("LAB") &&
+        !p.includes("LABR") &&
+        p.split(" ")[0] === course.courseCode
     );
     const pinnedTut = pinnedComponents.find(
       (p) => p.includes("TUT") && p.split(" ")[0] === course.courseCode
@@ -173,7 +177,7 @@ export const generateSingleCourseCombinations = (course, timeSlots) => {
   return singleCourseCombinations;
 };
 
-export const generateCombinationsIteratively = (
+export const generateTimetableCombinations = (
   courseCombinations,
   performanceMetrics
 ) => {
@@ -186,6 +190,7 @@ export const generateCombinationsIteratively = (
       count++;
       performanceMetrics.totalCombinationsProcessed++;
       if (count >= maxComboThreshold) {
+        emitTruncationWarning();
         return false;
       }
       return true;

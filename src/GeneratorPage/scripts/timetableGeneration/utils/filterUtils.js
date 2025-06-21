@@ -1,8 +1,17 @@
-import { getBaseComponentId } from "./componentIDUtils"; 
-import { timeToSlot, isSlotAvailable, calculateBlockedPercentage } from "./timeUtils";
+import { getBaseComponentId } from "./componentIDUtils";
+import {
+  timeToSlot,
+  isSlotAvailable,
+  calculateBlockedPercentage,
+} from "./timeUtils";
 import { getPinnedComponents } from "../../pinnedComponents";
+import { emitTimetableOverridden } from "./notifierUtils";
 
-export const filterComponentsAgainstTimeSlots = (components, timeSlots, enableFallback = false) => {
+export const filterComponentsAgainstTimeSlots = (
+  components,
+  timeSlots,
+  enableFallback = false
+) => {
   const timeRegex = /[a-zA-Z]/;
   const groupedComponents = new Map();
   const blockedComponents = [];
@@ -24,7 +33,9 @@ export const filterComponentsAgainstTimeSlots = (components, timeSlots, enableFa
       const { days, time } = component.schedule;
       if (!time || timeRegex.test(time)) continue;
 
-      const [startSlot, endSlot] = time.split("-").map(t => timeToSlot(t.trim()));
+      const [startSlot, endSlot] = time
+        .split("-")
+        .map((t) => timeToSlot(t.trim()));
       const daysArray = days.replace(/\s/g, "").split("");
 
       for (const day of daysArray) {
@@ -45,7 +56,12 @@ export const filterComponentsAgainstTimeSlots = (components, timeSlots, enableFa
     }
   }
 
-  if (enableFallback && availableGroups.length === 0 && blockedComponents.length > 0) {
+  if (
+    enableFallback &&
+    availableGroups.length === 0 &&
+    blockedComponents.length > 0
+  ) {
+    emitTimetableOverridden();
     blockedComponents.sort((a, b) => a.blockedPercentage - b.blockedPercentage);
     availableGroups.push(blockedComponents[0].group);
     return {
@@ -87,5 +103,7 @@ export const filterPinned = (components, courseCode, componentType) => {
 };
 
 export const filterByDuration = (components, duration) => {
-  return components.filter((component) => component.schedule.duration === duration);
+  return components.filter(
+    (component) => component.schedule.duration === duration
+  );
 };
