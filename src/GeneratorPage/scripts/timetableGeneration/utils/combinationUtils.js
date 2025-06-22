@@ -5,7 +5,7 @@ import {
 } from "./filterUtils";
 import { getBaseComponentId } from "./componentIDUtils";
 import { getPinnedComponents } from "../../pinnedComponents";
-import { emitTruncationWarning } from "./notifierUtils";
+import { emitTruncationWarning } from "./UIEventsUtils";
 
 const maxComboThreshold = 50000;
 

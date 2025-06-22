@@ -7,8 +7,8 @@ import {
   emitNoValidTimetablesFound,
   clearOverriddenFlag,
   clearTruncationFlag,
-  resetTimetableIndexIfNeeded,
-} from "./utils/notifierUtils";
+  sortTimetableIndexReset,
+} from "./utils/UIEventsUtils";
 
 import { timeToSlot } from "./utils/timeUtils";
 import { isTimetableValid } from "./utils/validateUtils";
@@ -30,7 +30,7 @@ let performanceMetrics = {
 export const generateTimetables = (sortOption) => {
   clearOverriddenFlag();
   clearTruncationFlag();
-  previousSortOption = resetTimetableIndexIfNeeded(
+  previousSortOption = sortTimetableIndexReset(
     sortOption,
     previousSortOption
   );

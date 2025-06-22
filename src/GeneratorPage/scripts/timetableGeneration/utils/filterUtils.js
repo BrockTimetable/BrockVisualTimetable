@@ -5,7 +5,7 @@ import {
   calculateBlockedPercentage,
 } from "./timeUtils";
 import { getPinnedComponents } from "../../pinnedComponents";
-import { emitTimetableOverridden } from "./notifierUtils";
+import { emitTimetableOverridden } from "./UIEventsUtils";
 
 export const filterComponentsAgainstTimeSlots = (
   components,
