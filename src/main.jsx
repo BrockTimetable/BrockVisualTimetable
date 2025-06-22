@@ -20,7 +20,7 @@ const App = () => {
         setMode((prevMode) => (prevMode === "light" ? "dark" : "light"));
       },
     }),
-    []
+    [],
   );
 
   const theme = useMemo(
@@ -76,17 +76,17 @@ const App = () => {
           outline: mode === "light" ? "#b0b0b0" : "#616161",
         },
       }),
-    [mode]
+    [mode],
   );
 
   useEffect(() => {
     document.documentElement.style.setProperty(
       "--theme-divider-color",
-      theme.palette.divider
+      theme.palette.divider,
     );
     document.documentElement.style.setProperty(
       "--theme-outline-color",
-      theme.palette.outline
+      theme.palette.outline,
     );
     document.body.classList.toggle("light-mode", mode === "light");
     document.body.classList.toggle("dark-mode", mode === "dark");
@@ -114,5 +114,5 @@ root.render(
     anchorOrigin={{ vertical: "top", horizontal: "center" }}
   >
     <App />
-  </CustomSnackbarProvider>
+  </CustomSnackbarProvider>,
 );

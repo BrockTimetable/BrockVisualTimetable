@@ -44,7 +44,7 @@ export default function InputFormTop({
         console.error("Error fetching course list:", error);
         enqueueSnackbar(
           <MultiLineSnackbar message="Error fetching course list." />,
-          { variant: "error" }
+          { variant: "error" },
         );
       }
     };
@@ -76,7 +76,7 @@ export default function InputFormTop({
         <MultiLineSnackbar message="Fetching course data... Please Wait!" />,
         {
           variant: "warning",
-        }
+        },
       );
       return;
     }
@@ -89,7 +89,7 @@ export default function InputFormTop({
     } catch (error) {
       enqueueSnackbar(
         <MultiLineSnackbar message="Error fetching course data." />,
-        { variant: "error" }
+        { variant: "error" },
       );
     } finally {
       requestBlock = false;
@@ -100,7 +100,7 @@ export default function InputFormTop({
     if (!timetableType || timetableType === "NOVALUE") {
       enqueueSnackbar(
         <MultiLineSnackbar message="Please select a timetable." />,
-        { variant: "warning" }
+        { variant: "warning" },
       );
       return false;
     }
@@ -117,7 +117,7 @@ export default function InputFormTop({
         <MultiLineSnackbar message='Invalid course code! Example: "COSC 1P02 D2"' />,
         {
           variant: "warning",
-        }
+        },
       );
       return false;
     }
@@ -140,8 +140,8 @@ export default function InputFormTop({
   const isCourseAlreadyAdded = (cleanCourseCode) => {
     return addedCourses.some((course) =>
       course.startsWith(
-        cleanCourseCode.substring(0, 4) + " " + cleanCourseCode.substring(4)
-      )
+        cleanCourseCode.substring(0, 4) + " " + cleanCourseCode.substring(4),
+      ),
     );
   };
 
@@ -154,7 +154,7 @@ export default function InputFormTop({
 
     const { durationStartDate, durationEndDate } = getDurationDates(
       courseData,
-      duration
+      duration,
     );
     if (durationStartDate && durationEndDate) {
       const durationLabel = `${durationStartDate}-${durationEndDate}-${duration}`;

@@ -47,7 +47,7 @@ export const generateTimetables = (sortOption) => {
 
   try {
     const allCourseCombinations = courses.map((course) =>
-      generateSingleCourseCombinations(course, timeSlots)
+      generateSingleCourseCombinations(course, timeSlots),
     );
 
     if (
@@ -59,7 +59,7 @@ export const generateTimetables = (sortOption) => {
 
     let allPossibleTimetables = generateTimetableCombinations(
       allCourseCombinations,
-      performanceMetrics
+      performanceMetrics,
     );
 
     allPossibleTimetables.forEach((timetable) => {
@@ -71,7 +71,7 @@ export const generateTimetables = (sortOption) => {
 
     if (validTimetables.length === 0 && lastBlockedComponents.length > 0) {
       lastBlockedComponents.sort(
-        (a, b) => a.blockedPercentage - b.blockedPercentage
+        (a, b) => a.blockedPercentage - b.blockedPercentage,
       );
 
       for (let i = 0; i < lastBlockedComponents.length; i++) {
@@ -101,12 +101,12 @@ export const generateTimetables = (sortOption) => {
         validTimetables = [];
 
         const retryCourseCombinations = courses.map((course) =>
-          generateSingleCourseCombinations(course, timeSlots)
+          generateSingleCourseCombinations(course, timeSlots),
         );
 
         if (
           retryCourseCombinations.some(
-            (combinations) => combinations.length === 0
+            (combinations) => combinations.length === 0,
           )
         ) {
           continue;
@@ -114,7 +114,7 @@ export const generateTimetables = (sortOption) => {
 
         let retryAllPossibleTimetables = generateTimetableCombinations(
           retryCourseCombinations,
-          performanceMetrics
+          performanceMetrics,
         );
         retryAllPossibleTimetables.forEach((timetable) => {
           if (isTimetableValid(timetable)) {
@@ -135,7 +135,7 @@ export const generateTimetables = (sortOption) => {
       });
     } else if (sortOption === "minimizeClassDays") {
       validTimetables.sort(
-        (a, b) => calculateClassDays(a.courses) - calculateClassDays(b.courses)
+        (a, b) => calculateClassDays(a.courses) - calculateClassDays(b.courses),
       );
     }
 

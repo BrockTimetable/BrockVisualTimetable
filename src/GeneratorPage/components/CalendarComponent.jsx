@@ -284,7 +284,7 @@ export default function CalendarComponent({
       const newEvents = createCalendarEvents(
         timetable,
         getDaysOfWeek,
-        currentColors
+        currentColors,
       );
 
       const courseDetails = newEvents
@@ -308,7 +308,7 @@ export default function CalendarComponent({
       const newEvents = createCalendarEvents(
         null,
         getDaysOfWeek,
-        currentColors
+        currentColors,
       );
       setCourseDetails([]);
       setEvents(newEvents);
@@ -387,8 +387,8 @@ export default function CalendarComponent({
                     type.toLowerCase() === "tutorial"
                       ? "TUT"
                       : type.toLowerCase() === "seminar"
-                      ? "SEM"
-                      : type.toUpperCase();
+                        ? "SEM"
+                        : type.toUpperCase();
 
                   const pinString = `${courseCode} ${formattedType} ${component.id}`;
                   if (!pinnedComponents.includes(pinString)) {
@@ -396,7 +396,7 @@ export default function CalendarComponent({
                     didPinNewComponent = true;
                   }
                 }
-              }
+              },
             );
           }
         });
@@ -423,7 +423,7 @@ export default function CalendarComponent({
       />,
       {
         variant: "info",
-      }
+      },
     );
   };
 
@@ -451,11 +451,11 @@ export default function CalendarComponent({
 
       if (
         pinnedComponents.includes(
-          courseCode + " " + split[1] + " " + baseComponentId
+          courseCode + " " + split[1] + " " + baseComponentId,
         )
       ) {
         removePinnedComponent(
-          courseCode + " " + split[1] + " " + baseComponentId
+          courseCode + " " + split[1] + " " + baseComponentId,
         );
       } else {
         addPinnedComponent(courseCode + " " + split[1] + " " + baseComponentId);
@@ -463,7 +463,7 @@ export default function CalendarComponent({
     } else {
       const blockId = clickInfo.event.id.replace("block-", "");
       const blockEvent = getTimeBlockEvents().find(
-        (block) => block.id === blockId
+        (block) => block.id === blockId,
       );
 
       if (blockEvent) {
@@ -497,7 +497,7 @@ export default function CalendarComponent({
 
   const handlePrevious = () => {
     setCurrentTimetableIndex(
-      (currentTimetableIndex - 1 + timetables.length) % timetables.length
+      (currentTimetableIndex - 1 + timetables.length) % timetables.length,
     );
   };
 
@@ -567,7 +567,7 @@ export default function CalendarComponent({
             ) {
               combinedSlotStart = Math.min(
                 combinedSlotStart,
-                existingSlotStart
+                existingSlotStart,
               );
               combinedSlotEnd = Math.max(combinedSlotEnd, existingSlotEnd);
               blocksToRemove.push(block.id);
@@ -727,7 +727,7 @@ export default function CalendarComponent({
         }
       }
     },
-    [calendarRef]
+    [calendarRef],
   );
 
   useEffect(() => {

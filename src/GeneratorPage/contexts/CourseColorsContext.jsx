@@ -57,7 +57,7 @@ export const CourseColorsProvider = ({ children }) => {
 
   const getNextColor = () => {
     const availableColors = defaultColors.filter(
-      (color) => !usedColors.includes(color)
+      (color) => !usedColors.includes(color),
     );
     if (availableColors.length === 0) {
       // If all colors are used, start over with a slight variation

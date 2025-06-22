@@ -10,7 +10,7 @@ import { emitTimetableOverridden } from "./UIEventsUtils";
 export const filterComponentsAgainstTimeSlots = (
   components,
   timeSlots,
-  enableFallback = false
+  enableFallback = false,
 ) => {
   const timeRegex = /[a-zA-Z]/;
   const groupedComponents = new Map();
@@ -104,6 +104,6 @@ export const filterPinned = (components, courseCode, componentType) => {
 
 export const filterByDuration = (components, duration) => {
   return components.filter(
-    (component) => component.schedule.duration === duration
+    (component) => component.schedule.duration === duration,
   );
 };

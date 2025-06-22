@@ -22,7 +22,7 @@ export default function InputFormBottomComponent({
     setAddedCourses(addedCourses.filter((c) => c !== course));
     removeCourseData(cleanCourseCode);
     removePinnedComponent(
-      `${cleanCourseCode} DURATION ${course.split(" ")[2].substring(1)}`
+      `${cleanCourseCode} DURATION ${course.split(" ")[2].substring(1)}`,
     );
     generateTimetables(sortOption);
     setTimetables(getValidTimetables());

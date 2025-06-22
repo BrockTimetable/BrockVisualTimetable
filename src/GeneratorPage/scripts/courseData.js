@@ -12,7 +12,7 @@ const replaceSectionId = (sections) => {
         (s) =>
           s.id !== "0" &&
           s.schedule.duration === section.schedule.duration &&
-          s.sectionNumber === section.sectionNumber
+          s.sectionNumber === section.sectionNumber,
       );
       if (matchingSection) {
         section.id = matchingSection.id;

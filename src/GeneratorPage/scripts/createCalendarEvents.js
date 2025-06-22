@@ -4,7 +4,7 @@ import { updateExportData } from "./ExportCal";
 export const createCalendarEvents = (
   timetable,
   getDaysOfWeek,
-  courseColors = {}
+  courseColors = {},
 ) => {
   const newEvents = [];
 
@@ -27,7 +27,7 @@ export const createCalendarEvents = (
     component,
     defaultColor,
     isAllDay,
-    courseColors
+    courseColors,
   ) => {
     if (component.schedule.days == "MTWRF") {
       component.schedule.days = "M T W R F";
@@ -60,7 +60,7 @@ export const createCalendarEvents = (
     course,
     component,
     color = "default",
-    courseColors
+    courseColors,
   ) => {
     createEvent(course, component, color, true, courseColors);
   };
@@ -69,7 +69,7 @@ export const createCalendarEvents = (
     course,
     component,
     color = "default",
-    courseColors
+    courseColors,
   ) => {
     createEvent(course, component, color, false, courseColors);
   };
@@ -131,7 +131,7 @@ export const createCalendarEvents = (
           } else {
             // Try to extract time if it's in the "SYN time" or "HYF time" format
             const timeMatch = mainComponent.schedule.time.match(
-              /(SYN|HYF)\s*(\d{3,4}\s*-\s*\d{3,4})/
+              /(SYN|HYF)\s*(\d{3,4}\s*-\s*\d{3,4})/,
             );
             if (timeMatch) {
               const modifiedComponent = { ...mainComponent };
@@ -194,7 +194,7 @@ export const createCalendarEvents = (
           } else {
             // Try to extract time if it's in the "SYN time" or "HYF time" format
             const timeMatch = component.schedule.time.match(
-              /(SYN|HYF)\s*(\d{3,4}\s*-\s*\d{3,4})/
+              /(SYN|HYF)\s*(\d{3,4}\s*-\s*\d{3,4})/,
             );
             if (timeMatch) {
               const modifiedComponent = { ...component };

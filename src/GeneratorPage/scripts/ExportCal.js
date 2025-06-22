@@ -105,7 +105,7 @@ function generateICSEvent(
   endReoccurTimestamp,
   days,
   title,
-  description
+  description,
 ) {
   const dayICSMap = {
     U: "SU",
@@ -159,12 +159,12 @@ function addComponent(component, courseCode) {
   const firststartTimestamp = findPreciseEventTimestamp(
     component.schedule.startDate,
     componentdaysArray,
-    startTime
+    startTime,
   );
   const firstendTimestamp = findPreciseEventTimestamp(
     component.schedule.startDate,
     componentdaysArray,
-    endTime
+    endTime,
   );
   return generateICSEvent(
     firststartTimestamp,
@@ -172,7 +172,7 @@ function addComponent(component, courseCode) {
     component.schedule.endDate,
     componentdaysArray,
     courseCode + " " + component.type,
-    component.instructor
+    component.instructor,
   );
 }
 

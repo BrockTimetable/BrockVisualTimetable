@@ -181,7 +181,7 @@ export default function CourseTimelineComponent({
       // Calculate the date based on click position
       const dayOffset = (clickPercent / 100) * totalDays;
       const hoverDate = new Date(
-        earliestDate.getTime() + dayOffset * 24 * 60 * 60 * 1000
+        earliestDate.getTime() + dayOffset * 24 * 60 * 60 * 1000,
       );
 
       // Find the closest duration to the hover date
@@ -210,7 +210,7 @@ export default function CourseTimelineComponent({
       // Calculate the date based on click position
       const dayOffset = (clickPercent / 100) * totalDays;
       const clickedDate = new Date(
-        earliestDate.getTime() + dayOffset * 24 * 60 * 60 * 1000
+        earliestDate.getTime() + dayOffset * 24 * 60 * 60 * 1000,
       );
 
       // Find the closest duration to the clicked date
@@ -319,7 +319,7 @@ export default function CourseTimelineComponent({
     {
       earliestDate: coursesWithDates[0].startDate,
       latestDate: coursesWithDates[0].endDate,
-    }
+    },
   );
 
   const totalDays =
@@ -329,7 +329,7 @@ export default function CourseTimelineComponent({
   coursesWithDates.forEach((course) => {
     const startOffset = Math.max(
       0,
-      (course.startDate - earliestDate) / (1000 * 60 * 60 * 24)
+      (course.startDate - earliestDate) / (1000 * 60 * 60 * 24),
     );
     const duration =
       Math.ceil((course.endDate - course.startDate) / (1000 * 60 * 60 * 24)) +
@@ -529,7 +529,7 @@ export default function CourseTimelineComponent({
             {/* Course label */}
             <Tooltip
               title={`${course.fullName}: ${formatDate(
-                course.startDate
+                course.startDate,
               )} - ${formatDate(course.endDate)}`}
               arrow
               placement="top"
@@ -585,7 +585,7 @@ export default function CourseTimelineComponent({
             {/* Course bar */}
             <Tooltip
               title={`${course.fullName}: ${formatDate(
-                course.startDate
+                course.startDate,
               )} - ${formatDate(course.endDate)}`}
               arrow
               placement="top"
@@ -614,7 +614,7 @@ export default function CourseTimelineComponent({
                       ? (theme) =>
                           `0 2px 4px ${alpha(
                             course.color,
-                            0.4
+                            0.4,
                           )}, 0 0 1px ${alpha(theme.palette.common.black, 0.2)}`
                       : "none",
                   "&:hover": {
