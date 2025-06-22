@@ -22,7 +22,7 @@ export const clearOverriddenFlag = () => {
     eventBus.emit("overridden", false);
 }
 
-export const resetTimetableIndexIfNeeded = (sortOption, previousSortOption) => {
+export const sortTimetableIndexReset = (sortOption, previousSortOption) => {
   if (sortOption !== previousSortOption) {
     eventBus.on("setTimetableIndex", (setCurrentTimetableIndex) => {
       if (setCurrentTimetableIndex) {
