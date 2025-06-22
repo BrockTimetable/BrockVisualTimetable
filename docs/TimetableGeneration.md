@@ -12,7 +12,7 @@ The timetableGeneration directory is the location within the project that strict
 
 Here is a basic high-level diagram example of how timetable options are generated:
 
-![Timetable Generation Flow Diagram](../images/TimetableGenerationFlow.png "Timetable Generation Flow Diagram")
+![Timetable Generation Flow Diagram](./images/TimetableGenerationFlow.png "Timetable Generation Flow Diagram")
 
 ## timetableGeneration.js
 
