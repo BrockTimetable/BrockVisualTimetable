@@ -30,10 +30,7 @@ let performanceMetrics = {
 export const generateTimetables = (sortOption) => {
   clearOverriddenFlag();
   clearTruncationFlag();
-  previousSortOption = sortTimetableIndexReset(
-    sortOption,
-    previousSortOption
-  );
+  previousSortOption = sortTimetableIndexReset(sortOption, previousSortOption);
   performanceMetrics = {
     generationStartTime: 0,
     generationEndTime: 0,

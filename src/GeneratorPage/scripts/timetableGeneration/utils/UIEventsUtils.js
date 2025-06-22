@@ -19,8 +19,8 @@ export const emitTimetableOverridden = () => {
 };
 
 export const clearOverriddenFlag = () => {
-    eventBus.emit("overridden", false);
-}
+  eventBus.emit("overridden", false);
+};
 
 export const sortTimetableIndexReset = (sortOption, previousSortOption) => {
   if (sortOption !== previousSortOption) {
@@ -38,7 +38,8 @@ export const sortTimetableIndexReset = (sortOption, previousSortOption) => {
 export const emitTruncationWarning = () => {
   eventBus.emit("truncation", true);
   eventBus.emit("snackbar", {
-    message: "The generated schedule results are truncated! Click the yellow '!' icon for more information!",
+    message:
+      "The generated schedule results are truncated! Click the yellow '!' icon for more information!",
     variant: "warning",
   });
   ReactGA.event({
