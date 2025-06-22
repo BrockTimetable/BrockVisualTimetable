@@ -7,34 +7,34 @@ Each array contains boolean values indicating whether a time slot is open (false
 let timeSlots = {};
 
 const initializeTimeSlots = () => {
-    const days = ['M', 'T', 'W', 'R', 'F', 'S', 'U'];
-    const slotsPerDay = (22 - 8) * 2; // Each hour has 2 slots (30 minutes each)
+  const days = ["M", "T", "W", "R", "F", "S", "U"];
+  const slotsPerDay = (22 - 8) * 2; // Each hour has 2 slots (30 minutes each)
 
-    days.forEach(day => {
-        timeSlots[day] = Array(slotsPerDay).fill(false);
-    });
+  days.forEach((day) => {
+    timeSlots[day] = Array(slotsPerDay).fill(false);
+  });
 };
 
 export const getTimeSlots = () => timeSlots;
 
 const updateSlots = (slots, value) => {
-    for (let day in slots) {
-        if (timeSlots[day]) {
-            slots[day].forEach(slot => {
-                if (slot >= 0 && slot < timeSlots[day].length) {
-                    timeSlots[day][slot] = value;
-                }
-            });
+  for (let day in slots) {
+    if (timeSlots[day]) {
+      slots[day].forEach((slot) => {
+        if (slot >= 0 && slot < timeSlots[day].length) {
+          timeSlots[day][slot] = value;
         }
+      });
     }
+  }
 };
 
 export const setBlockedTimeSlots = (blockedSlots) => {
-    updateSlots(blockedSlots, true);
+  updateSlots(blockedSlots, true);
 };
 
 export const setOpenTimeSlots = (blockedSlots) => {
-    updateSlots(blockedSlots, false);
+  updateSlots(blockedSlots, false);
 };
 
 initializeTimeSlots();

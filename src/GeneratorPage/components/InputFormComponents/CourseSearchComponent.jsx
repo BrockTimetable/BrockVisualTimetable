@@ -1,11 +1,11 @@
-import React from 'react';
-import '../../css/DepartmentSearch.css';
+import React from "react";
+import "../../css/DepartmentSearch.css";
 
-import Box from '@mui/material/Box';
-import TextField from '@mui/material/TextField';
-import Autocomplete, { createFilterOptions } from '@mui/material/Autocomplete';
-import FormHelperText from '@mui/material/FormHelperText';
-import ListSubheader from '@mui/material/ListSubheader';
+import Box from "@mui/material/Box";
+import TextField from "@mui/material/TextField";
+import Autocomplete, { createFilterOptions } from "@mui/material/Autocomplete";
+import FormHelperText from "@mui/material/FormHelperText";
+import ListSubheader from "@mui/material/ListSubheader";
 
 export default function CourseSearchComponent({
   onCourseCodeChange,
@@ -14,16 +14,15 @@ export default function CourseSearchComponent({
   timetableType,
   term,
   inputValue,
-  setInputValue
+  setInputValue,
 }) {
-
   const courseCodeChangeHandler = (e, newValue) => {
     onCourseCodeChange(e, newValue);
   };
 
   const filterOptions = createFilterOptions({
     ignoreCase: true,
-    matchFrom: 'start',
+    matchFrom: "start",
     limit: 3000,
   });
 
@@ -45,10 +44,10 @@ export default function CourseSearchComponent({
           <li key={params.key}>
             <ListSubheader
               sx={{
-                backgroundColor: 'primary.main',
-                color: 'white',
-                fontSize: '1rem',
-                lineHeight: '2',
+                backgroundColor: "primary.main",
+                color: "white",
+                fontSize: "1rem",
+                lineHeight: "2",
               }}
             >
               {params.group}
@@ -62,7 +61,7 @@ export default function CourseSearchComponent({
               {...params}
               label="Add a course"
               onKeyDown={(event) => {
-                if (event.key === 'Enter') {
+                if (event.key === "Enter") {
                   onEnterPress(event);
                 }
               }}

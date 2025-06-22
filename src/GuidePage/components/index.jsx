@@ -1,1 +1,1 @@
-export { default as NavbarComponent } from '../../SiteWide/components/NavbarComponent';
+export { default as NavbarComponent } from "../../SiteWide/components/NavbarComponent";

@@ -7,16 +7,18 @@ Brock Visual TimeTable is a tool created by Brock students for Brock students. T
 ![newgif](https://github.com/user-attachments/assets/005bfe09-d6e6-48a0-a729-3952481aef60)
 
 ### Key Features:
-* **Conflict-Free Scheduling:** Automatically generates timetables without class overlaps, ensuring all options are viable.
 
-* **Custom Time Blocking:** Enables students to block out preferred no-class times for personal commitments or leisure.
+- **Conflict-Free Scheduling:** Automatically generates timetables without class overlaps, ensuring all options are viable.
 
-* **Class Pinning:** Allows students to 'pin' essential classes, ensuring they appear in all generated timetable options.
+- **Custom Time Blocking:** Enables students to block out preferred no-class times for personal commitments or leisure.
+
+- **Class Pinning:** Allows students to 'pin' essential classes, ensuring they appear in all generated timetable options.
 
 ## How To Contribute
+
 Whether you are another CS student or simply would love to help out, your contributions are welcome & encouraged.
 Please take some time to read the docs/ to gain a better understanding of the layout & structure of the project.
-Take a moment to explore the 'Issues' tab on our project page to discover bugs to squash or features to develop. 
+Take a moment to explore the 'Issues' tab on our project page to discover bugs to squash or features to develop.
 Planning a change that doesn't align with an existing issue? Please create a new issue for it before you begin your work.
 
 1. Create a personal fork of the project.
@@ -27,9 +29,9 @@ Planning a change that doesn't align with an existing issue? Please create a new
 
 4. Navigate to the project directory.
 
-5. Run ```npm install``` in the terminal to download dependencies.
+5. Run `npm install` in the terminal to download dependencies.
 
-6. To start the development server run ```npm run dev```
+6. To start the development server run `npm run dev`
 
 7. Implement/Fix your feature. (Please include comments in your code)
 
