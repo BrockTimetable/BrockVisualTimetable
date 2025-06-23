@@ -19,9 +19,6 @@ export const createCalendarEvents = (timetable, getDaysOfWeek, courseColors = {}
         return uniqueId;
     };
     const createEvent = (course, component, defaultColor, isAllDay, courseColors) => {
-        if (component.schedule.days == "MTWRF"){
-            component.schedule.days = "M T W R F"
-        }
         const uniqueId = getUniqueId(component.id);
         const customColor = courseColors[course.courseCode] || defaultColor;
         const event = {
@@ -184,19 +181,15 @@ export const createCalendarEvents = (timetable, getDaysOfWeek, courseColors = {}
 
 export const getDaysOfWeek = (days) => {
     const dayMap = {
-        M: "1",
-        T: "2",
-        W: "3",
-        R: "4",
-        F: "5",
-        S: "6",
-        U: "0",
+        M: "1", T: "2", W: "3", R: "4", F: "5", S: "6", U: "0",
     };
 
-    // Handle both space-separated and non-space-separated formats
-    const dayArray = days.includes(" ") ? days.split(" ") : days.split("");
-    return dayArray.map(day => dayMap[day]);
+    return days
+        .replace(/\s+/g, "")
+        .split("")
+        .map(day => dayMap[day])
 };
+
 
 const formatTime = (time) => {
     time = time.trim();
