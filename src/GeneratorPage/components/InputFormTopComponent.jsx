@@ -144,6 +144,23 @@ export default function InputFormTop({ setTimetables, setSelectedDuration, setDu
                 };
             }
         }
+        
+        // If no main sections, check secondary components (labs, tutorials, seminars)
+        const secondaryComponents = [
+            ...(courseData.labs || []),
+            ...(courseData.tutorials || []),
+            ...(courseData.seminars || [])
+        ];
+        
+        for (let component of secondaryComponents) {
+            if (component.schedule && component.schedule.duration === duration) {
+                return {
+                    durationStartDate: component.schedule.startDate,
+                    durationEndDate: component.schedule.endDate,
+                };
+            }
+        }
+        
         return {};
     };
 

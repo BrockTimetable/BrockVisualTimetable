@@ -250,17 +250,21 @@ export default function CalendarComponent({
             const newEvents = createCalendarEvents(timetable, getDaysOfWeek, currentColors);
 
             const courseDetails = newEvents
-                .filter((event) => event.description)
+                .filter((event) => !event.extendedProps?.isBlocked) // Exclude blocked time slots
                 .map((event) => {
                     let titleArray = event.title.trim().split(" ");
                     return {
                         name: titleArray[0],
-                        instructor: event.description,
+                        instructor: event.description || "N/A",
                         section: titleArray.pop(),
                         startDate: event.startRecur,
                         endDate: event.endRecur,
                     };
-                });
+                })
+                .filter((detail, index, self) => 
+                    // Remove duplicates based on course name
+                    index === self.findIndex(d => d.name === detail.name)
+                );
 
             setCourseDetails(courseDetails);
             setEvents(newEvents);
@@ -662,6 +666,34 @@ const handleCalendarViewClick = (durationLabel) => {
                                     endDate = section.schedule.endDate;
                                 }
                             }
+                        } else {
+                            // For courses with no main sections, try to get info from secondary components
+                            const secondaryComponents = [
+                                ...(course.labs || []),
+                                ...(course.tutorials || []),
+                                ...(course.seminars || [])
+                            ];
+                            
+                            if (secondaryComponents.length > 0) {
+                                const component = secondaryComponents[0];
+                                if (component.sectionNumber) {
+                                    sectionInfo = component.sectionNumber;
+                                }
+                                
+                                if (component.schedule) {
+                                    if (component.schedule.duration) {
+                                        durationInfo = component.schedule.duration;
+                                    }
+                                    
+                                    if (component.schedule.startDate) {
+                                        startDate = component.schedule.startDate;
+                                    }
+                                    
+                                    if (component.schedule.endDate) {
+                                        endDate = component.schedule.endDate;
+                                    }
+                                }
+                            }
                         }
                         
                         const courseStr = `${course.courseCode} ${sectionInfo} (${durationInfo})`;
@@ -726,7 +758,6 @@ const handleCalendarViewClick = (durationLabel) => {
     return (
         <div id="Calendar">
         <BorderBox title="Calendar">
-            {/* Course Timeline Visualization - moved to the very top */}
             <CourseTimelineComponent 
                 addedCourses={coursesForTimeline} 
                 setSelectedDuration={setSelectedDuration}

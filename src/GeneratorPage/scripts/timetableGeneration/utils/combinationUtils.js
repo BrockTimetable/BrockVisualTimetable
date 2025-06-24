@@ -61,19 +61,6 @@ export const generateSingleCourseCombinations = (course, timeSlots) => {
 
   validMainComponents = filterPinned(mainAvailable, course.courseCode, "MAIN");
 
-  if (validMainComponents.length === 0) {
-    return [];
-  }
-
-  const groupedMainComponents = Object.values(
-    validMainComponents.reduce((acc, component) => {
-      const groupId = getBaseComponentId(component.id);
-      if (!acc[groupId]) acc[groupId] = [];
-      acc[groupId].push(component);
-      return acc;
-    }, {})
-  );
-
   const processSecondary = (type, items) => {
     const { availableGroups } = filterComponentsAgainstTimeSlots(
       items,
@@ -98,31 +85,132 @@ export const generateSingleCourseCombinations = (course, timeSlots) => {
   const validTutorials = processSecondary("TUT", tutorials);
   const validSeminars = processSecondary("SEM", seminars);
 
+  // Check if there are any valid components at all (main or secondary)
+  const hasValidComponents =
+    validMainComponents.length > 0 ||
+    validLabs.length > 0 ||
+    validTutorials.length > 0 ||
+    validSeminars.length > 0;
+
+  if (!hasValidComponents) {
+    return [];
+  }
+
   const singleCourseCombinations = [];
 
-  groupedMainComponents.forEach((mainComponentGroup) => {
-    const mainComponentDuration = mainComponentGroup[0].schedule.duration;
-    const isOnlyMainSection = validMainComponents.length === 1;
+  // Handle courses with main components
+  if (validMainComponents.length > 0) {
+    const groupedMainComponents = Object.values(
+      validMainComponents.reduce((acc, component) => {
+        const groupId = getBaseComponentId(component.id);
+        if (!acc[groupId]) acc[groupId] = [];
+        acc[groupId].push(component);
+        return acc;
+      }, {})
+    );
 
-    const getMatchingCharIndex = (componentId) =>
-      Math.min(3, componentId.length - 1);
-    const mainBaseId = getBaseComponentId(mainComponentGroup[0].id);
+    groupedMainComponents.forEach((mainComponentGroup) => {
+      const mainComponentDuration = mainComponentGroup[0].schedule.duration;
+      const isOnlyMainSection = validMainComponents.length === 1;
 
-    const matchSecondary = (secondaries) =>
-      secondaries.filter((comp) => {
-        const compBase = getBaseComponentId(comp.id);
-        return (
-          comp.schedule.duration === mainComponentDuration &&
-          ((isOnlyMainSection && mainBaseId !== "0") ||
-            compBase.charAt(getMatchingCharIndex(compBase)) ===
-              mainBaseId.charAt(getMatchingCharIndex(mainBaseId)))
+      const getMatchingCharIndex = (componentId) =>
+        Math.min(3, componentId.length - 1);
+      const mainBaseId = getBaseComponentId(mainComponentGroup[0].id);
+
+      const matchSecondary = (secondaries) =>
+        secondaries.filter((comp) => {
+          const compBase = getBaseComponentId(comp.id);
+          return (
+            comp.schedule.duration === mainComponentDuration &&
+            ((isOnlyMainSection && mainBaseId !== "0") ||
+              compBase.charAt(getMatchingCharIndex(compBase)) ===
+                mainBaseId.charAt(getMatchingCharIndex(mainBaseId)))
+          );
+        });
+
+      const validLabsForMainComponent = matchSecondary(validLabs);
+      const validTutorialsForMainComponent = matchSecondary(validTutorials);
+      const validSeminarsForMainComponent = matchSecondary(validSeminars);
+
+      const pinnedLab = pinnedComponents.find(
+        (p) =>
+          p.includes("LAB") &&
+          !p.includes("LABR") &&
+          p.split(" ")[0] === course.courseCode
+      );
+      const pinnedTut = pinnedComponents.find(
+        (p) => p.includes("TUT") && p.split(" ")[0] === course.courseCode
+      );
+      const pinnedSem = pinnedComponents.find(
+        (p) => p.includes("SEM") && p.split(" ")[0] === course.courseCode
+      );
+
+      const isLabValid =
+        !pinnedLab ||
+        validLabsForMainComponent.some(
+          (lab) => getBaseComponentId(lab.id) === pinnedLab.split(" ")[2]
         );
+      const isTutValid =
+        !pinnedTut ||
+        validTutorialsForMainComponent.some(
+          (tut) => getBaseComponentId(tut.id) === pinnedTut.split(" ")[2]
+        );
+      const isSemValid =
+        !pinnedSem ||
+        validSeminarsForMainComponent.some(
+          (sem) => getBaseComponentId(sem.id) === pinnedSem.split(" ")[2]
+        );
+
+      if (!isLabValid || !isTutValid || !isSemValid) {
+        return;
+      }
+
+      const combinations = cartesianProduct([
+        validLabsForMainComponent.length > 0
+          ? validLabsForMainComponent
+          : [null],
+        validTutorialsForMainComponent.length > 0
+          ? validTutorialsForMainComponent
+          : [null],
+        validSeminarsForMainComponent.length > 0
+          ? validSeminarsForMainComponent
+          : [null],
+      ]);
+
+      combinations.forEach(([lab, tutorial, seminar]) => {
+        singleCourseCombinations.push({
+          courseCode: course.courseCode,
+          mainComponents: mainComponentGroup,
+          secondaryComponents: { lab, tutorial, seminar },
+        });
       });
+    });
+  } else {
+    // Handle courses with only secondary components (no main components)
+    // For courses without main components, we need to generate combinations of secondary components
 
-    const validLabsForMainComponent = matchSecondary(validLabs);
-    const validTutorialsForMainComponent = matchSecondary(validTutorials);
-    const validSeminarsForMainComponent = matchSecondary(validSeminars);
+    // Get the duration from any available secondary component
+    let courseDuration = null;
+    if (validSeminars.length > 0) {
+      courseDuration = validSeminars[0].schedule.duration;
+    } else if (validLabs.length > 0) {
+      courseDuration = validLabs[0].schedule.duration;
+    } else if (validTutorials.length > 0) {
+      courseDuration = validTutorials[0].schedule.duration;
+    }
 
+    // Filter secondary components to match the course duration if available
+    const filteredLabs = courseDuration
+      ? validLabs.filter((lab) => lab.schedule.duration === courseDuration)
+      : validLabs;
+    const filteredTutorials = courseDuration
+      ? validTutorials.filter((tut) => tut.schedule.duration === courseDuration)
+      : validTutorials;
+    const filteredSeminars = courseDuration
+      ? validSeminars.filter((sem) => sem.schedule.duration === courseDuration)
+      : validSeminars;
+
+    // Check pinned components for secondary-only courses
     const pinnedLab = pinnedComponents.find(
       (p) =>
         p.includes("LAB") &&
@@ -138,42 +226,39 @@ export const generateSingleCourseCombinations = (course, timeSlots) => {
 
     const isLabValid =
       !pinnedLab ||
-      validLabsForMainComponent.some(
+      filteredLabs.some(
         (lab) => getBaseComponentId(lab.id) === pinnedLab.split(" ")[2]
       );
     const isTutValid =
       !pinnedTut ||
-      validTutorialsForMainComponent.some(
+      filteredTutorials.some(
         (tut) => getBaseComponentId(tut.id) === pinnedTut.split(" ")[2]
       );
     const isSemValid =
       !pinnedSem ||
-      validSeminarsForMainComponent.some(
+      filteredSeminars.some(
         (sem) => getBaseComponentId(sem.id) === pinnedSem.split(" ")[2]
       );
 
-    if (!isLabValid || !isTutValid || !isSemValid) {
-      return;
-    }
+    if (isLabValid && isTutValid && isSemValid) {
+      const combinations = cartesianProduct([
+        filteredLabs.length > 0 ? filteredLabs : [null],
+        filteredTutorials.length > 0 ? filteredTutorials : [null],
+        filteredSeminars.length > 0 ? filteredSeminars : [null],
+      ]);
 
-    const combinations = cartesianProduct([
-      validLabsForMainComponent.length > 0 ? validLabsForMainComponent : [null],
-      validTutorialsForMainComponent.length > 0
-        ? validTutorialsForMainComponent
-        : [null],
-      validSeminarsForMainComponent.length > 0
-        ? validSeminarsForMainComponent
-        : [null],
-    ]);
-
-    combinations.forEach(([lab, tutorial, seminar]) => {
-      singleCourseCombinations.push({
-        courseCode: course.courseCode,
-        mainComponents: mainComponentGroup,
-        secondaryComponents: { lab, tutorial, seminar },
+      combinations.forEach(([lab, tutorial, seminar]) => {
+        // Only create combination if at least one secondary component exists
+        if (lab || tutorial || seminar) {
+          singleCourseCombinations.push({
+            courseCode: course.courseCode,
+            mainComponents: [], // Empty array for courses with no main components
+            secondaryComponents: { lab, tutorial, seminar },
+          });
+        }
       });
-    });
-  });
+    }
+  }
 
   return singleCourseCombinations;
 };

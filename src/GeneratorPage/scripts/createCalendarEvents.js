@@ -21,9 +21,15 @@ export const createCalendarEvents = (timetable, getDaysOfWeek, courseColors = {}
     const createEvent = (course, component, defaultColor, isAllDay, courseColors) => {
         const uniqueId = getUniqueId(component.id);
         const customColor = courseColors[course.courseCode] || defaultColor;
+        
+        let title = `${course.courseCode} ${component.type}`;
+        if (component.sectionNumber && component.sectionNumber !== component.type) {
+            title += ` ${component.sectionNumber}`;
+        }
+        
         const event = {
             id: uniqueId,
-            title: `${course.courseCode} ${component.type} ${component.sectionNumber}`,
+            title: title,
             daysOfWeek: getDaysOfWeek(component.schedule.days || "M T W R F"),
             startRecur: formatDate(component.schedule.startDate, false),
             endRecur: formatDate(component.schedule.endDate, true),
