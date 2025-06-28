@@ -7,10 +7,7 @@ import {
 import { getPinnedComponents } from "../../pinnedComponents";
 import { emitTimetableOverridden } from "./UIEventsUtils";
 
-export const filterComponentsAgainstTimeSlots = (
-  components,
-  timeSlots,
-) => {
+export const filterComponentsAgainstTimeSlots = (components, timeSlots) => {
   const timeRegex = /[a-zA-Z]/;
   const groupedComponents = new Map();
   const blockedComponents = [];
@@ -55,10 +52,7 @@ export const filterComponentsAgainstTimeSlots = (
     }
   }
 
-  if (
-    availableGroups.length === 0 &&
-    blockedComponents.length > 0
-  ) {
+  if (availableGroups.length === 0 && blockedComponents.length > 0) {
     emitTimetableOverridden();
     blockedComponents.sort((a, b) => a.blockedPercentage - b.blockedPercentage);
     availableGroups.push(blockedComponents[0].group);

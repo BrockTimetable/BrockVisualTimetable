@@ -54,9 +54,10 @@ export const generateSingleCourseCombinations = (course, timeSlots) => {
     validMainComponents = filterByDuration(validMainComponents, duration);
   }
 
-  const {
-    availableGroups: mainAvailable,
-  } = filterComponentsAgainstTimeSlots(validMainComponents, timeSlots);
+  const { availableGroups: mainAvailable } = filterComponentsAgainstTimeSlots(
+    validMainComponents,
+    timeSlots
+  );
 
   validMainComponents = filterPinned(mainAvailable, course.courseCode, "MAIN");
 
@@ -74,8 +75,10 @@ export const generateSingleCourseCombinations = (course, timeSlots) => {
   );
 
   const processSecondary = (type, items) => {
-    const { availableGroups } =
-      filterComponentsAgainstTimeSlots(items, timeSlots);
+    const { availableGroups } = filterComponentsAgainstTimeSlots(
+      items,
+      timeSlots
+    );
 
     const filtered = filterPinned(availableGroups, course.courseCode, type);
     return filtered;

@@ -67,8 +67,6 @@ export const generateTimetables = (sortOption) => {
       }
     });
 
-
-
     if (sortOption === "sortByWaitingTime") {
       validTimetables.sort((a, b) => {
         const waitingTimeDiff =
