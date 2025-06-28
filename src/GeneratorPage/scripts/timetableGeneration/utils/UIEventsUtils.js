@@ -9,8 +9,13 @@ export const emitNoValidTimetablesFound = () => {
   });
 };
 
+let emitTimetableOverriddenCooldown = 0;
+
 export const emitTimetableOverridden = () => {
   eventBus.emit("overridden", true);
+  const now = Date.now();
+  if (now - emitTimetableOverriddenCooldown < 3000) return;
+  emitTimetableOverriddenCooldown = now;
   eventBus.emit("snackbar", {
     message:
       "All available options for one or more course components were blocked. One or more user-defined time blocks has been overridden to find a valid timetable.",
