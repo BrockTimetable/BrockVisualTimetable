@@ -23,13 +23,16 @@ export const createCalendarEvents = (timetable, getDaysOfWeek, courseColors = {}
         const customColor = courseColors[course.courseCode] || defaultColor;
         const event = {
             id: uniqueId,
-            title: `${course.courseCode} ${component.type} ${component.sectionNumber}`,
+            title: `${course.courseCode} ${component.type} ${/^\d+$/.test(component.sectionNumber) ? ` ${component.sectionNumber}` : ''}`,
             daysOfWeek: getDaysOfWeek(component.schedule.days || "M T W R F"),
             startRecur: formatDate(component.schedule.startDate, false),
             endRecur: formatDate(component.schedule.endDate, true),
             description: component.instructor,
             color: customColor,
-            isPinned: component.pinned,
+            extendedProps: {
+                isPinned: component.pinned,
+                isMain: component.isMain ?? false,
+            }
         };
 
         if (isAllDay) {
@@ -77,6 +80,7 @@ export const createCalendarEvents = (timetable, getDaysOfWeek, courseColors = {}
 
         if (mainComponents) {
             mainComponents.forEach((mainComponent) => {
+                mainComponent.isMain = true;
                 // Handle both SYN and HYF formats
                 const isSynchronousOnline = 
                     mainComponent.type.startsWith('SYN') || 

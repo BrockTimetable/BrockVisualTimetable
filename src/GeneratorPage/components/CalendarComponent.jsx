@@ -363,7 +363,9 @@ const handleCalendarViewClick = (durationLabel) => {
         if (!clickInfo.event.extendedProps.isBlocked) {
             const split = clickInfo.event.title.split(" ");
             const courseCode = split[0];
-            if (split[1] !== "TUT" && split[1] !== "LAB" && split[1] !== "SEM") {
+            console.log(clickInfo.event.extendedProps);
+            console.log(clickInfo.event.extendedProps.isMain);
+            if (clickInfo.event.extendedProps.isMain){
                 split[1] = "MAIN";
             }
 
@@ -384,6 +386,7 @@ const handleCalendarViewClick = (durationLabel) => {
             if (pinnedComponents.includes(courseCode + " " + split[1] + " " + baseComponentId)) {
                 removePinnedComponent(courseCode + " " + split[1] + " " + baseComponentId);
             } else {
+                console.log(courseCode + " " + split[1] + " " + baseComponentId);
                 addPinnedComponent(courseCode + " " + split[1] + " " + baseComponentId);
             }
         } else {
