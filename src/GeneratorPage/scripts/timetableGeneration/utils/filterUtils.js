@@ -10,7 +10,6 @@ import { emitTimetableOverridden } from "./UIEventsUtils";
 export const filterComponentsAgainstTimeSlots = (
   components,
   timeSlots,
-  enableFallback = false
 ) => {
   const timeRegex = /[a-zA-Z]/;
   const groupedComponents = new Map();
@@ -57,7 +56,6 @@ export const filterComponentsAgainstTimeSlots = (
   }
 
   if (
-    enableFallback &&
     availableGroups.length === 0 &&
     blockedComponents.length > 0
   ) {

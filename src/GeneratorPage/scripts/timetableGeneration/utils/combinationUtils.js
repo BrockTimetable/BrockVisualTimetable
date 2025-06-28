@@ -56,9 +56,7 @@ export const generateSingleCourseCombinations = (course, timeSlots) => {
 
   const {
     availableGroups: mainAvailable,
-    blockedComponents: mainBlocked,
-    fallbackTriggered: mainFallback,
-  } = filterComponentsAgainstTimeSlots(validMainComponents, timeSlots, true);
+  } = filterComponentsAgainstTimeSlots(validMainComponents, timeSlots);
 
   validMainComponents = filterPinned(mainAvailable, course.courseCode, "MAIN");
 
@@ -76,8 +74,8 @@ export const generateSingleCourseCombinations = (course, timeSlots) => {
   );
 
   const processSecondary = (type, items) => {
-    const { availableGroups, blockedComponents, fallbackTriggered } =
-      filterComponentsAgainstTimeSlots(items, timeSlots, true);
+    const { availableGroups } =
+      filterComponentsAgainstTimeSlots(items, timeSlots);
 
     const filtered = filterPinned(availableGroups, course.courseCode, type);
     return filtered;
