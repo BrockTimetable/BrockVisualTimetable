@@ -24,7 +24,7 @@ import {
     removeTimeBlockEvent,
     isEventPinned,
 } from "../scripts/createCalendarEvents";
-import { generateTimetables, getValidTimetables } from "../scripts/generateTimetables";
+import { generateTimetables, getValidTimetables } from "../scripts/timetableGeneration/timetableGeneration";
 import { addPinnedComponent, getPinnedComponents, removePinnedComponent } from "../scripts/pinnedComponents";
 import { setBlockedTimeSlots, setOpenTimeSlots } from "../scripts/timeSlots";
 import { getCourseData } from "../scripts/courseData";
@@ -271,12 +271,6 @@ export default function CalendarComponent({
             setCourseDetails([]);
             setEvents(newEvents);
             if (Object.keys(getCourseData()).length > 0) {
-                enqueueSnackbar(
-                    <MultiLineSnackbar message="No valid timetables can be generated! Click the red 'x' icon for more information!" />,
-                    {
-                        variant: "error",
-                    }
-                );
                 setNoTimetablesGenerated(true);
             }
         }
@@ -369,7 +363,9 @@ const handleCalendarViewClick = (durationLabel) => {
         if (!clickInfo.event.extendedProps.isBlocked) {
             const split = clickInfo.event.title.split(" ");
             const courseCode = split[0];
-            if (split[1] !== "TUT" && split[1] !== "LAB" && split[1] !== "SEM") {
+            console.log(clickInfo.event.extendedProps);
+            console.log(clickInfo.event.extendedProps.isMain);
+            if (clickInfo.event.extendedProps.isMain){
                 split[1] = "MAIN";
             }
 
@@ -390,6 +386,7 @@ const handleCalendarViewClick = (durationLabel) => {
             if (pinnedComponents.includes(courseCode + " " + split[1] + " " + baseComponentId)) {
                 removePinnedComponent(courseCode + " " + split[1] + " " + baseComponentId);
             } else {
+                console.log(courseCode + " " + split[1] + " " + baseComponentId);
                 addPinnedComponent(courseCode + " " + split[1] + " " + baseComponentId);
             }
         } else {
