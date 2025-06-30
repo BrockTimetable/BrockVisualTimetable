@@ -52,7 +52,7 @@ export const isTimetableValid = (timetable) => {
           comp1.startDate,
           comp1.endDate,
           comp2.startDate,
-          comp2.endDate
+          comp2.endDate,
         )
       )
         continue;
@@ -65,7 +65,7 @@ export const isTimetableValid = (timetable) => {
           comp1.startSlot,
           comp1.endSlot,
           comp2.startSlot,
-          comp2.endSlot
+          comp2.endSlot,
         )
       ) {
         return false;

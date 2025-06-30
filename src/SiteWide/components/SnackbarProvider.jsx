@@ -1,6 +1,6 @@
-import React, { useEffect } from 'react';
-import { SnackbarProvider, useSnackbar } from 'notistack';
-import eventBus from '../Buses/eventBus';
+import React, { useEffect } from "react";
+import { SnackbarProvider, useSnackbar } from "notistack";
+import eventBus from "../Buses/eventBus";
 
 const SnackbarListener = () => {
   const { enqueueSnackbar } = useSnackbar();
@@ -10,10 +10,10 @@ const SnackbarListener = () => {
       enqueueSnackbar(message, { variant });
     };
 
-    eventBus.on('snackbar', handleSnackbarEvent);
+    eventBus.on("snackbar", handleSnackbarEvent);
 
     return () => {
-      eventBus.off('snackbar', handleSnackbarEvent);
+      eventBus.off("snackbar", handleSnackbarEvent);
     };
   }, [enqueueSnackbar]);
 
@@ -22,7 +22,7 @@ const SnackbarListener = () => {
 
 const CustomSnackbarProvider = ({ children }) => (
   <SnackbarProvider
-    anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+    anchorOrigin={{ vertical: "top", horizontal: "center" }}
     autoHideDuration={3000}
   >
     {children}

@@ -6,12 +6,13 @@ the additional components by default have a section ID of "0". In order to assoc
 the two components together the "0" id is replaced with the primary main course component ID.
 */
 const replaceSectionId = (sections) => {
-  sections.forEach(section => {
+  sections.forEach((section) => {
     if (section.id === "0") {
-      const matchingSection = sections.find(s =>
-        s.id !== "0" &&
-        s.schedule.duration === section.schedule.duration &&
-        s.sectionNumber === section.sectionNumber
+      const matchingSection = sections.find(
+        (s) =>
+          s.id !== "0" &&
+          s.schedule.duration === section.schedule.duration &&
+          s.sectionNumber === section.sectionNumber,
       );
       if (matchingSection) {
         section.id = matchingSection.id;
@@ -22,7 +23,12 @@ const replaceSectionId = (sections) => {
 
 const initializeCourseData = (courseCode) => {
   if (!courseData[courseCode]) {
-    courseData[courseCode] = { sections: [], labs: [], tutorials: [], seminars: [] };
+    courseData[courseCode] = {
+      sections: [],
+      labs: [],
+      tutorials: [],
+      seminars: [],
+    };
   }
 };
 

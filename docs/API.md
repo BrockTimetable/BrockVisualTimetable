@@ -1,4 +1,4 @@
-# API Documentation 
+# API Documentation
 
 This document provides an overview of the API endpoints available in this project, along with example requests and responses.
 
@@ -6,14 +6,13 @@ This document provides an overview of the API endpoints available in this projec
 
 All API requests are prefixed with the following base URL: https://api.brocktimetable.com
 
-
 ## Endpoints
 
 ### 1. Get List of All Course Names
 
 **Endpoint:** `GET /api/getNameList`
 
-**Description:** Retrieves a list of all course names and their durations being offered in a timetable session. 
+**Description:** Retrieves a list of all course names and their durations being offered in a timetable session.
 
 #### Request
 
@@ -39,16 +38,16 @@ curl "https://api.brocktimetable.com/api/getNameList?timetableType=UG&session=FW
 
 **Endpoint:** `GET /api/getCourse`
 
-**Description:** Retrieves course specific data. 
+**Description:** Retrieves course specific data.
 
 #### Request
 
 - **Method:** `GET`
 - **URL:** `/api/getCourse`
 - **Headers:**
--  `courseCode: <courseCode>`
-  - `timetableType: <timeTableType>`
-  - `session: <session>`
+- `courseCode: <courseCode>`
+- `timetableType: <timeTableType>`
+- `session: <session>`
 
 #### Example Request
 
@@ -108,6 +107,7 @@ curl "https://api.brocktimetable.com/api/getCourse?courseCode=COSC1P02&timetable
 }
 
 ```
+
 ### 3. Get Date of Data Update
 
 **Endpoint:** `GET /api/dataAge`
