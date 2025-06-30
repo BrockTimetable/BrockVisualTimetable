@@ -1,0 +1,30 @@
+name: Timetable Generation Tests
+
+on:
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  timetable-generation-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: |
+          echo "Running Timetable Generation Tests..."
+          npx vitest run src/GeneratorPage/scripts/timetableGeneration/__tests__ --reporter verbose || {
+            echo "❌ Timetable generation tests failed!";
+            exit 1;
+          }

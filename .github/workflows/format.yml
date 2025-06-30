@@ -1,0 +1,34 @@
+name: Prettier Code Format Check
+
+on:
+  pull_request:
+    branches: [master]
+
+jobs:
+  prettier-format-check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run Prettier format check
+        run: |
+          echo "Checking code formatting with Prettier..."
+          npx prettier . --check || (
+            echo ""
+            echo "❌ Code formatting check failed."
+            echo "💡 Run the following command locally to fix formatting issues:"
+            echo ""
+            echo "    npx prettier . --write"
+            echo ""
+            exit 1
+          )
