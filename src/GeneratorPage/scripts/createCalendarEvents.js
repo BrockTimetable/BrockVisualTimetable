@@ -14,7 +14,7 @@ export const createCalendarEvents = (
     to create unique IDs for each calendar event.
     */
   const getUniqueId = (baseId) => {
-    let counter = 1;
+    let counter = 2;
     let uniqueId = baseId;
     while (newEvents.some((event) => event.id === uniqueId)) {
       uniqueId = `${baseId}-${counter}`;
