@@ -68,7 +68,7 @@ export const useCalendarEvents = ({
       const newEvents = createCalendarEvents(
         timetable,
         getDaysOfWeek,
-        currentColors
+        currentColors,
       );
 
       const courseDetails = newEvents
@@ -92,7 +92,7 @@ export const useCalendarEvents = ({
       const newEvents = createCalendarEvents(
         null,
         getDaysOfWeek,
-        currentColors
+        currentColors,
       );
       setCourseDetails([]);
       setEvents(newEvents);
