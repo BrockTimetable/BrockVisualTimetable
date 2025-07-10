@@ -4,7 +4,7 @@ import {
   getDaysOfWeek,
 } from "../../../scripts/createCalendarEvents";
 import { getCourseData } from "../../../scripts/courseData";
-import { checkForWeekendClasses } from "../utils/calendarUtils";
+import { checkForWeekendClasses } from "../utils/calendarUtils.jsx";
 
 export const useCalendarEvents = ({
   timetables,
@@ -68,7 +68,7 @@ export const useCalendarEvents = ({
       const newEvents = createCalendarEvents(
         timetable,
         getDaysOfWeek,
-        currentColors,
+        currentColors
       );
 
       const courseDetails = newEvents
@@ -92,7 +92,7 @@ export const useCalendarEvents = ({
       const newEvents = createCalendarEvents(
         null,
         getDaysOfWeek,
-        currentColors,
+        currentColors
       );
       setCourseDetails([]);
       setEvents(newEvents);

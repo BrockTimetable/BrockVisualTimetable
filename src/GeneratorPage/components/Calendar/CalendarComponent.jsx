@@ -13,13 +13,13 @@ import { CourseDetailsContext } from "../../contexts/CourseDetailsContext";
 import eventBus from "../../../SiteWide/Buses/eventBus";
 import { CourseColorsContext } from "../../contexts/CourseColorsContext";
 import { useCalendarEventHandlers } from "./hooks/useCalendarEventHandlers";
-import { useTimetableManagement } from "./hooks/useTimetableManagement";
+import { useTimetableManagement } from "./hooks/useTimetableManagement.jsx";
 import { useCalendarEvents } from "./hooks/useCalendarEvents";
 import {
   renderEventContent,
   prepareCoursesForTimeline,
   sortByBracketContent,
-} from "./utils/calendarUtils";
+} from "./utils/calendarUtils.jsx";
 let previousDuration = null;
 let aprioriDurationTimetable = null;
 export default function CalendarComponent({
@@ -199,13 +199,13 @@ export default function CalendarComponent({
         }
       }
     },
-    [calendarRef],
+    [calendarRef]
   );
 
   useEffect(() => {
     const courses = prepareCoursesForTimeline(
       timetables,
-      currentTimetableIndex,
+      currentTimetableIndex
     );
     setCoursesForTimeline(courses);
 
