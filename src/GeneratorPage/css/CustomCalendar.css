@@ -1,6 +1,6 @@
 :root {
-    --calendar-grid-color-light: var(--theme-divider-color);
-    --calendar-grid-color-dark: var(--theme-outline-color);
+  --calendar-grid-color-light: var(--theme-divider-color);
+  --calendar-grid-color-dark: var(--theme-outline-color);
 }
 
 body.light-mode .fc .fc-timegrid-slot,
@@ -19,7 +19,7 @@ body.light-mode .fc .fc-scrollgrid-section,
 body.light-mode .fc .fc-scrollgrid-section table,
 body.light-mode .fc .fc-scrollgrid-section td,
 body.light-mode .fc .fc-scrollgrid-section th {
-    border-color: var(--calendar-grid-color-light);
+  border-color: var(--calendar-grid-color-light);
 }
 
 body.dark-mode .fc .fc-timegrid-slot,
@@ -38,27 +38,27 @@ body.dark-mode .fc .fc-scrollgrid-section,
 body.dark-mode .fc .fc-scrollgrid-section table,
 body.dark-mode .fc .fc-scrollgrid-section td,
 body.dark-mode .fc .fc-scrollgrid-section th {
-    border-color: var(--calendar-grid-color-dark);
+  border-color: var(--calendar-grid-color-dark);
 }
 
 body.light-mode .fc-event {
-    border: none;
-    border-radius: 3px;
-    box-shadow: 0 0 1px var(--calendar-grid-color-light);
+  border: none;
+  border-radius: 3px;
+  box-shadow: 0 0 1px var(--calendar-grid-color-light);
 }
 
 body.dark-mode .fc-event {
-    border: none;
-    border-radius: 3px;
-    box-shadow: 0 0 1px var(--calendar-grid-color-dark);
+  border: none;
+  border-radius: 3px;
+  box-shadow: 0 0 1px var(--calendar-grid-color-dark);
 }
 
 .fc-event,
 .fc-event-main,
 .fc-timegrid-event {
-    cursor: pointer;
+  cursor: pointer;
 }
 
 .fc-timegrid-event .fc-event-main {
-    padding: 0;
+  padding: 0;
 }

@@ -567,7 +567,11 @@ export default function CourseTimelineComponent({
                   transition: "all 0.15s cubic-bezier(0.4, 0, 0.2, 1)",
                   boxShadow:
                     hoveredCourse === course.code
-                      ? "0 1px 2px rgba(0,0,0,0.1)"
+                      ? (theme) =>
+                          `0 2px 4px ${alpha(
+                            course.color,
+                            0.4
+                          )}, 0 0 1px ${alpha(theme.palette.common.black, 0.2)}`
                       : "none",
                   "&:hover": {
                     backgroundColor: (theme) =>

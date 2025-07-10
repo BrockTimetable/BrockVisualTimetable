@@ -1,0 +1,21 @@
+{
+  "courseCode": "HIST4P29",
+  "sections": [
+    {
+      "id": "3079101",
+      "schedule": {
+        "duration": "2",
+        "days": "F",
+        "time": "800 -1100",
+        "startDate": "1756872000",
+        "endDate": "1764651600"
+      },
+      "type": "SEM",
+      "sectionNumber": "SEM",
+      "instructor": "McDonald,Andrew"
+    }
+  ],
+  "labs": [],
+  "tutorials": [],
+  "seminars": []
+}

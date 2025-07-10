@@ -11,23 +11,25 @@ let pinnedComponents = [];
 export const getPinnedComponents = () => [...pinnedComponents];
 
 export const addPinnedComponent = (component) => {
-    if (!pinnedComponents.includes(component)) {
-        pinnedComponents.push(component);
-    }
+  if (!pinnedComponents.includes(component)) {
+    pinnedComponents.push(component);
+  }
 };
 
 export const removePinnedComponent = (component) => {
-    const index = pinnedComponents.indexOf(component);
-    if (index !== -1) {
-        pinnedComponents.splice(index, 1);
-    }
+  const index = pinnedComponents.indexOf(component);
+  if (index !== -1) {
+    pinnedComponents.splice(index, 1);
+  }
 };
 
 export const clearCoursePins = (prefix) => {
-    const componentsToRemove = pinnedComponents.filter(component => component.startsWith(prefix));
-    componentsToRemove.forEach(removePinnedComponent);
+  const componentsToRemove = pinnedComponents.filter((component) =>
+    component.startsWith(prefix),
+  );
+  componentsToRemove.forEach(removePinnedComponent);
 };
 
 export const clearAllPins = () => {
-    pinnedComponents = [];
+  pinnedComponents = [];
 };

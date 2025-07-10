@@ -56,7 +56,7 @@ export const generateSingleCourseCombinations = (course, timeSlots) => {
 
   const { availableGroups: mainAvailable } = filterComponentsAgainstTimeSlots(
     validMainComponents,
-    timeSlots
+    timeSlots,
   );
 
   validMainComponents = filterPinned(mainAvailable, course.courseCode, "MAIN");
@@ -71,13 +71,13 @@ export const generateSingleCourseCombinations = (course, timeSlots) => {
       if (!acc[groupId]) acc[groupId] = [];
       acc[groupId].push(component);
       return acc;
-    }, {})
+    }, {}),
   );
 
   const processSecondary = (type, items) => {
     const { availableGroups } = filterComponentsAgainstTimeSlots(
       items,
-      timeSlots
+      timeSlots,
     );
 
     const filtered = filterPinned(availableGroups, course.courseCode, type);
@@ -127,29 +127,29 @@ export const generateSingleCourseCombinations = (course, timeSlots) => {
       (p) =>
         p.includes("LAB") &&
         !p.includes("LABR") &&
-        p.split(" ")[0] === course.courseCode
+        p.split(" ")[0] === course.courseCode,
     );
     const pinnedTut = pinnedComponents.find(
-      (p) => p.includes("TUT") && p.split(" ")[0] === course.courseCode
+      (p) => p.includes("TUT") && p.split(" ")[0] === course.courseCode,
     );
     const pinnedSem = pinnedComponents.find(
-      (p) => p.includes("SEM") && p.split(" ")[0] === course.courseCode
+      (p) => p.includes("SEM") && p.split(" ")[0] === course.courseCode,
     );
 
     const isLabValid =
       !pinnedLab ||
       validLabsForMainComponent.some(
-        (lab) => getBaseComponentId(lab.id) === pinnedLab.split(" ")[2]
+        (lab) => getBaseComponentId(lab.id) === pinnedLab.split(" ")[2],
       );
     const isTutValid =
       !pinnedTut ||
       validTutorialsForMainComponent.some(
-        (tut) => getBaseComponentId(tut.id) === pinnedTut.split(" ")[2]
+        (tut) => getBaseComponentId(tut.id) === pinnedTut.split(" ")[2],
       );
     const isSemValid =
       !pinnedSem ||
       validSeminarsForMainComponent.some(
-        (sem) => getBaseComponentId(sem.id) === pinnedSem.split(" ")[2]
+        (sem) => getBaseComponentId(sem.id) === pinnedSem.split(" ")[2],
       );
 
     if (!isLabValid || !isTutValid || !isSemValid) {
@@ -180,7 +180,7 @@ export const generateSingleCourseCombinations = (course, timeSlots) => {
 
 export const generateTimetableCombinations = (
   courseCombinations,
-  performanceMetrics
+  performanceMetrics,
 ) => {
   let results = [];
   let count = 0;

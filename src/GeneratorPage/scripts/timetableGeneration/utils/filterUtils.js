@@ -96,6 +96,6 @@ export const filterPinned = (components, courseCode, componentType) => {
 
 export const filterByDuration = (components, duration) => {
   return components.filter(
-    (component) => component.schedule.duration === duration
+    (component) => component.schedule.duration === duration,
   );
 };

@@ -45,7 +45,7 @@ export const generateTimetables = (sortOption) => {
 
   try {
     const allCourseCombinations = courses.map((course) =>
-      generateSingleCourseCombinations(course, timeSlots)
+      generateSingleCourseCombinations(course, timeSlots),
     );
 
     if (
@@ -57,7 +57,7 @@ export const generateTimetables = (sortOption) => {
 
     let allPossibleTimetables = generateTimetableCombinations(
       allCourseCombinations,
-      performanceMetrics
+      performanceMetrics,
     );
 
     allPossibleTimetables.forEach((timetable) => {
@@ -76,7 +76,7 @@ export const generateTimetables = (sortOption) => {
       });
     } else if (sortOption === "minimizeClassDays") {
       validTimetables.sort(
-        (a, b) => calculateClassDays(a.courses) - calculateClassDays(b.courses)
+        (a, b) => calculateClassDays(a.courses) - calculateClassDays(b.courses),
       );
     }
 
