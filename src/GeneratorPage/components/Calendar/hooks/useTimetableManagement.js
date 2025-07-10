@@ -31,7 +31,7 @@ export const useTimetableManagement = ({
 
   const handlePrevious = useCallback(() => {
     setCurrentTimetableIndex(
-      (currentTimetableIndex - 1 + timetables.length) % timetables.length
+      (currentTimetableIndex - 1 + timetables.length) % timetables.length,
     );
   }, [currentTimetableIndex, timetables.length, setCurrentTimetableIndex]);
 
@@ -104,8 +104,8 @@ export const useTimetableManagement = ({
                       type.toLowerCase() === "tutorial"
                         ? "TUT"
                         : type.toLowerCase() === "seminar"
-                        ? "SEM"
-                        : type.toUpperCase();
+                          ? "SEM"
+                          : type.toUpperCase();
 
                     const pinString = `${courseCode} ${formattedType} ${component.id}`;
                     if (!pinnedComponents.includes(pinString)) {
@@ -113,7 +113,7 @@ export const useTimetableManagement = ({
                       didPinNewComponent = true;
                     }
                   }
-                }
+                },
               );
             }
           });
@@ -140,7 +140,7 @@ export const useTimetableManagement = ({
         />,
         {
           variant: "info",
-        }
+        },
       );
     },
     [
@@ -150,7 +150,7 @@ export const useTimetableManagement = ({
       setSelectedDuration,
       enqueueSnackbar,
       sortOption,
-    ]
+    ],
   );
 
   // Function to set the apriori duration timetable

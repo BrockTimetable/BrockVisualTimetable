@@ -199,13 +199,13 @@ export default function CalendarComponent({
         }
       }
     },
-    [calendarRef]
+    [calendarRef],
   );
 
   useEffect(() => {
     const courses = prepareCoursesForTimeline(
       timetables,
-      currentTimetableIndex
+      currentTimetableIndex,
     );
     setCoursesForTimeline(courses);
 

@@ -146,7 +146,7 @@ export const checkForWeekendClasses = (timetable) => {
 // Prepare courses for timeline
 export const prepareCoursesForTimeline = (
   timetables,
-  currentTimetableIndex
+  currentTimetableIndex,
 ) => {
   try {
     const currentTimetable =

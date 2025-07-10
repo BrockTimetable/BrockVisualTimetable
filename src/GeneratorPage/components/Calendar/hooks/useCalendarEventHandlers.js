@@ -61,7 +61,7 @@ export const useCalendarEventHandlers = ({
         // Handle time block removal
         const blockId = clickInfo.event.id.replace("block-", "");
         const blockEvent = getTimeBlockEvents().find(
-          (block) => block.id === blockId
+          (block) => block.id === blockId,
         );
 
         if (blockEvent) {
@@ -90,7 +90,7 @@ export const useCalendarEventHandlers = ({
       generateTimetables(sortOption);
       setTimetables(getValidTimetables());
     },
-    [setCurrentTimetableIndex, setTimetables, sortOption]
+    [setCurrentTimetableIndex, setTimetables, sortOption],
   );
 
   const handleSelect = useCallback(
@@ -149,7 +149,7 @@ export const useCalendarEventHandlers = ({
               ) {
                 combinedSlotStart = Math.min(
                   combinedSlotStart,
-                  existingSlotStart
+                  existingSlotStart,
                 );
                 combinedSlotEnd = Math.max(combinedSlotEnd, existingSlotEnd);
                 blocksToRemove.push(block.id);
@@ -190,7 +190,7 @@ export const useCalendarEventHandlers = ({
         setTimetables(getValidTimetables());
       }
     },
-    [setCurrentTimetableIndex, setTimetables, sortOption]
+    [setCurrentTimetableIndex, setTimetables, sortOption],
   );
 
   const handleSelectAllow = useCallback(() => {
