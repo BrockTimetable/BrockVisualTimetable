@@ -1,10 +1,10 @@
 import React from "react";
 import Box from "@mui/material/Box";
-import TimeTableSelectComponent from "../TimeTableSelectComponent";
-import TermSelectComponent from "../TermSelectComponent";
-import CourseSearchComponent from "../CourseSearchComponent";
-import AddButtonComponent from "../AddButtonComponent";
-import BorderBox from "./BorderBox";
+import TimeTableSelectComponent from "../CourseSearch/TimeTableSelectComponent";
+import TermSelectComponent from "../CourseSearch/TermSelectComponent";
+import CourseSearchComponent from "../CourseSearch/CourseSearchComponent";
+import AddButtonComponent from "../CourseSearch/AddButtonComponent";
+import BorderBox from "../../UI/BorderBox";
 
 export default function CourseOptions({
   term,

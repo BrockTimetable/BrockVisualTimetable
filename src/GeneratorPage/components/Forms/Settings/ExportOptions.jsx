@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import Box from "@mui/material/Box";
-import BorderBox from "./BorderBox";
-import ExportCalendarButton from "../../ExportCalendarButton";
+import BorderBox from "../../UI/BorderBox";
+import ExportCalendarButton from "../../Export/ExportCalendarButton";
 import { ListItemButton } from "@mui/material";
 import Collapse from "@mui/material/Collapse";
 import ExpandLess from "@mui/icons-material/ExpandLess";

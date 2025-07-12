@@ -4,18 +4,18 @@ import Grid from "@mui/material/Grid";
 import { useSnackbar } from "notistack";
 import ReactGA from "react-ga4";
 
-import MultiLineSnackbar from "../../SiteWide/components/MultiLineSnackbar";
+import MultiLineSnackbar from "../../../SiteWide/components/MultiLineSnackbar";
 
-import { storeCourseData, removeCourseData } from "../scripts/courseData";
-import { getCourse, getNameList } from "../scripts/fetchData";
+import { storeCourseData, removeCourseData } from "../../scripts/courseData";
+import { getCourse, getNameList } from "../../scripts/fetchData";
 import {
   generateTimetables,
   getValidTimetables,
-} from "../scripts/timetableGeneration/timetableGeneration";
-import { addPinnedComponent } from "../scripts/pinnedComponents";
+} from "../../scripts/timetableGeneration/timetableGeneration";
+import { addPinnedComponent } from "../../scripts/pinnedComponents";
 
-import CourseOptions from "./InputFormComponents/Sections/CourseOptions";
-import SortOptions from "./InputFormComponents/Sections/SortOptions";
+import CourseOptions from "./Settings/CourseOptions";
+import SortOptions from "./Settings/SortOptions";
 
 export default function InputFormTop({
   setTimetables,

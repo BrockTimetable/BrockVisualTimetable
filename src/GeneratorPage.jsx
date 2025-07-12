@@ -14,7 +14,7 @@ import {
   CourseColorsProvider,
   CourseColorsContext,
 } from "./GeneratorPage/contexts/CourseColorsContext";
-import ChangelogDialogComponent from "./GeneratorPage/components/ChangelogDialogComponent";
+import ChangelogDialogComponent from "./GeneratorPage/components/Dialogs/ChangelogDialogComponent";
 import ReactGA from "react-ga4";
 import {
   generateTimetables,

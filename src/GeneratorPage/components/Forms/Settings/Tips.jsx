@@ -1,5 +1,5 @@
 import React from "react";
-import BorderBox from "./BorderBox";
+import BorderBox from "../../UI/BorderBox";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import ListItemText from "@mui/material/ListItemText";

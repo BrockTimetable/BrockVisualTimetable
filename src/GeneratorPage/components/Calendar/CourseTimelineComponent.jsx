@@ -4,8 +4,8 @@ import Typography from "@mui/material/Typography";
 import Tooltip from "@mui/material/Tooltip";
 import Fade from "@mui/material/Fade";
 import { alpha } from "@mui/material/styles";
-import { CourseDetailsContext } from "../contexts/CourseDetailsContext";
-import { CourseColorsContext } from "../contexts/CourseColorsContext";
+import { CourseDetailsContext } from "../../contexts/CourseDetailsContext";
+import { CourseColorsContext } from "../../contexts/CourseColorsContext";
 
 // Helper function to format date as Month DD
 const formatDate = (dateString) => {
@@ -528,7 +528,9 @@ export default function CourseTimelineComponent({
           <React.Fragment key={course.code}>
             {/* Course label */}
             <Tooltip
-              title={`${course.fullName}: ${formatDate(course.startDate)} - ${formatDate(course.endDate)}`}
+              title={`${course.fullName}: ${formatDate(
+                course.startDate,
+              )} - ${formatDate(course.endDate)}`}
               arrow
               placement="top"
               TransitionComponent={Fade}
@@ -565,7 +567,11 @@ export default function CourseTimelineComponent({
                   transition: "all 0.15s cubic-bezier(0.4, 0, 0.2, 1)",
                   boxShadow:
                     hoveredCourse === course.code
-                      ? "0 1px 2px rgba(0,0,0,0.1)"
+                      ? (theme) =>
+                          `0 2px 4px ${alpha(
+                            course.color,
+                            0.4,
+                          )}, 0 0 1px ${alpha(theme.palette.common.black, 0.2)}`
                       : "none",
                   "&:hover": {
                     backgroundColor: (theme) =>
@@ -582,7 +588,9 @@ export default function CourseTimelineComponent({
 
             {/* Course bar */}
             <Tooltip
-              title={`${course.fullName}: ${formatDate(course.startDate)} - ${formatDate(course.endDate)}`}
+              title={`${course.fullName}: ${formatDate(
+                course.startDate,
+              )} - ${formatDate(course.endDate)}`}
               arrow
               placement="top"
               TransitionComponent={Fade}
@@ -608,7 +616,10 @@ export default function CourseTimelineComponent({
                   boxShadow:
                     hoveredCourse === course.code
                       ? (theme) =>
-                          `0 2px 4px ${alpha(course.color, 0.4)}, 0 0 1px ${alpha(theme.palette.common.black, 0.2)}`
+                          `0 2px 4px ${alpha(
+                            course.color,
+                            0.4,
+                          )}, 0 0 1px ${alpha(theme.palette.common.black, 0.2)}`
                       : "none",
                   "&:hover": {
                     opacity: 1,

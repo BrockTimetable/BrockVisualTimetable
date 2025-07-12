@@ -1,5 +1,5 @@
 import React from "react";
-import "../../css/TermSelect.css";
+import "../../../css/TermSelect.css";
 
 import Box from "@mui/material/Box";
 import InputLabel from "@mui/material/InputLabel";

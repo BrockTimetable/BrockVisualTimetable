@@ -1,6 +1,6 @@
 import React from "react";
 import { Button } from "@mui/material";
-import { exportCal } from "../scripts/ExportCal.js";
+import { exportCal } from "../../scripts/ExportCal.js";
 
 export default function ExportCalendarButton() {
   return (

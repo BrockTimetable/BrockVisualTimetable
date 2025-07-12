@@ -11,9 +11,9 @@ import IconButton from "@mui/material/IconButton";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { useTheme } from "@mui/material/styles";
 import Divider from "@mui/material/Divider";
-import { CourseColorsContext } from "../../contexts/CourseColorsContext";
+import { CourseColorsContext } from "../../../contexts/CourseColorsContext";
 import ColorLensIcon from "@mui/icons-material/ColorLens";
-import { clearCoursePins } from "../../scripts/pinnedComponents";
+import { clearCoursePins } from "../../../scripts/pinnedComponents";
 
 // Helper function to parse start dates (ISO format YYYY-MM-DD)
 const parseStartDate = (dateStr) => {

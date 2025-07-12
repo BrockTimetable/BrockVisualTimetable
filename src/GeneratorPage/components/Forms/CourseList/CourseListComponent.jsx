@@ -2,7 +2,7 @@ import React, { useContext } from "react";
 import CourseListItemComponent from "./CourseListItemComponent";
 import Box from "@mui/material/Box";
 import List from "@mui/material/List";
-import { CourseDetailsContext } from "../../contexts/CourseDetailsContext";
+import { CourseDetailsContext } from "../../../contexts/CourseDetailsContext";
 import { useTheme } from "@mui/material/styles";
 
 export default function CourseListComponent({
