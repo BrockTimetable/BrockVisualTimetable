@@ -1,5 +1,5 @@
 import React from "react";
-import "../../css/DepartmentSearch.css";
+import "../../../css/DepartmentSearch.css";
 
 import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";

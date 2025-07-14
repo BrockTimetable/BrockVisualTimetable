@@ -1,13 +1,13 @@
 import React from "react";
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
-import CourseList from "./InputFormComponents/Sections/CourseList";
-import SourceCode from "./InputFormComponents/Sections/SourceCode";
-import PerformanceMetrics from "./InputFormComponents/Sections/PerformanceMetrics";
-import Tips from "./InputFormComponents/Sections/Tips";
-import ExportOptions from "./InputFormComponents/Sections/ExportOptions";
-import { removeCourseData } from "../scripts/courseData";
-import { removePinnedComponent } from "../scripts/pinnedComponents";
+import CourseList from "./CourseList/CourseList";
+import SourceCode from "../UI/SourceCode";
+import PerformanceMetrics from "./Settings/PerformanceMetrics";
+import Tips from "./Settings/Tips";
+import ExportOptions from "./Settings/ExportOptions";
+import { removeCourseData } from "../../scripts/courseData";
+import { removePinnedComponent } from "../../scripts/pinnedComponents";
 
 export default function InputFormBottomComponent({
   addedCourses,
