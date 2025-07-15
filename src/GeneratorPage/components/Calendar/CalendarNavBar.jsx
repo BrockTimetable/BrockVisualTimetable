@@ -53,10 +53,11 @@ export default function CalendarNavBar({
     <Box
       id="calendarNavBar"
       sx={{
-        backgroundColor: theme.palette.divider,
+        backgroundColor: theme.palette.background.paper,
+        border: `1px solid ${theme.palette.divider}`,
         display: "flex",
         alignItems: "center",
-        borderRadius: "16px",
+        borderRadius: "8px",
         padding: "8px",
         marginBottom: "16px",
         height: "auto",
@@ -65,7 +66,12 @@ export default function CalendarNavBar({
     >
       <Box
         id="infoButtonBox"
-        sx={{ flex: 1, display: "flex", justifyContent: "flex-start" }}
+        sx={{
+          flex: { xs: "none", sm: 1 },
+          display: "flex",
+          justifyContent: { xs: "center", sm: "flex-start" },
+          order: { xs: 1, sm: 1 },
+        }}
       >
         {isTruncated && (
           <IconButton
@@ -95,11 +101,12 @@ export default function CalendarNavBar({
       <Box
         id="calendarNavButtons"
         sx={{
-          flex: 1,
+          flex: { xs: "none", sm: 1 },
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
           whiteSpace: "nowrap",
+          order: { xs: 2, sm: 2 },
         }}
       >
         <Box sx={{ marginRight: 1 }}>
@@ -148,12 +155,13 @@ export default function CalendarNavBar({
       <Box
         id="durationFormBox"
         sx={{
-          flex: 1,
+          flex: { xs: "none", sm: 1 },
           display: "flex",
-          justifyContent: "flex-end",
+          justifyContent: { xs: "center", sm: "flex-end" },
           paddingTop: "4px",
           paddingBottom: "4px",
-          marginRight: "4px",
+          marginRight: { xs: 0, sm: "4px" },
+          order: { xs: 3, sm: 3 },
         }}
       >
         <FormControl sx={{ width: 160 }} size="small">
