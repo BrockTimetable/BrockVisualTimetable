@@ -1,7 +1,6 @@
 import React, { useContext, useState } from "react";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
-import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import IconButton from "@mui/material/IconButton";
 import Brightness4Icon from "@mui/icons-material/Brightness4";
@@ -12,18 +11,13 @@ import { Link } from "react-router-dom";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import Drawer from "@mui/material/Drawer";
 import List from "@mui/material/List";
-import ListItem from "@mui/material/ListItem";
 import ListItemText from "@mui/material/ListItemText";
 import { ListItemButton, Divider, Avatar, ListItemIcon } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 // Import additional icons
 import HomeIcon from "@mui/icons-material/Home";
 import MenuBookIcon from "@mui/icons-material/MenuBook";
-import InfoIcon from "@mui/icons-material/Info";
 import FeedbackIcon from "@mui/icons-material/Feedback";
-import AddIcon from "@mui/icons-material/Add";
-import SaveIcon from "@mui/icons-material/Save";
-import SettingsIcon from "@mui/icons-material/Settings";
 import GitHubIcon from "@mui/icons-material/GitHub";
 
 const NavbarComponent = () => {
@@ -51,7 +45,7 @@ const NavbarComponent = () => {
     >
       <Box sx={{ p: 3, borderBottom: `1px solid ${theme.palette.divider}` }}>
         <Typography variant="h6" component="div" sx={{ fontWeight: "bold" }}>
-          📚 Brock Visual TimeTable
+          📚 brocktimetable.com
         </Typography>
       </Box>
 
@@ -135,7 +129,7 @@ const NavbarComponent = () => {
           component="div"
           sx={{ fontWeight: "bold" }}
         >
-          📚 Brock Visual TimeTable
+          📚 brocktimetable.com
         </Typography>
         {isMobile ? (
           <>
