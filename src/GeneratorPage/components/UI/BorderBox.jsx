@@ -15,9 +15,38 @@ export default function BorderBox({ title, children }) {
   return (
     <Box
       sx={{
-        border: "1px solid",
-        borderColor: "primary.main",
-        borderRadius: "8px",
+        borderBottom: (theme) => ({
+          xs: `1px solid ${theme.palette.primary.main}`,
+          sm: `1px solid ${theme.palette.primary.main}`,
+        }),
+        borderTop: (theme) => ({
+          xs: `none`,
+          sm: `1px solid ${theme.palette.primary.main}`,
+        }),
+        borderLeft: (theme) => ({
+          xs: "none",
+          sm: `1px solid ${theme.palette.primary.main}`,
+        }),
+        borderRight: (theme) => ({
+          xs: "none",
+          sm: `1px solid ${theme.palette.primary.main}`,
+        }),
+        borderRadius: {
+          xs: "0px",
+          sm: "8px",
+        },
+        width: {
+          xs: "100vw",
+          sm: "auto",
+        },
+        marginLeft: {
+          xs: "calc(-50vw + 50%)",
+          sm: "0",
+        },
+        marginRight: {
+          xs: "calc(-50vw + 50%)",
+          sm: "0",
+        },
         overflow: "hidden",
         transition: "all 0.3s ease",
       }}

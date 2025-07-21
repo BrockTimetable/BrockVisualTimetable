@@ -112,7 +112,7 @@ function GeneratorPage() {
                 </Box>
               </Grid>
               <Grid item xs={12} md={8}>
-                <Box m={2} mb={0}>
+                <Box m={2} mt={{ xs: 0, sm: 2 }} mb={0}>
                   <CalendarComponent
                     timetables={timetables}
                     setTimetables={setTimetables}
@@ -125,7 +125,7 @@ function GeneratorPage() {
               </Grid>
               {isSmallScreen && (
                 <Grid item xs={12}>
-                  <Box m={2} mt={2}>
+                  <Box m={2} mt={{ xs: 0, sm: 2 }}>
                     <InputFormBottomComponent
                       addedCourses={addedCourses}
                       setAddedCourses={setAddedCourses}
