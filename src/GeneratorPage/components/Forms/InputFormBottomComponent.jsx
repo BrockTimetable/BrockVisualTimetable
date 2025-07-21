@@ -30,7 +30,7 @@ export default function InputFormBottomComponent({
 
   return (
     <Box>
-      <Grid container spacing={2}>
+      <Grid container spacing={{ xs: 0, sm: 2 }}>
         <Grid item xs={12}>
           <CourseList
             addedCourses={addedCourses}

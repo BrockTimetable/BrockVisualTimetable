@@ -1,5 +1,6 @@
 import React from "react";
-import { Card, CardContent, Typography, Box } from "@mui/material";
+import { Typography, Box } from "@mui/material";
+import BorderBox from "../../UI/BorderBox";
 import { getGenerationPerformance } from "../../../scripts/timetableGeneration/timetableGeneration";
 
 export default function PerformanceMetrics() {
@@ -32,27 +33,25 @@ export default function PerformanceMetrics() {
       : 0;
 
   return (
-    <Card variant="outlined">
-      <CardContent>
-        <Typography variant="h6" gutterBottom>
-          Generation Performance
+    <BorderBox title="Generation Performance">
+      <Typography variant="h6" gutterBottom>
+        Generation Performance
+      </Typography>
+      <Box>
+        <Typography variant="body2" color="text.secondary">
+          Generation Time: {formattedTime}
         </Typography>
-        <Box>
-          <Typography variant="body2" color="text.secondary">
-            Generation Time: {formattedTime}
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            Combinations Processed:{" "}
-            {metrics.totalCombinationsProcessed.toLocaleString()}
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            Valid Timetables: {metrics.validTimetablesFound.toLocaleString()}
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            Combinations/Second: {combinationsPerSecond.toLocaleString()}
-          </Typography>
-        </Box>
-      </CardContent>
-    </Card>
+        <Typography variant="body2" color="text.secondary">
+          Combinations Processed:{" "}
+          {metrics.totalCombinationsProcessed.toLocaleString()}
+        </Typography>
+        <Typography variant="body2" color="text.secondary">
+          Valid Timetables: {metrics.validTimetablesFound.toLocaleString()}
+        </Typography>
+        <Typography variant="body2" color="text.secondary">
+          Combinations/Second: {combinationsPerSecond.toLocaleString()}
+        </Typography>
+      </Box>
+    </BorderBox>
   );
 }
