@@ -15,13 +15,26 @@ export const renderEventContent = (eventInfo) => {
   const minDurationToShowTime = 90;
 
   if (eventInfo.event.extendedProps.isBlocked) {
+    const blockTitle = eventInfo.event.title || "";
+    const truncatedTitle =
+      blockTitle.length > 25 ? `${blockTitle.substring(0, 25)}...` : blockTitle;
+
     return (
       <div
         style={{ position: "relative", height: "100%", textAlign: "center" }}
       >
         {eventDuration >= minDurationToShowTime && (
-          <div style={{ position: "absolute", top: "2px", left: "2px" }}>
+          <div
+            style={{
+              position: "absolute",
+              top: "2px",
+              left: "2px",
+              textAlign: "left",
+            }}
+          >
             <b>{eventInfo.timeText}</b>
+            <br />
+            <span style={{}}>{truncatedTitle}</span>
           </div>
         )}
         <div

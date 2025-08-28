@@ -33,7 +33,11 @@ export const createCalendarEvents = (
     const customColor = courseColors[course.courseCode] || defaultColor;
     const event = {
       id: uniqueId,
-      title: `${course.courseCode} ${component.type} ${/^\d+$/.test(component.sectionNumber) ? ` ${component.sectionNumber}` : ""}`,
+      title: `${course.courseCode} ${component.type} ${
+        /^\d+$/.test(component.sectionNumber)
+          ? ` ${component.sectionNumber}`
+          : ""
+      }`,
       daysOfWeek: getDaysOfWeek(component.schedule.days || "M T W R F"),
       startRecur: formatDate(component.schedule.startDate, false),
       endRecur: formatDate(component.schedule.endDate, true),
@@ -77,6 +81,7 @@ export const createCalendarEvents = (
   const addTimeBlockEvent = (block) => {
     newEvents.push({
       id: `block-${block.id}`,
+      title: block.title || "",
       daysOfWeek: getDaysOfWeek(block.daysOfWeek),
       startTime: block.startTime,
       endTime: block.endTime,
@@ -285,6 +290,13 @@ export const addTimeBlockEvent = (block) => {
 
 export const removeTimeBlockEvent = (blockId) => {
   timeBlockEvents = timeBlockEvents.filter((block) => block.id !== blockId);
+};
+
+export const updateTimeBlockEventTitle = (blockId, newTitle) => {
+  const blockIndex = timeBlockEvents.findIndex((block) => block.id === blockId);
+  if (blockIndex !== -1) {
+    timeBlockEvents[blockIndex].title = newTitle || "";
+  }
 };
 
 export const isEventPinned = (event) => {
