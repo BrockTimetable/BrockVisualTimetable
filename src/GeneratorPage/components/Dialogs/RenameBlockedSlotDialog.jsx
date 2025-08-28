@@ -139,10 +139,14 @@ export default function RenameBlockedSlotDialog({
     <Popover
       open={open}
       anchorEl={forceAnchorPosition ? null : anchorEl}
-      anchorPosition={
-        forceAnchorPosition ||
-        (anchorEl ? undefined : { top: 100, left: window.innerWidth / 2 })
-      }
+      {...(forceAnchorPosition || !anchorEl
+        ? {
+            anchorPosition: forceAnchorPosition || {
+              top: 100,
+              left: window.innerWidth / 2,
+            },
+          }
+        : {})}
       onClose={handleClose}
       anchorOrigin={{
         vertical: "bottom",
@@ -153,7 +157,11 @@ export default function RenameBlockedSlotDialog({
         horizontal: "center",
       }}
       anchorReference={
-        forceAnchorPosition || anchorEl ? "anchorPosition" : "anchorEl"
+        forceAnchorPosition
+          ? "anchorPosition"
+          : anchorEl
+            ? "anchorEl"
+            : "anchorPosition"
       }
       sx={{
         "& .MuiPopover-paper": {
