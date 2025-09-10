@@ -12,7 +12,12 @@ import "./GeneratorPage/css/index.css";
 
 const App = () => {
   ReactGA.initialize("G-M2NP1M6YSK");
-  const [mode, setMode] = useState("light");
+  const [mode, setMode] = useState(() => {
+    const prefersDark = window.matchMedia(
+      "(prefers-color-scheme: dark)",
+    ).matches;
+    return prefersDark ? "dark" : "light";
+  });
 
   const colorMode = useMemo(
     () => ({
@@ -78,6 +83,15 @@ const App = () => {
       }),
     [mode],
   );
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+    const handleChange = (e) => {
+      setMode(e.matches ? "dark" : "light");
+    };
+    mediaQuery.addEventListener("change", handleChange);
+    return () => mediaQuery.removeEventListener("change", handleChange);
+  }, []);
 
   useEffect(() => {
     document.documentElement.style.setProperty(
