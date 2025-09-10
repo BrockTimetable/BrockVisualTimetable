@@ -5,15 +5,16 @@ import CalendarNavBar from "./CalendarNavBar";
 import BorderBox from "../UI/BorderBox";
 import { CalendarDialogs } from "./components/CalendarDialogs";
 import CourseTimelineComponent from "./CourseTimelineComponent";
+import RenameBlockedSlotDialog from "../Dialogs/RenameBlockedSlotDialog";
 import "../../css/Calendar.css";
 import "../../css/CustomCalendar.css";
 import {
   createCalendarEvents,
   getDaysOfWeek,
+  getTimeBlockEvents,
 } from "../../scripts/createCalendarEvents";
 import { getCourseData } from "../../scripts/courseData";
 import { CourseDetailsContext } from "../../contexts/CourseDetailsContext";
-import eventBus from "../../../SiteWide/Buses/eventBus";
 import { CourseColorsContext } from "../../contexts/CourseColorsContext";
 import {
   sortByBracketContent,
@@ -23,6 +24,7 @@ import {
   handleCourseComponentClick,
   handleTimeBlockRemoval,
   handleCalendarSelection,
+  handleBlockedSlotRename,
 } from "./utils/eventHandlerUtils.js";
 import { useTouchEvents } from "./hooks/useTouchEvents.js";
 import { useEventBusHandlers } from "./hooks/useEventBusHandlers.js";
@@ -63,6 +65,10 @@ export default function CalendarComponent({
   const [timeslotsOverriddenDialogOpen, setTimeslotsOverriddenDialogOpen] =
     useState(false);
   const [showWeekends, setShowWeekends] = useState(false);
+  const [renameDialogOpen, setRenameDialogOpen] = useState(false);
+  const [blockToRename, setBlockToRename] = useState(null);
+  const [renameAnchorEl, setRenameAnchorEl] = useState(null);
+  const [renameAnchorPosition, setRenameAnchorPosition] = useState(null);
   const [coursesForTimeline, setCoursesForTimeline] = useState([]);
 
   // Touch event handling
@@ -224,7 +230,113 @@ export default function CalendarComponent({
     });
   };
 
+  const [shiftHeld, setShiftHeld] = useState(false);
+  const [hoveredElement, setHoveredElement] = useState(null);
+
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (event.key === "Shift") {
+        setShiftHeld(true);
+      }
+    };
+
+    const handleKeyUp = (event) => {
+      if (event.key === "Shift") {
+        setShiftHeld(false);
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("keyup", handleKeyUp);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("keyup", handleKeyUp);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (hoveredElement) {
+      const event = hoveredElement._fcEvent;
+      if (event && event.extendedProps && event.extendedProps.isBlocked) {
+        if (shiftHeld) {
+          hoveredElement.style.setProperty("cursor", "text", "important");
+          hoveredElement.classList.add("rename-mode");
+
+          const eventMain = hoveredElement.querySelector(".fc-event-main");
+          if (eventMain) {
+            eventMain.style.setProperty("cursor", "text", "important");
+          }
+        } else {
+          hoveredElement.style.removeProperty("cursor");
+          hoveredElement.classList.remove("rename-mode");
+
+          const eventMain = hoveredElement.querySelector(".fc-event-main");
+          if (eventMain) {
+            eventMain.style.removeProperty("cursor");
+          }
+        }
+      }
+    }
+  }, [shiftHeld, hoveredElement]);
+
+  const handleEventMouseEnter = (mouseEnterInfo) => {
+    setHoveredElement(mouseEnterInfo.el);
+    mouseEnterInfo.el._fcEvent = mouseEnterInfo.event;
+
+    if (mouseEnterInfo.event.extendedProps.isBlocked) {
+      if (shiftHeld) {
+        mouseEnterInfo.el.style.setProperty("cursor", "text", "important");
+        mouseEnterInfo.el.classList.add("rename-mode");
+
+        const eventMain = mouseEnterInfo.el.querySelector(".fc-event-main");
+        if (eventMain) {
+          eventMain.style.setProperty("cursor", "text", "important");
+        }
+      }
+    }
+  };
+
+  const handleEventMouseLeave = (mouseLeaveInfo) => {
+    setHoveredElement(null);
+    delete mouseLeaveInfo.el._fcEvent;
+
+    mouseLeaveInfo.el.style.removeProperty("cursor");
+    mouseLeaveInfo.el.classList.remove("rename-mode");
+
+    const eventMain = mouseLeaveInfo.el.querySelector(".fc-event-main");
+    if (eventMain) {
+      eventMain.style.removeProperty("cursor");
+    }
+  };
+
   const handleEventClick = (clickInfo) => {
+    // Handle shift+click for quick rename
+    if (clickInfo.jsEvent && clickInfo.jsEvent.shiftKey) {
+      if (clickInfo.event.extendedProps.isBlocked) {
+        const blockId = clickInfo.event.id.replace("block-", "");
+        const blockEvent = getTimeBlockEvents().find(
+          (block) => block.id === blockId,
+        );
+        if (blockEvent) {
+          setBlockToRename({
+            id: blockId,
+            title: blockEvent.title,
+            isMultipleBlocks: false,
+          });
+          const anchorElement =
+            clickInfo.el ||
+            clickInfo.jsEvent?.target ||
+            document.querySelector(".fc-view-harness");
+          setRenameAnchorEl(anchorElement);
+          setRenameAnchorPosition(null);
+          setRenameDialogOpen(true);
+        }
+      }
+      return;
+    }
+
+    // Normal click handling
     if (!clickInfo.event.extendedProps.isBlocked) {
       handleCourseComponentClick(
         clickInfo,
@@ -246,6 +358,38 @@ export default function CalendarComponent({
     setCurrentTimetableIndex((currentTimetableIndex + 1) % timetables.length);
   };
 
+  const handleRenameDialogClose = () => {
+    setRenameDialogOpen(false);
+    setBlockToRename(null);
+    setRenameAnchorEl(null);
+    setRenameAnchorPosition(null);
+  };
+
+  const handleRenameSave = (newTitle) => {
+    if (blockToRename) {
+      if (blockToRename.ids && blockToRename.ids.length > 0) {
+        blockToRename.ids.forEach((blockId) => {
+          handleBlockedSlotRename(
+            blockId,
+            newTitle,
+            setCurrentTimetableIndex,
+            setTimetables,
+            sortOption,
+          );
+        });
+      } else if (blockToRename.id) {
+        handleBlockedSlotRename(
+          blockToRename.id,
+          newTitle,
+          setCurrentTimetableIndex,
+          setTimetables,
+          sortOption,
+        );
+      }
+      setBlockToRename(null);
+    }
+  };
+
   const handlePrevious = () => {
     setCurrentTimetableIndex(
       (currentTimetableIndex - 1 + timetables.length) % timetables.length,
@@ -262,6 +406,10 @@ export default function CalendarComponent({
       setCurrentTimetableIndex,
       setTimetables,
       sortOption,
+      setRenameDialogOpen,
+      setBlockToRename,
+      setRenameAnchorEl,
+      setRenameAnchorPosition,
     );
   };
 
@@ -333,6 +481,8 @@ export default function CalendarComponent({
             handleEventClick,
             handleSelect,
             handleSelectAllow,
+            handleEventMouseEnter,
+            handleEventMouseLeave,
           })}
         />
 
@@ -343,6 +493,17 @@ export default function CalendarComponent({
           setNoTimetablesDialogOpen={setNoTimetablesDialogOpen}
           timeslotsOverriddenDialogOpen={timeslotsOverriddenDialogOpen}
           setTimeslotsOverriddenDialogOpen={setTimeslotsOverriddenDialogOpen}
+        />
+
+        <RenameBlockedSlotDialog
+          open={renameDialogOpen}
+          onClose={handleRenameDialogClose}
+          onSave={handleRenameSave}
+          currentTitle={blockToRename?.title || ""}
+          isCreating={!blockToRename?.title}
+          isMultipleBlocks={blockToRename?.isMultipleBlocks || false}
+          anchorEl={renameAnchorEl}
+          forceAnchorPosition={renameAnchorPosition}
         />
       </BorderBox>
     </div>

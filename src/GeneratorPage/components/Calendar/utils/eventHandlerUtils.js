@@ -7,6 +7,7 @@ import {
   getTimeBlockEvents,
   addTimeBlockEvent,
   removeTimeBlockEvent,
+  updateTimeBlockEventTitle,
 } from "../../../scripts/createCalendarEvents";
 import {
   setBlockedTimeSlots,
@@ -90,12 +91,30 @@ export const handleTimeBlockRemoval = (
   setTimetables(getValidTimetables());
 };
 
+export const handleBlockedSlotRename = (
+  blockId,
+  newTitle,
+  setCurrentTimetableIndex,
+  setTimetables,
+  sortOption,
+) => {
+  updateTimeBlockEventTitle(blockId, newTitle);
+
+  setCurrentTimetableIndex(0);
+  generateTimetables(sortOption);
+  setTimetables(getValidTimetables());
+};
+
 // Extract the complex logic for handling calendar selection
 export const handleCalendarSelection = (
   selectInfo,
   setCurrentTimetableIndex,
   setTimetables,
   sortOption,
+  setRenameDialogOpen,
+  setBlockToRename,
+  setRenameAnchorEl,
+  setRenameAnchorPosition,
 ) => {
   const startDateTime = new Date(selectInfo.startStr);
   const endDateTime = new Date(selectInfo.endStr);
@@ -134,6 +153,9 @@ export const handleCalendarSelection = (
     for (let i = slotStart; i <= slotEnd - 1; i++) {
       slotsToBlock.push(i);
     }
+
+    // Track all newly created block IDs
+    const newBlockIds = [];
 
     // Handle each day separately
     days.forEach((day) => {
@@ -176,6 +198,7 @@ export const handleCalendarSelection = (
       const blockId = Date.now().toString() + "-" + day;
       const block = {
         id: blockId,
+        title: "", // Empty title initially, will be set by rename dialog
         daysOfWeek: day,
         startTime: `${Math.floor(combinedSlotStart / 2) + 8}:${
           combinedSlotStart % 2 === 0 ? "00" : "30"
@@ -187,7 +210,33 @@ export const handleCalendarSelection = (
         endRecur: "9999-12-31",
       };
       addTimeBlockEvent(block);
+      newBlockIds.push(blockId);
     });
+
+    // Show rename dialog once for all newly created blocks
+    if (newBlockIds.length > 0) {
+      setBlockToRename({
+        ids: newBlockIds,
+        title: "",
+        isMultipleBlocks: newBlockIds.length > 1,
+      });
+
+      let anchorPosition = { top: 200, left: window.innerWidth / 2 };
+
+      if (selectInfo.jsEvent) {
+        const clickX = selectInfo.jsEvent.clientX;
+        const clickY = selectInfo.jsEvent.clientY;
+
+        anchorPosition = {
+          top: clickY + 20,
+          left: Math.max(20, Math.min(clickX, window.innerWidth - 320)),
+        };
+      }
+
+      setRenameAnchorEl(document.querySelector(".fc-view-harness"));
+      setRenameAnchorPosition(anchorPosition);
+      setRenameDialogOpen(true);
+    }
 
     setCurrentTimetableIndex(0);
     generateTimetables(sortOption);

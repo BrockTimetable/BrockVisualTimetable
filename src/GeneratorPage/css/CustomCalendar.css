@@ -59,6 +59,12 @@ body.dark-mode .fc-event {
   cursor: pointer;
 }
 
+.fc-timegrid-event.rename-mode,
+.fc-timegrid-event.rename-mode .fc-event-main,
+.fc-timegrid-event.rename-mode * {
+  cursor: text !important;
+}
+
 .fc-timegrid-event .fc-event-main {
   padding: 0;
 }
