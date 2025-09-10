@@ -4,8 +4,19 @@ import "../../../css/DepartmentSearch.css";
 import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
 import Autocomplete, { createFilterOptions } from "@mui/material/Autocomplete";
-import FormHelperText from "@mui/material/FormHelperText";
-import ListSubheader from "@mui/material/ListSubheader";
+import { styled } from "@mui/material";
+
+const GroupHeader = styled("div")(({ theme }) => ({
+  position: "sticky",
+  top: "-8px",
+  padding: "4px 10px",
+  color: theme.palette.primary.contrastText,
+  backgroundColor: theme.palette.primary.main,
+}));
+
+const GroupItems = styled("ul")({
+  padding: 0,
+});
 
 export default function CourseSearchComponent({
   onCourseCodeChange,
@@ -29,44 +40,32 @@ export default function CourseSearchComponent({
   return (
     <Box>
       <Autocomplete
-        disablePortal
-        freeSolo
-        fullWidth
+        options={courseOptions}
+        groupBy={(option) => option.slice(0, 4).toUpperCase()}
+        getOptionLabel={(option) => option}
+        sx={{ width: 300 }}
         onInputChange={(event, newInputValue) => {
           setInputValue(newInputValue);
           courseCodeChangeHandler(event, newInputValue);
         }}
         inputValue={inputValue}
-        options={courseOptions}
         filterOptions={filterOptions}
-        groupBy={(option) => option.slice(0, 4).toUpperCase()}
+        renderInput={(params) => (
+          <TextField
+            {...params}
+            label="Add a course"
+            onKeyDown={(event) => {
+              if (event.key === "Enter") {
+                onEnterPress(event);
+              }
+            }}
+          />
+        )}
         renderGroup={(params) => (
           <li key={params.key}>
-            <ListSubheader
-              sx={{
-                backgroundColor: "primary.main",
-                color: "white",
-                fontSize: "1rem",
-                lineHeight: "2",
-              }}
-            >
-              {params.group}
-            </ListSubheader>
-            {params.children}
+            <GroupHeader>{params.group}</GroupHeader>
+            <GroupItems>{params.children}</GroupItems>
           </li>
-        )}
-        renderInput={(params) => (
-          <>
-            <TextField
-              {...params}
-              label="Add a course"
-              onKeyDown={(event) => {
-                if (event.key === "Enter") {
-                  onEnterPress(event);
-                }
-              }}
-            />
-          </>
         )}
       />
     </Box>
