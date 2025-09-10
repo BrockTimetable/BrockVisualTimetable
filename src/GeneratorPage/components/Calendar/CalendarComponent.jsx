@@ -230,6 +230,86 @@ export default function CalendarComponent({
     });
   };
 
+  const [shiftHeld, setShiftHeld] = useState(false);
+  const [hoveredElement, setHoveredElement] = useState(null);
+
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (event.key === "Shift") {
+        setShiftHeld(true);
+      }
+    };
+
+    const handleKeyUp = (event) => {
+      if (event.key === "Shift") {
+        setShiftHeld(false);
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("keyup", handleKeyUp);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("keyup", handleKeyUp);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (hoveredElement) {
+      const event = hoveredElement._fcEvent;
+      if (event && event.extendedProps && event.extendedProps.isBlocked) {
+        if (shiftHeld) {
+          hoveredElement.style.setProperty("cursor", "text", "important");
+          hoveredElement.classList.add("rename-mode");
+
+          const eventMain = hoveredElement.querySelector(".fc-event-main");
+          if (eventMain) {
+            eventMain.style.setProperty("cursor", "text", "important");
+          }
+        } else {
+          hoveredElement.style.removeProperty("cursor");
+          hoveredElement.classList.remove("rename-mode");
+
+          const eventMain = hoveredElement.querySelector(".fc-event-main");
+          if (eventMain) {
+            eventMain.style.removeProperty("cursor");
+          }
+        }
+      }
+    }
+  }, [shiftHeld, hoveredElement]);
+
+  const handleEventMouseEnter = (mouseEnterInfo) => {
+    setHoveredElement(mouseEnterInfo.el);
+    mouseEnterInfo.el._fcEvent = mouseEnterInfo.event;
+
+    if (mouseEnterInfo.event.extendedProps.isBlocked) {
+      if (shiftHeld) {
+        mouseEnterInfo.el.style.setProperty("cursor", "text", "important");
+        mouseEnterInfo.el.classList.add("rename-mode");
+
+        const eventMain = mouseEnterInfo.el.querySelector(".fc-event-main");
+        if (eventMain) {
+          eventMain.style.setProperty("cursor", "text", "important");
+        }
+      }
+    }
+  };
+
+  const handleEventMouseLeave = (mouseLeaveInfo) => {
+    setHoveredElement(null);
+    delete mouseLeaveInfo.el._fcEvent;
+
+    mouseLeaveInfo.el.style.removeProperty("cursor");
+    mouseLeaveInfo.el.classList.remove("rename-mode");
+
+    const eventMain = mouseLeaveInfo.el.querySelector(".fc-event-main");
+    if (eventMain) {
+      eventMain.style.removeProperty("cursor");
+    }
+  };
+
   const handleEventClick = (clickInfo) => {
     // Handle shift+click for quick rename
     if (clickInfo.jsEvent && clickInfo.jsEvent.shiftKey) {
@@ -401,6 +481,8 @@ export default function CalendarComponent({
             handleEventClick,
             handleSelect,
             handleSelectAllow,
+            handleEventMouseEnter,
+            handleEventMouseLeave,
           })}
         />
 

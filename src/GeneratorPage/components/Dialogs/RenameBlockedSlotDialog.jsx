@@ -8,6 +8,8 @@ import {
   TextField,
   Box,
   Typography,
+  useTheme,
+  useMediaQuery,
 } from "@mui/material";
 
 export default function RenameBlockedSlotDialog({
@@ -19,13 +21,13 @@ export default function RenameBlockedSlotDialog({
   isMultipleBlocks = false,
   anchorEl,
   anchorPosition,
-  forceAnchorPosition, // New prop for forced positioning
+  forceAnchorPosition,
 }) {
   const [title, setTitle] = useState(currentTitle);
   const [error, setError] = useState("");
 
-  // Simple mobile detection
-  const isMobile = window.innerWidth <= 768;
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   useEffect(() => {
     setTitle(currentTitle);
@@ -35,7 +37,6 @@ export default function RenameBlockedSlotDialog({
   const handleSave = () => {
     const trimmedTitle = title.trim();
 
-    // Validation - only check length, allow empty titles
     if (trimmedTitle.length > 50) {
       setError("Title must be 50 characters or less");
       return;
@@ -58,25 +59,25 @@ export default function RenameBlockedSlotDialog({
   };
 
   const dialogContent = (
-    <Box sx={{ minWidth: 200 }}>
-      <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
+    <Box sx={{ minWidth: 180 }}>
+      <Typography
+        variant="h6"
+        sx={{ mb: 1, fontWeight: 600, fontSize: "1.1rem" }}
+      >
         {isCreating
           ? isMultipleBlocks
-            ? "Name Your Blocked Times"
-            : "Name Your Blocked Time"
+            ? "Name Blocked Times"
+            : "Name Blocked Time"
           : isMultipleBlocks
-            ? "Rename Blocked Times"
-            : "Rename Blocked Time"}
+            ? "Rename Times"
+            : "Rename Time"}
       </Typography>
 
-      <Typography variant="body2" sx={{ mb: 3, color: "text.secondary" }}>
-        {isCreating
-          ? isMultipleBlocks
-            ? "Give these blocked time slots a name to help you remember what they're for."
-            : "Give this blocked time slot a name to help you remember what it's for."
-          : isMultipleBlocks
-            ? "Update the name for these blocked time slots."
-            : "Update the name for this blocked time slot."}
+      <Typography
+        variant="body2"
+        sx={{ mb: 2, color: "text.secondary", fontSize: "0.875rem" }}
+      >
+        {isMultipleBlocks ? "Label these time slots" : "Label this time slot"}
       </Typography>
 
       <TextField
@@ -92,18 +93,18 @@ export default function RenameBlockedSlotDialog({
         }}
         onKeyPress={handleKeyPress}
         error={!!error}
-        helperText={error || "Optional - e.g., Work, Gym, Study, Meeting"}
+        helperText={error || "e.g., Work, Gym"}
         inputProps={{
           maxLength: 50,
         }}
-        sx={{ mb: 3 }}
+        sx={{ mb: 2 }}
       />
 
       <Box sx={{ display: "flex", gap: 1, justifyContent: "flex-end" }}>
         <Button
           onClick={handleClose}
           size="small"
-          sx={{ color: "text.secondary" }}
+          sx={{ color: "text.secondary", minWidth: 60 }}
         >
           Cancel
         </Button>
@@ -111,9 +112,9 @@ export default function RenameBlockedSlotDialog({
           onClick={handleSave}
           variant="contained"
           size="small"
-          sx={{ minWidth: 80 }}
+          sx={{ minWidth: 60 }}
         >
-          {isCreating ? "Create Block" : "Save"}
+          {isCreating ? "Create" : "Save"}
         </Button>
       </Box>
     </Box>
@@ -133,7 +134,7 @@ export default function RenameBlockedSlotDialog({
         },
       }}
     >
-      <DialogContent sx={{ p: 3 }}>{dialogContent}</DialogContent>
+      <DialogContent sx={{ p: 2 }}>{dialogContent}</DialogContent>
     </Dialog>
   ) : (
     <Popover
@@ -168,7 +169,7 @@ export default function RenameBlockedSlotDialog({
           borderRadius: 2,
           boxShadow: "0 8px 32px rgba(0,0,0,0.12)",
           border: "1px solid rgba(0,0,0,0.08)",
-          p: 3,
+          p: 2,
         },
       }}
     >

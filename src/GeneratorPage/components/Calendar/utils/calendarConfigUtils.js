@@ -9,6 +9,8 @@ export const getFullCalendarConfig = ({
   handleEventClick,
   handleSelect,
   handleSelectAllow,
+  handleEventMouseEnter,
+  handleEventMouseLeave,
 }) => ({
   ref: calendarRef,
   plugins: [timeGridPlugin, interactionPlugin],
@@ -26,6 +28,8 @@ export const getFullCalendarConfig = ({
   allDayText: "ONLINE",
   eventContent: renderEventContent,
   eventClick: handleEventClick,
+  eventMouseEnter: handleEventMouseEnter,
+  eventMouseLeave: handleEventMouseLeave,
   selectable: true,
   selectMinDistance: 25,
   select: handleSelect,
