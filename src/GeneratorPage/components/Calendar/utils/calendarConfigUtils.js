@@ -11,6 +11,7 @@ export const getFullCalendarConfig = ({
   handleSelectAllow,
   handleEventMouseEnter,
   handleEventMouseLeave,
+  isMobile = false,
 }) => ({
   ref: calendarRef,
   plugins: [timeGridPlugin, interactionPlugin],
@@ -26,7 +27,7 @@ export const getFullCalendarConfig = ({
   slotDuration: "00:30:00",
   allDaySlot: true,
   allDayText: "ONLINE",
-  eventContent: renderEventContent,
+  eventContent: (eventInfo) => renderEventContent(eventInfo, isMobile),
   eventClick: handleEventClick,
   eventMouseEnter: handleEventMouseEnter,
   eventMouseLeave: handleEventMouseLeave,

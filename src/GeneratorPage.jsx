@@ -8,7 +8,7 @@ import {
 import CssBaseline from "@mui/material/CssBaseline";
 import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
-import { useMediaQuery } from "@mui/material";
+import { useIsBelowMedium } from "./SiteWide/utils/screenSizeUtils";
 import { CourseDetailsProvider } from "./GeneratorPage/contexts/CourseDetailsContext";
 import {
   CourseColorsProvider,
@@ -41,7 +41,7 @@ function GeneratorPage() {
   const [isChangelogOpen, setIsChangelogOpen] = useState(true);
   const [sortOption, setSortOption] = useState("");
   const [addedCourses, setAddedCourses] = useState([]);
-  const isSmallScreen = useMediaQuery((theme) => theme.breakpoints.down("md"));
+  const isBelowMedium = useIsBelowMedium();
 
   // Clear all state when component unmounts
   useEffect(() => {
@@ -97,7 +97,7 @@ function GeneratorPage() {
                     addedCourses={addedCourses}
                     setAddedCourses={setAddedCourses}
                   />
-                  {!isSmallScreen && (
+                  {!isBelowMedium && (
                     <Box mt={2}>
                       <InputFormBottomComponent
                         addedCourses={addedCourses}
@@ -123,7 +123,7 @@ function GeneratorPage() {
                   />
                 </Box>
               </Grid>
-              {isSmallScreen && (
+              {isBelowMedium && (
                 <Grid item xs={12}>
                   <Box m={2} mt={{ xs: 0, sm: 2 }}>
                     <InputFormBottomComponent

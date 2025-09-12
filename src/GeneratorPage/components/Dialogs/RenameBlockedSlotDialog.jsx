@@ -8,9 +8,8 @@ import {
   TextField,
   Box,
   Typography,
-  useTheme,
-  useMediaQuery,
 } from "@mui/material";
+import { useIsMobile } from "../../../SiteWide/utils/screenSizeUtils";
 
 export default function RenameBlockedSlotDialog({
   open,
@@ -26,8 +25,7 @@ export default function RenameBlockedSlotDialog({
   const [title, setTitle] = useState(currentTitle);
   const [error, setError] = useState("");
 
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     setTitle(currentTitle);

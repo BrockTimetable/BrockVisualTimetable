@@ -3,7 +3,7 @@ import { NavbarComponent } from "./GuidePage/components";
 import CssBaseline from "@mui/material/CssBaseline";
 import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
-import { useMediaQuery } from "@mui/material";
+import { useIsBelowMedium } from "./SiteWide/utils/screenSizeUtils";
 import ReactGA from "react-ga4";
 import Typography from "@mui/material/Typography";
 import Link from "@mui/material/Link";
@@ -25,7 +25,7 @@ function GuidePage() {
     page: "Guide",
     title: "Brock Visual Guide",
   });
-  const isSmallScreen = useMediaQuery((theme) => theme.breakpoints.down("md"));
+  const isBelowMedium = useIsBelowMedium();
   const theme = useTheme();
   const [openCourseCode, setOpenCourseCode] = useState(false);
   const [openAndOr, setOpenAndOr] = useState(false);
