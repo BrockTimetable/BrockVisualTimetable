@@ -5,7 +5,7 @@ import { isEventPinned } from "../../../scripts/createCalendarEvents";
 import { getCourseData } from "../../../scripts/courseData";
 
 // Event rendering function
-export const renderEventContent = (eventInfo) => {
+export const renderEventContent = (eventInfo, isMobile = false) => {
   // Calculate the event duration in minutes
   const startTime = eventInfo.event.start;
   const endTime = eventInfo.event.end;
@@ -13,8 +13,6 @@ export const renderEventContent = (eventInfo) => {
 
   // Set the threshold for showing the time (90 minutes)
   const minDurationToShowTime = 90;
-
-  const isSmallDevice = window.innerWidth <= 599;
 
   if (eventInfo.event.extendedProps.isBlocked) {
     const blockTitle = eventInfo.event.title || "";
@@ -93,7 +91,7 @@ export const renderEventContent = (eventInfo) => {
           <b>{eventInfo.timeText}</b>
           <br />
           <span>{eventInfo.event.title}</span>
-          {(isSmallDevice || eventDuration >= minDurationToShowTime) && (
+          {(isMobile || eventDuration >= minDurationToShowTime) && (
             <>
               <br />
               <span

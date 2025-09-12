@@ -36,6 +36,7 @@ import {
 } from "./utils/calendarViewUtils.js";
 import { getFullCalendarConfig } from "./utils/calendarConfigUtils.js";
 import MultiLineSnackbar from "../../../SiteWide/components/MultiLineSnackbar";
+import { useIsMobile } from "../../../SiteWide/utils/screenSizeUtils";
 let previousDuration = null;
 let aprioriDurationTimetable = null;
 export default function CalendarComponent({
@@ -70,6 +71,9 @@ export default function CalendarComponent({
   const [renameAnchorEl, setRenameAnchorEl] = useState(null);
   const [renameAnchorPosition, setRenameAnchorPosition] = useState(null);
   const [coursesForTimeline, setCoursesForTimeline] = useState([]);
+
+  // Screen size detection
+  const isMobile = useIsMobile();
 
   // Touch event handling
   useTouchEvents();
@@ -483,6 +487,7 @@ export default function CalendarComponent({
             handleSelectAllow,
             handleEventMouseEnter,
             handleEventMouseLeave,
+            isMobile,
           })}
         />
 

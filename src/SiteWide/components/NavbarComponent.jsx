@@ -8,7 +8,7 @@ import Brightness7Icon from "@mui/icons-material/Brightness7";
 import { useTheme } from "@mui/material/styles";
 import ColorModeContext from "../contexts/ColorModeContext";
 import { Link } from "react-router-dom";
-import useMediaQuery from "@mui/material/useMediaQuery";
+import { useIsMobile } from "../utils/screenSizeUtils";
 import Drawer from "@mui/material/Drawer";
 import List from "@mui/material/List";
 import ListItemText from "@mui/material/ListItemText";
@@ -23,7 +23,7 @@ import GitHubIcon from "@mui/icons-material/GitHub";
 const NavbarComponent = () => {
   const theme = useTheme();
   const colorMode = useContext(ColorModeContext);
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const isMobile = useIsMobile();
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   const toggleDrawer = (open) => (event) => {
