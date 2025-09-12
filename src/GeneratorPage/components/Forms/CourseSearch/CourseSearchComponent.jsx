@@ -43,7 +43,7 @@ export default function CourseSearchComponent({
         options={courseOptions}
         groupBy={(option) => option.slice(0, 4).toUpperCase()}
         getOptionLabel={(option) => option}
-        sx={{ width: 300 }}
+        fullWidth
         onInputChange={(event, newInputValue) => {
           setInputValue(newInputValue);
           courseCodeChangeHandler(event, newInputValue);
