@@ -14,6 +14,8 @@ export const renderEventContent = (eventInfo) => {
   // Set the threshold for showing the time (90 minutes)
   const minDurationToShowTime = 90;
 
+  const isSmallDevice = window.innerWidth <= 599;
+
   if (eventInfo.event.extendedProps.isBlocked) {
     const blockTitle = eventInfo.event.title || "";
     const truncatedTitle =
@@ -91,8 +93,27 @@ export const renderEventContent = (eventInfo) => {
           <b>{eventInfo.timeText}</b>
           <br />
           <span>{eventInfo.event.title}</span>
-          <br />
-          <span>{eventInfo.event.extendedProps.description}</span>
+          {(isSmallDevice || eventDuration >= minDurationToShowTime) && (
+            <>
+              <br />
+              <span
+                style={{
+                  display: "block",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  whiteSpace: "nowrap",
+                  maxWidth: "100%",
+                  lineHeight: "1.2",
+                }}
+                title={
+                  eventInfo.event.extendedProps.description ||
+                  "Instructor information not available"
+                }
+              >
+                {eventInfo.event.extendedProps.description || "No instructor"}
+              </span>
+            </>
+          )}
         </div>
       </div>
     );
