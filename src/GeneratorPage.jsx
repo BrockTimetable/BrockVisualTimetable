@@ -38,10 +38,18 @@ function GeneratorPage() {
   const [timetables, setTimetables] = useState([]);
   const [selectedDuration, setSelectedDuration] = useState("");
   const [durations, setDurations] = useState([]);
-  const [isChangelogOpen, setIsChangelogOpen] = useState(true);
+  const [isChangelogOpen, setIsChangelogOpen] = useState(false);
   const [sortOption, setSortOption] = useState("");
   const [addedCourses, setAddedCourses] = useState([]);
   const isBelowMedium = useIsBelowMedium();
+
+  // Check if user has seen the changelog on mount
+  useEffect(() => {
+    const hasSeenChangelog = localStorage.getItem("hasSeenChangelog");
+    if (!hasSeenChangelog) {
+      setIsChangelogOpen(true);
+    }
+  }, []);
 
   // Clear all state when component unmounts
   useEffect(() => {
@@ -62,6 +70,7 @@ function GeneratorPage() {
 
   const handleCloseChangelog = () => {
     setIsChangelogOpen(false);
+    localStorage.setItem("hasSeenChangelog", "true");
   };
 
   const removeCourse = (course) => {
