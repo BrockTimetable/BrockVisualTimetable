@@ -24,13 +24,9 @@ export default function CourseSearchComponent({
   onEnterPress,
   timetableType,
   term,
-  inputValue,
-  setInputValue,
+  value,
+  setValue,
 }) {
-  const courseCodeChangeHandler = (e, newValue) => {
-    onCourseCodeChange(e, newValue);
-  };
-
   const filterOptions = createFilterOptions({
     ignoreCase: true,
     matchFrom: "start",
@@ -44,11 +40,15 @@ export default function CourseSearchComponent({
         groupBy={(option) => option.slice(0, 4).toUpperCase()}
         getOptionLabel={(option) => option}
         fullWidth
-        onInputChange={(event, newInputValue) => {
-          setInputValue(newInputValue);
-          courseCodeChangeHandler(event, newInputValue);
+        value={value}
+        onChange={(event, newValue) => {
+          setValue(newValue || "");
+          onCourseCodeChange(event, newValue || "");
         }}
-        inputValue={inputValue}
+        onInputChange={(event, newInputValue) => {
+          setValue(newInputValue || "");
+        }}
+        inputValue={value}
         filterOptions={filterOptions}
         renderInput={(params) => (
           <TextField

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
 import { useSnackbar } from "notistack";
@@ -27,12 +27,11 @@ export default function InputFormTop({
 }) {
   const { enqueueSnackbar } = useSnackbar();
   const [term, setTerm] = useState("FW");
-  const [courseCode, setCourseCode] = useState("");
-  const [courseInputValue, setCourseInputValue] = useState("");
+  const [courseValue, setCourseValue] = useState("");
   const [timetableType, setTimetableType] = useState("UG");
   const [courseOptions, setCourseOptions] = useState([]);
   const [sortChoice, setSortChoice] = useState("default");
-  let requestBlock = false;
+  const requestBlock = useRef(false);
 
   useEffect(() => {
     const fetchCourseOptions = async () => {
@@ -55,15 +54,14 @@ export default function InputFormTop({
   const handleTableChange = (selectedTable) => setTimetableType(selectedTable);
   const handleTermChange = (selectedTerm) => setTerm(selectedTerm);
   const handleCourseCodeChange = (e, value) => {
-    setCourseCode(value.toUpperCase());
-    setCourseInputValue(value);
+    setCourseValue(value || "");
   };
 
   const addCourse = async () => {
-    if (!validateInputs()) return;
+    const upperCode = (courseValue || "").trim().toUpperCase();
+    if (!validateInputs(upperCode)) return;
 
-    const originalCourseCode = courseCode;
-    const { cleanCourseCode, duration } = parseCourseCode(originalCourseCode);
+    const { cleanCourseCode, duration } = parseCourseCode(upperCode);
 
     if (isCourseAlreadyAdded(cleanCourseCode)) {
       enqueueSnackbar(<MultiLineSnackbar message="Course already added" />, {
@@ -72,7 +70,7 @@ export default function InputFormTop({
       return;
     }
 
-    if (requestBlock) {
+    if (requestBlock.current) {
       enqueueSnackbar(
         <MultiLineSnackbar message="Fetching course data... Please Wait!" />,
         {
@@ -82,29 +80,23 @@ export default function InputFormTop({
       return;
     }
 
-    requestBlock = true;
+    requestBlock.current = true;
     try {
       const courseData = await getCourse(cleanCourseCode, timetableType, term);
-      handleCourseData(
-        courseData,
-        cleanCourseCode,
-        duration,
-        originalCourseCode,
-      );
-      // Clear the input and remount the autocomplete to ensure it resets
-      setCourseInputValue("");
-      setCourseCode("");
+      handleCourseData(courseData, cleanCourseCode, duration, upperCode);
+      // Clear input after a successful add
+      setCourseValue("");
     } catch (error) {
       enqueueSnackbar(
         <MultiLineSnackbar message="Error fetching course data." />,
         { variant: "error" },
       );
     } finally {
-      requestBlock = false;
+      requestBlock.current = false;
     }
   };
 
-  const validateInputs = () => {
+  const validateInputs = (code) => {
     if (!timetableType || timetableType === "NOVALUE") {
       enqueueSnackbar(
         <MultiLineSnackbar message="Please select a timetable." />,
@@ -120,7 +112,7 @@ export default function InputFormTop({
       return false;
     }
 
-    if (!isValidCourseCode(courseCode)) {
+    if (!isValidCourseCode(code)) {
       enqueueSnackbar(
         <MultiLineSnackbar message='Invalid course code! Example: "COSC 1P02 D2"' />,
         {
@@ -219,12 +211,11 @@ export default function InputFormTop({
             term={term}
             timetableType={timetableType}
             courseOptions={courseOptions}
-            courseInputValue={courseInputValue}
+            courseValue={courseValue}
             handleTableChange={handleTableChange}
             handleTermChange={handleTermChange}
             handleCourseCodeChange={handleCourseCodeChange}
             addCourse={addCourse}
-            setCourseInputValue={setCourseInputValue}
           />
         </Grid>
         <Grid item xs={12}>
