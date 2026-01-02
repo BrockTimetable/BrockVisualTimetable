@@ -62,7 +62,8 @@ export default function InputFormTop({
   const addCourse = async () => {
     if (!validateInputs()) return;
 
-    const { cleanCourseCode, duration } = parseCourseCode(courseCode);
+    const originalCourseCode = courseCode;
+    const { cleanCourseCode, duration } = parseCourseCode(originalCourseCode);
 
     if (isCourseAlreadyAdded(cleanCourseCode)) {
       enqueueSnackbar(<MultiLineSnackbar message="Course already added" />, {
@@ -84,8 +85,15 @@ export default function InputFormTop({
     requestBlock = true;
     try {
       const courseData = await getCourse(cleanCourseCode, timetableType, term);
-      handleCourseData(courseData, cleanCourseCode, duration);
-      setCourseInputValue(""); // Clear the input value
+      handleCourseData(
+        courseData,
+        cleanCourseCode,
+        duration,
+        originalCourseCode,
+      );
+      // Clear the input and remount the autocomplete to ensure it resets
+      setCourseInputValue("");
+      setCourseCode("");
     } catch (error) {
       enqueueSnackbar(
         <MultiLineSnackbar message="Error fetching course data." />,
@@ -145,9 +153,14 @@ export default function InputFormTop({
     );
   };
 
-  const handleCourseData = (courseData, cleanCourseCode, duration) => {
+  const handleCourseData = (
+    courseData,
+    cleanCourseCode,
+    duration,
+    courseCodeLabel,
+  ) => {
     storeCourseData(courseData);
-    setAddedCourses([...addedCourses, courseCode]);
+    setAddedCourses([...addedCourses, courseCodeLabel]);
     addPinnedComponent(`${cleanCourseCode} DURATION ${duration}`);
     generateTimetables(sortChoice);
     setTimetables(getValidTimetables());
