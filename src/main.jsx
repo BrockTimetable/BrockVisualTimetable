@@ -102,9 +102,21 @@ const App = () => {
       "--theme-outline-color",
       theme.palette.outline,
     );
+    // Update background colors when theme changes
+    document.documentElement.style.backgroundColor =
+      theme.palette.background.default;
+    document.body.style.backgroundColor = theme.palette.background.default;
+    // Update theme classes
     document.body.classList.toggle("light-mode", mode === "light");
     document.body.classList.toggle("dark-mode", mode === "dark");
-  }, [theme.palette.divider, theme.palette.outline, mode]);
+    document.documentElement.classList.toggle("light-mode", mode === "light");
+    document.documentElement.classList.toggle("dark-mode", mode === "dark");
+  }, [
+    theme.palette.divider,
+    theme.palette.outline,
+    theme.palette.background.default,
+    mode,
+  ]);
 
   return (
     <Router>
