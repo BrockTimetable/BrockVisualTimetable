@@ -15,7 +15,8 @@ vi.mock("../../timeSlots", () => ({
 }));
 
 vi.mock("../../pinnedComponents", () => ({
-  getPinnedComponents: () => ["COSC1P02 DURATION 2"],
+  getPinnedDuration: (courseCode) => (courseCode === "COSC1P02" ? "2" : null),
+  getPinnedComponentIds: () => [],
 }));
 
 describe("Basic COSC-1P02 Timetable Generation Test", () => {

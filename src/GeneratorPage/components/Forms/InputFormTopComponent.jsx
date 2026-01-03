@@ -1,18 +1,16 @@
-import React, { useState, useEffect } from "react";
-import Box from "@mui/material/Box";
-import Grid from "@mui/material/Grid";
-import { useSnackbar } from "notistack";
+import { useState, useEffect } from "react";
 import ReactGA from "react-ga4";
+import { toast } from "sonner";
 
 import MultiLineSnackbar from "../../../SiteWide/components/MultiLineSnackbar";
 
-import { storeCourseData, removeCourseData } from "../../scripts/courseData";
+import { storeCourseData } from "../../scripts/courseData";
 import { getCourse, getNameList } from "../../scripts/fetchData";
 import {
   generateTimetables,
   getValidTimetables,
 } from "../../scripts/timetableGeneration/timetableGeneration";
-import { addPinnedComponent } from "../../scripts/pinnedComponents";
+import { pinCourseDuration } from "../../scripts/pinnedComponents";
 
 import CourseOptions from "./Settings/CourseOptions";
 import SortOptions from "./Settings/SortOptions";
@@ -25,7 +23,6 @@ export default function InputFormTop({
   addedCourses,
   setAddedCourses,
 }) {
-  const { enqueueSnackbar } = useSnackbar();
   const [term, setTerm] = useState("FW");
   const [courseCode, setCourseCode] = useState("");
   const [courseInputValue, setCourseInputValue] = useState("");
@@ -42,15 +39,14 @@ export default function InputFormTop({
         setCourseOptions(courses);
       } catch (error) {
         console.error("Error fetching course list:", error);
-        enqueueSnackbar(
+        toast.error(
           <MultiLineSnackbar message="Error fetching course list." />,
-          { variant: "error" },
         );
       }
     };
 
     fetchCourseOptions();
-  }, [term, timetableType, enqueueSnackbar]);
+  }, [term, timetableType]);
 
   const handleTableChange = (selectedTable) => setTimetableType(selectedTable);
   const handleTermChange = (selectedTerm) => setTerm(selectedTerm);
@@ -66,18 +62,13 @@ export default function InputFormTop({
     const { cleanCourseCode, duration } = parseCourseCode(originalCourseCode);
 
     if (isCourseAlreadyAdded(cleanCourseCode)) {
-      enqueueSnackbar(<MultiLineSnackbar message="Course already added" />, {
-        variant: "info",
-      });
+      toast.info(<MultiLineSnackbar message="Course already added" />);
       return;
     }
 
     if (requestBlock) {
-      enqueueSnackbar(
+      toast.warning(
         <MultiLineSnackbar message="Fetching course data... Please Wait!" />,
-        {
-          variant: "warning",
-        },
       );
       return;
     }
@@ -95,10 +86,7 @@ export default function InputFormTop({
       setCourseInputValue("");
       setCourseCode("");
     } catch (error) {
-      enqueueSnackbar(
-        <MultiLineSnackbar message="Error fetching course data." />,
-        { variant: "error" },
-      );
+      toast.error(<MultiLineSnackbar message="Error fetching course data." />);
     } finally {
       requestBlock = false;
     }
@@ -106,26 +94,18 @@ export default function InputFormTop({
 
   const validateInputs = () => {
     if (!timetableType || timetableType === "NOVALUE") {
-      enqueueSnackbar(
-        <MultiLineSnackbar message="Please select a timetable." />,
-        { variant: "warning" },
-      );
+      toast.warning(<MultiLineSnackbar message="Please select a timetable." />);
       return false;
     }
 
     if (!term || term === "NOVALUE") {
-      enqueueSnackbar(<MultiLineSnackbar message="Please select a term." />, {
-        variant: "warning",
-      });
+      toast.warning(<MultiLineSnackbar message="Please select a term." />);
       return false;
     }
 
     if (!isValidCourseCode(courseCode)) {
-      enqueueSnackbar(
+      toast.warning(
         <MultiLineSnackbar message='Invalid course code! Example: "COSC 1P02 D2"' />,
-        {
-          variant: "warning",
-        },
       );
       return false;
     }
@@ -161,7 +141,7 @@ export default function InputFormTop({
   ) => {
     storeCourseData(courseData);
     setAddedCourses([...addedCourses, courseCodeLabel]);
-    addPinnedComponent(`${cleanCourseCode} DURATION ${duration}`);
+    pinCourseDuration(cleanCourseCode, duration);
     generateTimetables(sortChoice);
     setTimetables(getValidTimetables());
 
@@ -204,36 +184,30 @@ export default function InputFormTop({
     setSelectedDuration(durationLabel);
   };
 
-  const handleSortChange = (e) => {
-    setSortChoice(e.target.value);
-    setSortOption(e.target.value);
-    generateTimetables(e.target.value);
+  const handleSortChange = (value) => {
+    setSortChoice(value);
+    setSortOption(value);
+    generateTimetables(value);
     setTimetables(getValidTimetables());
   };
 
   return (
-    <Box>
-      <Grid container spacing={{ xs: 0, sm: 2 }}>
-        <Grid item xs={12}>
-          <CourseOptions
-            term={term}
-            timetableType={timetableType}
-            courseOptions={courseOptions}
-            courseInputValue={courseInputValue}
-            handleTableChange={handleTableChange}
-            handleTermChange={handleTermChange}
-            handleCourseCodeChange={handleCourseCodeChange}
-            addCourse={addCourse}
-            setCourseInputValue={setCourseInputValue}
-          />
-        </Grid>
-        <Grid item xs={12}>
-          <SortOptions
-            sortChoice={sortChoice}
-            handleSortChange={handleSortChange}
-          />
-        </Grid>
-      </Grid>
-    </Box>
+    <div className="space-y-4">
+      <CourseOptions
+        term={term}
+        timetableType={timetableType}
+        courseOptions={courseOptions}
+        courseInputValue={courseInputValue}
+        handleTableChange={handleTableChange}
+        handleTermChange={handleTermChange}
+        handleCourseCodeChange={handleCourseCodeChange}
+        addCourse={addCourse}
+        setCourseInputValue={setCourseInputValue}
+      />
+      <SortOptions
+        sortChoice={sortChoice}
+        handleSortChange={handleSortChange}
+      />
+    </div>
   );
 }

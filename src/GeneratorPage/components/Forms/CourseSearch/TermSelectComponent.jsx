@@ -1,45 +1,40 @@
-import React from "react";
+import { useState } from "react";
 import "../../../css/TermSelect.css";
 
-import Box from "@mui/material/Box";
-import InputLabel from "@mui/material/InputLabel";
-import MenuItem from "@mui/material/MenuItem";
-import FormControl from "@mui/material/FormControl";
-import Select from "@mui/material/Select";
+import { Label } from "../../../../components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../../../../components/ui/select";
 
 export default function TermSelectComponent({ onTermChange }) {
-  const [term, setTerm] = React.useState("FW");
+  const [term, setTerm] = useState("FW");
 
-  function handleTermChange(event) {
-    const selectedTerm = event.target.value;
+  function handleTermChange(selectedTerm) {
     setTerm(selectedTerm);
     onTermChange(selectedTerm);
   }
 
   return (
-    <>
-      <Box>
-        <FormControl id="termSelectComponent" fullWidth>
-          <InputLabel id="term-select-label">Term</InputLabel>
-          <Select
-            labelId="term-select-label"
-            value={term}
-            label="Term"
-            onChange={handleTermChange}
-          >
-            <MenuItem value={""}>Select Term</MenuItem>
-            <MenuItem disabled={false} value={"FW"}>
-              Fall/Winter
-            </MenuItem>
-            <MenuItem disabled={true} value={"SP"}>
-              Spring 2025
-            </MenuItem>
-            <MenuItem disabled={true} value={"SU"}>
-              Summer 2025
-            </MenuItem>
-          </Select>
-        </FormControl>
-      </Box>
-    </>
+    <div id="termSelectComponent" className="form-select">
+      <Label htmlFor="term-select">Term</Label>
+      <Select value={term} onValueChange={handleTermChange}>
+        <SelectTrigger id="term-select">
+          <SelectValue placeholder="Select Term" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="FW">Fall/Winter</SelectItem>
+          <SelectItem value="SP" disabled>
+            Spring 2025
+          </SelectItem>
+          <SelectItem value="SU" disabled>
+            Summer 2025
+          </SelectItem>
+        </SelectContent>
+      </Select>
+    </div>
   );
 }

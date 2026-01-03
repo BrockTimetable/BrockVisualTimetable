@@ -1,11 +1,20 @@
-import { useMediaQuery, useTheme } from "@mui/material";
+import { useEffect, useState } from "react";
 
-export const useIsMobile = () => {
-  const theme = useTheme();
-  return useMediaQuery(theme.breakpoints.down("sm"));
+const useMediaQuery = (query) => {
+  const [matches, setMatches] = useState(() =>
+    typeof window !== "undefined" ? window.matchMedia(query).matches : false,
+  );
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia(query);
+    const handleChange = (event) => setMatches(event.matches);
+    mediaQuery.addEventListener("change", handleChange);
+    return () => mediaQuery.removeEventListener("change", handleChange);
+  }, [query]);
+
+  return matches;
 };
 
-export const useIsBelowMedium = () => {
-  const theme = useTheme();
-  return useMediaQuery(theme.breakpoints.down("md"));
-};
+export const useIsMobile = () => useMediaQuery("(max-width: 600px)");
+
+export const useIsBelowMedium = () => useMediaQuery("(max-width: 900px)");

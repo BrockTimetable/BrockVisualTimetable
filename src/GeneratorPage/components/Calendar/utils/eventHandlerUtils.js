@@ -1,8 +1,4 @@
-import {
-  addPinnedComponent,
-  getPinnedComponents,
-  removePinnedComponent,
-} from "../../../scripts/pinnedComponents";
+import { toggleComponentPin } from "../../../scripts/pinnedComponents";
 import {
   getTimeBlockEvents,
   addTimeBlockEvent,
@@ -17,6 +13,7 @@ import {
   generateTimetables,
   getValidTimetables,
 } from "../../../scripts/timetableGeneration/timetableGeneration";
+import { getBaseComponentId } from "../../../scripts/timetableGeneration/utils/componentIDUtils";
 
 // Extract the complex logic for handling course component clicks
 export const handleCourseComponentClick = (
@@ -25,28 +22,54 @@ export const handleCourseComponentClick = (
   setTimetables,
   sortOption,
 ) => {
-  const split = clickInfo.event.title.split(" ");
-  const courseCode = split[0];
+  const { extendedProps, title } = clickInfo.event;
+  const isMain = extendedProps.isMain;
+  let courseCode = extendedProps.courseCode;
+  let componentType = extendedProps.componentType;
 
-  if (clickInfo.event.extendedProps.isMain) {
-    split[1] = "MAIN";
+  if (!courseCode || !componentType) {
+    const titleMatch = title.match(/^([A-Za-z]+\s?\d+[A-Za-z]?\d*)\s+(\S+)/);
+    if (!courseCode && titleMatch) {
+      courseCode = titleMatch[1];
+    }
+    if (!componentType && titleMatch) {
+      componentType = titleMatch[2];
+    }
   }
 
-  const pinnedComponents = getPinnedComponents();
+  if (!courseCode || !componentType) {
+    const fallbackParts = title.split(" ");
+    courseCode = courseCode || fallbackParts[0] || "UNKNOWN";
+    componentType = componentType || fallbackParts[1] || "UNKNOWN";
+  }
+
+  if (componentType) {
+    componentType = componentType.toUpperCase();
+  }
+
+  if (isMain) {
+    componentType = "MAIN";
+  } else if (componentType) {
+    if (componentType.startsWith("LAB")) {
+      componentType = "LAB";
+    } else if (componentType.startsWith("TUT")) {
+      componentType = "TUT";
+    } else if (componentType.startsWith("SEM")) {
+      componentType = "SEM";
+    }
+  }
 
   // Extract base component ID by removing suffix extensions
-  let baseComponentId = clickInfo.event.id;
-  const dashIndex = baseComponentId.indexOf("-");
-  if (dashIndex !== -1) {
-    baseComponentId = baseComponentId.substring(0, dashIndex);
-  }
+  const rawComponentId = extendedProps.componentId || clickInfo.event.id || "";
+  const baseComponentId = getBaseComponentId(rawComponentId);
 
-  const pinString = courseCode + " " + split[1] + " " + baseComponentId;
-
-  if (pinnedComponents.includes(pinString)) {
-    removePinnedComponent(pinString);
-  } else {
-    addPinnedComponent(pinString);
+  const isPinnedNow = toggleComponentPin(
+    courseCode,
+    componentType,
+    baseComponentId,
+  );
+  if (clickInfo.event && clickInfo.event.setExtendedProp) {
+    clickInfo.event.setExtendedProp("isPinned", isPinnedNow);
   }
 
   // Regenerate timetables

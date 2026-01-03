@@ -1,6 +1,4 @@
-import React from "react";
-import BlockIcon from "@mui/icons-material/Block";
-import PinIcon from "@mui/icons-material/PushPin";
+import { Ban, Pin } from "lucide-react";
 import { isEventPinned } from "../../../scripts/createCalendarEvents";
 import { getCourseData } from "../../../scripts/courseData";
 
@@ -46,7 +44,7 @@ export const renderEventContent = (eventInfo, isMobile = false) => {
           }}
         >
           <span style={{ fontSize: "2rem" }}>
-            <BlockIcon />
+            <Ban />
           </span>
         </div>
       </div>
@@ -84,7 +82,7 @@ export const renderEventContent = (eventInfo, isMobile = false) => {
               fontSize: "4rem",
             }}
           >
-            <PinIcon />
+            <Pin />
           </div>
         )}
         <div style={{ position: "relative", zIndex: 1 }}>

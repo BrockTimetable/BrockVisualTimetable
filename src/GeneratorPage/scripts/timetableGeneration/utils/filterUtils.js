@@ -4,7 +4,7 @@ import {
   isSlotAvailable,
   calculateBlockedPercentage,
 } from "./timeUtils";
-import { getPinnedComponents } from "../../pinnedComponents";
+import { getPinnedComponentIds } from "../../pinnedComponents";
 import { emitTimetableOverridden } from "./UIEventsUtils";
 
 export const filterComponentsAgainstTimeSlots = (components, timeSlots) => {
@@ -72,25 +72,16 @@ export const filterComponentsAgainstTimeSlots = (components, timeSlots) => {
 
 export const filterPinned = (components, courseCode, componentType) => {
   components.forEach((component) => (component.pinned = false));
-  const pinnedComponents = getPinnedComponents();
-
-  const coursePinnedComponents = pinnedComponents.filter((p) => {
-    const [course, type] = p.split(" ");
-    return course === courseCode && type === componentType;
-  });
-
-  if (!coursePinnedComponents.length) return components;
+  const pinnedIds = getPinnedComponentIds(courseCode, componentType);
+  if (!pinnedIds.length) return components;
 
   return components.filter((component) => {
-    return coursePinnedComponents.some((pinned) => {
-      const [, , id] = pinned.split(" ");
-      const baseComponentId = getBaseComponentId(component.id);
-      if (baseComponentId === id) {
-        component.pinned = true;
-        return true;
-      }
-      return false;
-    });
+    const baseComponentId = getBaseComponentId(component.id);
+    if (pinnedIds.includes(baseComponentId)) {
+      component.pinned = true;
+      return true;
+    }
+    return false;
   });
 };
 

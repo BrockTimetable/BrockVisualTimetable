@@ -1,13 +1,12 @@
-import React, { useEffect } from "react";
-import { SnackbarProvider, useSnackbar } from "notistack";
+import { useEffect } from "react";
+import { Toaster, toast } from "sonner";
 import eventBus from "../Buses/eventBus";
 
 const SnackbarListener = () => {
-  const { enqueueSnackbar } = useSnackbar();
-
   useEffect(() => {
     const handleSnackbarEvent = ({ message, variant }) => {
-      enqueueSnackbar(message, { variant });
+      const action = variant === "error" ? toast.error : toast.message;
+      action(message);
     };
 
     eventBus.on("snackbar", handleSnackbarEvent);
@@ -15,19 +14,17 @@ const SnackbarListener = () => {
     return () => {
       eventBus.off("snackbar", handleSnackbarEvent);
     };
-  }, [enqueueSnackbar]);
+  }, []);
 
   return null;
 };
 
 const CustomSnackbarProvider = ({ children }) => (
-  <SnackbarProvider
-    anchorOrigin={{ vertical: "top", horizontal: "center" }}
-    autoHideDuration={3000}
-  >
+  <>
     {children}
     <SnackbarListener />
-  </SnackbarProvider>
+    <Toaster position="top-center" duration={3000} richColors />
+  </>
 );
 
 export default CustomSnackbarProvider;

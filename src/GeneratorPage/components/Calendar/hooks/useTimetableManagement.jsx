@@ -2,13 +2,14 @@ import { useCallback, useRef } from "react";
 import { useSnackbar } from "notistack";
 import MultiLineSnackbar from "../../../../SiteWide/components/MultiLineSnackbar";
 import {
-  addPinnedComponent,
-  getPinnedComponents,
+  isComponentPinned,
+  pinComponent,
 } from "../../../scripts/pinnedComponents";
 import {
   generateTimetables,
   getValidTimetables,
 } from "../../../scripts/timetableGeneration/timetableGeneration";
+import { getBaseComponentId } from "../../../scripts/timetableGeneration/utils/componentIDUtils";
 
 let previousDuration = null;
 let aprioriDurationTimetable = null;
@@ -71,7 +72,6 @@ export const useTimetableManagement = ({
         previousDuration = duration;
       } else if (previousDuration !== duration) {
         if (aprioriDurationTimetable && aprioriDurationTimetable.courses) {
-          const pinnedComponents = getPinnedComponents();
           let didPinNewComponent = false;
 
           aprioriDurationTimetable.courses.forEach((course) => {
@@ -83,9 +83,9 @@ export const useTimetableManagement = ({
                   component.schedule &&
                   component.schedule.duration == previousDuration
                 ) {
-                  const pinString = `${courseCode} MAIN ${component.id}`;
-                  if (!pinnedComponents.includes(pinString)) {
-                    addPinnedComponent(pinString);
+                  const baseId = getBaseComponentId(component.id);
+                  if (!isComponentPinned(courseCode, "MAIN", baseId)) {
+                    pinComponent(courseCode, "MAIN", baseId);
                     didPinNewComponent = true;
                   }
                 }
@@ -107,9 +107,9 @@ export const useTimetableManagement = ({
                           ? "SEM"
                           : type.toUpperCase();
 
-                    const pinString = `${courseCode} ${formattedType} ${component.id}`;
-                    if (!pinnedComponents.includes(pinString)) {
-                      addPinnedComponent(pinString);
+                    const baseId = getBaseComponentId(component.id);
+                    if (!isComponentPinned(courseCode, formattedType, baseId)) {
+                      pinComponent(courseCode, formattedType, baseId);
                       didPinNewComponent = true;
                     }
                   }

@@ -1,9 +1,10 @@
-import React, { useContext, useState } from "react";
-import Box from "@mui/material/Box";
-import Typography from "@mui/material/Typography";
-import Tooltip from "@mui/material/Tooltip";
-import Fade from "@mui/material/Fade";
-import { alpha } from "@mui/material/styles";
+import { useContext, useState, Fragment } from "react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "../../../components/ui/tooltip";
 import { CourseDetailsContext } from "../../contexts/CourseDetailsContext";
 import { CourseColorsContext } from "../../contexts/CourseColorsContext";
 
@@ -26,13 +27,11 @@ const parseUnixTimestamp = (unixTimestamp) => {
 const parseStartDate = (dateStr) => {
   if (!dateStr) return null;
 
-  // Check if it's an ISO date string (YYYY-MM-DD)
   if (typeof dateStr === "string" && dateStr.match(/^\d{4}-\d{2}-\d{2}$/)) {
     const [year, month, day] = dateStr.split("-").map(Number);
-    return new Date(year, month - 1, day); // month is 0-indexed
+    return new Date(year, month - 1, day);
   }
 
-  // For other formats, use regular Date parsing
   return new Date(dateStr);
 };
 
@@ -40,14 +39,41 @@ const parseStartDate = (dateStr) => {
 const parseEndDate = (dateStr) => {
   if (!dateStr) return null;
 
-  // Check if it's an ISO date string (YYYY-MM-DD)
   if (typeof dateStr === "string" && dateStr.match(/^\d{4}-\d{2}-\d{2}$/)) {
     const [year, month, day] = dateStr.split("-").map(Number);
-    return new Date(year, month - 1, day - 1); // month is 0-indexed, subtract 1 day
+    return new Date(year, month - 1, day - 1);
   }
 
-  // For other formats, use regular Date parsing
   return new Date(dateStr);
+};
+
+const parseUnixTimestampSafe = (value) => {
+  if (!value) return null;
+  const numericValue =
+    typeof value === "number"
+      ? value
+      : typeof value === "string" && /^\d+$/.test(value)
+        ? parseInt(value, 10)
+        : null;
+
+  if (numericValue === null) return null;
+  const timestamp = numericValue > 1e12 ? numericValue : numericValue * 1000;
+  return new Date(timestamp);
+};
+
+const hexToRgba = (hex, alphaValue) => {
+  const sanitized = hex.replace("#", "");
+  const value =
+    sanitized.length === 3
+      ? sanitized
+          .split("")
+          .map((char) => char + char)
+          .join("")
+      : sanitized;
+  const r = parseInt(value.substring(0, 2), 16);
+  const g = parseInt(value.substring(2, 4), 16);
+  const b = parseInt(value.substring(4, 6), 16);
+  return `rgba(${r}, ${g}, ${b}, ${alphaValue})`;
 };
 
 export default function CourseTimelineComponent({
@@ -65,7 +91,7 @@ export default function CourseTimelineComponent({
 
   const handleCourseClick = (course, event) => {
     try {
-      event.stopPropagation(); // Stop the click from reaching the timeline background
+      event.stopPropagation();
       if (
         setSelectedDuration &&
         durations &&
@@ -74,30 +100,25 @@ export default function CourseTimelineComponent({
       ) {
         const durationCode = course.duration;
 
-        // Convert start and end dates to Unix timestamps
         const startTimestamp = Math.floor(course.startDate.getTime() / 1000);
         const endTimestamp = Math.floor(course.endDate.getTime() / 1000);
 
-        // Try to find an exact match in the durations array
         let matchedDuration = durations.find((d) => {
           const [durStartUnix, durEndUnix, durCode] = d.split("-");
           return (
             durCode === durationCode &&
-            // Allow some flexibility in date matching (within 2 weeks)
             Math.abs(parseInt(durStartUnix) - startTimestamp) < 1209600 &&
             Math.abs(parseInt(durEndUnix) - endTimestamp) < 1209600
           );
         });
 
-        // If no exact match, try to find by duration code only
         if (!matchedDuration) {
           matchedDuration = durations.find((d) => {
-            const [_, __, durCode] = d.split("-");
+            const [, , durCode] = d.split("-");
             return durCode === durationCode;
           });
         }
 
-        // If still no match, just use the date range to find the most appropriate duration
         if (!matchedDuration) {
           let closestMatch = null;
           let smallestDiff = Infinity;
@@ -125,17 +146,13 @@ export default function CourseTimelineComponent({
       }
 
       if (course.startDate && navigateToDate) {
-        const dayOfWeek = course.startDate.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+        const dayOfWeek = course.startDate.getDay();
         let navigationDate = new Date(course.startDate);
 
-        // If classes start on Tuesday-Saturday, navigate to the following week
-        // so we can see the full recurring pattern (Monday-Friday)
         if (dayOfWeek >= 2 && dayOfWeek <= 6) {
-          // Add days to get to the Monday of the following week
-          const daysToAdd = 8 - dayOfWeek; // Days until next Monday
+          const daysToAdd = 8 - dayOfWeek;
           navigationDate.setDate(navigationDate.getDate() + daysToAdd);
         } else {
-          // If classes start on Sunday or Monday, navigate to the Monday of that week
           const daysToSubtract = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
           navigationDate.setDate(navigationDate.getDate() - daysToSubtract);
         }
@@ -158,7 +175,6 @@ export default function CourseTimelineComponent({
       const startDate = parseUnixTimestamp(startUnix);
       const endDate = parseUnixTimestamp(endUnix);
 
-      // Calculate the difference between the date and the duration's date range
       const startDiff = Math.abs(date - startDate);
       const endDiff = Math.abs(date - endDate);
       const totalDiff = startDiff + endDiff;
@@ -178,13 +194,11 @@ export default function CourseTimelineComponent({
       const clickX = event.clientX - rect.left;
       const clickPercent = (clickX / rect.width) * 100;
 
-      // Calculate the date based on click position
       const dayOffset = (clickPercent / 100) * totalDays;
       const hoverDate = new Date(
         earliestDate.getTime() + dayOffset * 24 * 60 * 60 * 1000,
       );
 
-      // Find the closest duration to the hover date
       const closestDuration = getClosestDuration(hoverDate);
       if (closestDuration) {
         const [startUnix] = closestDuration.split("-");
@@ -202,18 +216,15 @@ export default function CourseTimelineComponent({
     try {
       if (!setSelectedDuration || !durations || durations.length === 0) return;
 
-      // Get the click position relative to the timeline container
       const rect = event.currentTarget.getBoundingClientRect();
       const clickX = event.clientX - rect.left;
       const clickPercent = (clickX / rect.width) * 100;
 
-      // Calculate the date based on click position
       const dayOffset = (clickPercent / 100) * totalDays;
       const clickedDate = new Date(
         earliestDate.getTime() + dayOffset * 24 * 60 * 60 * 1000,
       );
 
-      // Find the closest duration to the clicked date
       const closestMatch = getClosestDuration(clickedDate);
       if (closestMatch) {
         setSelectedDuration(closestMatch);
@@ -227,37 +238,45 @@ export default function CourseTimelineComponent({
     setMousePosition(null);
   };
 
-  if (!addedCourses?.length) {
-    return null;
-  }
-
   const coursesWithDates = addedCourses
-    .map((course) => {
+    .map((courseItem) => {
       try {
-        const courseName = course.code?.toUpperCase();
         const courseString =
-          course.string ||
-          `${course.code} ${course.section || ""} (${course.duration || ""})`;
+          typeof courseItem === "string"
+            ? courseItem
+            : courseItem?.string ||
+              `${courseItem?.code || ""} ${courseItem?.section || ""}`.trim();
 
-        let startDate = course.startDate
-          ? parseStartDate(course.startDate)
-          : null;
-        let endDate = course.endDate ? parseEndDate(course.endDate) : null;
-
-        if (
-          !startDate ||
-          !endDate ||
-          isNaN(startDate.getTime()) ||
-          isNaN(endDate.getTime())
-        ) {
-          const detail = courseDetails?.find((d) => d?.name === courseName);
-          if (detail?.startDate && detail?.endDate) {
-            startDate = parseStartDate(detail.startDate);
-            endDate = parseEndDate(detail.endDate);
-          }
+        if (!courseString) {
+          return null;
         }
 
-        // Skip courses without valid dates
+        const courseName =
+          typeof courseItem === "object" && courseItem?.code
+            ? courseItem.code
+            : courseString.split(" ").slice(0, 2).join("");
+
+        const course = courseDetails.find(
+          (detail) => detail.name === courseName,
+        );
+        const hasDirectDates =
+          typeof courseItem === "object" &&
+          (courseItem?.startDate || courseItem?.endDate);
+
+        if (
+          !hasDirectDates &&
+          (!course || !course.startDate || !course.endDate)
+        ) {
+          return null;
+        }
+
+        const startDate = hasDirectDates
+          ? parseUnixTimestampSafe(courseItem.startDate)
+          : parseStartDate(course.startDate);
+        const endDate = hasDirectDates
+          ? parseUnixTimestampSafe(courseItem.endDate)
+          : parseEndDate(course.endDate);
+
         if (
           !startDate ||
           !endDate ||
@@ -274,7 +293,9 @@ export default function CourseTimelineComponent({
           endDate,
           color:
             courseColors[courseName] || getDefaultColorForCourse(courseName),
-          duration: course.duration || "",
+          duration: hasDirectDates
+            ? courseItem.duration || ""
+            : course.duration || "",
         };
       } catch (error) {
         console.error("Error processing course:", error);
@@ -285,28 +306,12 @@ export default function CourseTimelineComponent({
 
   if (!coursesWithDates.length) {
     return (
-      <Box
-        sx={{
-          textAlign: "center",
-          py: 1.5,
-          px: 2,
-          borderRadius: 1,
-          backgroundColor: "transparent",
-          border: "1px solid",
-          borderColor: "var(--calendar-grid-color-light)",
-          ".dark-mode &": {
-            borderColor: "var(--calendar-grid-color-dark)",
-          },
-        }}
-      >
-        <Typography variant="caption" color="text.secondary">
-          No valid course date information available
-        </Typography>
-      </Box>
+      <div className="rounded-md border border-[var(--calendar-grid-color-light)] px-2 py-1.5 text-center text-xs text-muted-foreground dark:border-[var(--calendar-grid-color-dark)]">
+        No valid course date information available
+      </div>
     );
   }
 
-  // Calculate timeline range using reduce instead of map + spread
   const { earliestDate, latestDate } = coursesWithDates.reduce(
     (acc, course) => ({
       earliestDate:
@@ -325,7 +330,6 @@ export default function CourseTimelineComponent({
   const totalDays =
     Math.ceil((latestDate - earliestDate) / (1000 * 60 * 60 * 24)) + 1;
 
-  // Calculate position and width percentages for each course
   coursesWithDates.forEach((course) => {
     const startOffset = Math.max(
       0,
@@ -339,7 +343,6 @@ export default function CourseTimelineComponent({
     course.widthPercent = (duration / totalDays) * 100;
   });
 
-  // Generate month markers for the timeline
   const monthMarkers = [];
   const startYear = earliestDate.getFullYear();
   const startMonth = earliestDate.getMonth();
@@ -367,302 +370,144 @@ export default function CourseTimelineComponent({
   }
 
   return (
-    <Box
-      sx={{
-        mb: 0.5,
-        px: 0.5,
-      }}
-    >
-      {/* Timeline container */}
-      <Box
-        onClick={handleTimelineClick}
-        onMouseMove={handleTimelineMouseMove}
-        onMouseLeave={handleTimelineMouseLeave}
-        sx={{
-          position: "relative",
-          height: coursesWithDates.length * 24 + 20,
-          width: "100%",
-          backgroundColor: "transparent",
-          borderRadius: 1.5,
-          overflow: "hidden",
-          transition: "all 0.2s ease-in-out",
-          cursor: "pointer",
-          "&:hover": {
-            backgroundColor: (theme) => alpha(theme.palette.action.hover, 0.04),
-          },
-        }}
-      >
-        {/* Background with subtle grid */}
-        <Box
-          sx={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: "transparent",
-            border: "1px solid",
-            borderColor: "var(--calendar-grid-color-light)",
-            ".dark-mode &": {
-              borderColor: "var(--calendar-grid-color-dark)",
-            },
-            borderRadius: 1.5,
-            transition: "all 0.2s ease-in-out",
-          }}
-        />
+    <TooltipProvider>
+      <div className="course-timeline-container mb-2 px-0.5">
+        <div
+          onClick={handleTimelineClick}
+          onMouseMove={handleTimelineMouseMove}
+          onMouseLeave={handleTimelineMouseLeave}
+          className="relative w-full cursor-pointer overflow-hidden rounded-lg transition-colors hover:bg-muted/10"
+          style={{ height: coursesWithDates.length * 24 + 20 }}
+        >
+          <div className="absolute inset-0 rounded-lg border border-[var(--calendar-grid-color-light)] transition-colors dark:border-[var(--calendar-grid-color-dark)]" />
 
-        {/* Preview line */}
-        {mousePosition !== null && (
-          <Box
-            sx={{
-              position: "absolute",
-              left: `${mousePosition}%`,
-              top: 0,
-              height: "100%",
-              width: "2px",
-              backgroundColor: (theme) =>
-                alpha(theme.palette.primary.main, 0.3),
-              zIndex: 4,
-              pointerEvents: "none",
-              transition: "left 0.1s ease-out",
-            }}
-          />
-        )}
-
-        {/* Month markers */}
-        {monthMarkers.map((marker, index) => (
-          <React.Fragment key={`month-${index}`}>
-            {/* Vertical line */}
-            <Box
-              sx={{
-                position: "absolute",
-                left: `${marker.position}%`,
-                top: 0,
-                height: "100%",
-                width: "1px",
-                backgroundColor: "var(--calendar-grid-color-light)",
-                ".dark-mode &": {
-                  backgroundColor: "var(--calendar-grid-color-dark)",
-                },
-                zIndex: 1,
-                pointerEvents: "none",
+          {mousePosition !== null && (
+            <div
+              className="pointer-events-none absolute top-0 z-[4] h-full w-[2px] transition-[left] duration-100 ease-out"
+              style={{
+                left: `${mousePosition}%`,
+                backgroundColor: "hsl(var(--primary) / 0.3)",
               }}
             />
-            {/* Month label - only show every other month if there are many months */}
-            {(monthMarkers.length <= 12 || index % 2 === 0) && (
-              <Typography
-                variant="caption"
-                sx={{
-                  position: "absolute",
-                  left: `${marker.position}%`,
-                  bottom: 2,
-                  transform: "translateX(-50%)",
-                  color: (theme) => alpha(theme.palette.text.secondary, 0.9),
-                  fontSize: "0.65rem",
-                  fontWeight: 500,
-                  whiteSpace: "nowrap",
-                  pointerEvents: "none",
-                  textShadow: (theme) =>
-                    theme.palette.mode === "dark"
-                      ? "0 1px 2px rgba(0,0,0,0.3)"
-                      : "0 1px 0 rgba(255,255,255,0.8)",
-                }}
-              >
-                {marker.label}
-              </Typography>
-            )}
-          </React.Fragment>
-        ))}
+          )}
 
-        {/* Current date line */}
-        {(() => {
-          let selectedDate = null;
-          if (selectedDuration) {
-            const [startUnix] = selectedDuration.split("-");
-            selectedDate = parseUnixTimestamp(startUnix);
-          }
+          {monthMarkers.map((marker, index) => (
+            <Fragment key={`month-${index}`}>
+              <div
+                className="pointer-events-none absolute top-0 z-[1] h-full w-px bg-[var(--calendar-grid-color-light)] dark:bg-[var(--calendar-grid-color-dark)]"
+                style={{ left: `${marker.position}%` }}
+              />
+              {(monthMarkers.length <= 12 || index % 2 === 0) && (
+                <span
+                  className="pointer-events-none absolute bottom-0.5 whitespace-nowrap text-[0.65rem] font-medium text-muted-foreground/90"
+                  style={{
+                    left: `${marker.position}%`,
+                    transform: "translateX(-50%)",
+                    textShadow:
+                      "0 1px 2px rgba(0,0,0,0.3), 0 1px 0 rgba(255,255,255,0.2)",
+                  }}
+                >
+                  {marker.label}
+                </span>
+              )}
+            </Fragment>
+          ))}
 
-          if (
-            selectedDate &&
-            selectedDate >= earliestDate &&
-            selectedDate <= latestDate
-          ) {
-            const dayOffset =
-              (selectedDate - earliestDate) / (1000 * 60 * 60 * 24);
-            const position = (dayOffset / totalDays) * 100;
+          {(() => {
+            let selectedDate = null;
+            if (selectedDuration) {
+              const [startUnix] = selectedDuration.split("-");
+              selectedDate = parseUnixTimestamp(startUnix);
+            }
 
-            return (
-              <>
-                <Box
-                  sx={{
-                    position: "absolute",
+            if (
+              selectedDate &&
+              selectedDate >= earliestDate &&
+              selectedDate <= latestDate
+            ) {
+              const dayOffset =
+                (selectedDate - earliestDate) / (1000 * 60 * 60 * 24);
+              const position = (dayOffset / totalDays) * 100;
+
+              return (
+                <div
+                  className="pointer-events-none absolute top-0 z-[5] h-full w-[2px] animate-pulse"
+                  style={{
                     left: `${position}%`,
-                    top: 0,
-                    height: "100%",
-                    width: "2px",
-                    backgroundColor: (theme) => theme.palette.primary.main,
-                    zIndex: 5,
-                    pointerEvents: "none",
-                    animation: "pulse 2s infinite",
-                    "@keyframes pulse": {
-                      "0%": {
-                        opacity: 0.4,
-                      },
-                      "50%": {
-                        opacity: 1,
-                      },
-                      "100%": {
-                        opacity: 0.4,
-                      },
-                    },
+                    backgroundColor: "hsl(var(--primary))",
                   }}
                 />
-              </>
+              );
+            }
+            return null;
+          })()}
+
+          {coursesWithDates.map((course, index) => {
+            const tooltipText = `${course.fullName}: ${formatDate(
+              course.startDate,
+            )} - ${formatDate(course.endDate)}`;
+            const boxShadow =
+              hoveredCourse === course.code
+                ? `0 2px 4px ${hexToRgba(
+                    course.color,
+                    0.4,
+                  )}, 0 0 1px rgba(0,0,0,0.2)`
+                : "none";
+
+            return (
+              <Fragment key={course.code}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <span
+                      onClick={(event) => handleCourseClick(course, event)}
+                      onMouseEnter={() => setHoveredCourse(course.code)}
+                      onMouseLeave={() => setHoveredCourse(null)}
+                      className="absolute z-[4] ml-1 flex h-3 -translate-y-1/2 cursor-pointer items-center rounded-sm bg-card/85 px-1 text-[0.65rem] font-semibold text-foreground shadow-none transition-all"
+                      style={{
+                        left: `${course.startPercent}%`,
+                        top: 12 + index * 24,
+                        boxShadow,
+                      }}
+                    >
+                      {course.code}
+                    </span>
+                  </TooltipTrigger>
+                  <TooltipContent>{tooltipText}</TooltipContent>
+                </Tooltip>
+
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div
+                      onMouseEnter={() => setHoveredCourse(course.code)}
+                      onMouseLeave={() => setHoveredCourse(null)}
+                      onClick={(event) => handleCourseClick(course, event)}
+                      className="absolute z-[2] h-3 cursor-pointer rounded-full transition-all"
+                      style={{
+                        left: `${course.startPercent}%`,
+                        top: 12 + index * 24,
+                        width: `${course.widthPercent}%`,
+                        backgroundColor: course.color,
+                        opacity: hoveredCourse === course.code ? 1 : 0.85,
+                        transform:
+                          hoveredCourse === course.code
+                            ? "translateY(-1px)"
+                            : "none",
+                        boxShadow,
+                      }}
+                    />
+                  </TooltipTrigger>
+                  <TooltipContent>{tooltipText}</TooltipContent>
+                </Tooltip>
+              </Fragment>
             );
-          }
-          return null;
-        })()}
+          })}
+        </div>
 
-        {/* Course bars with labels */}
-        {coursesWithDates.map((course, index) => (
-          <React.Fragment key={course.code}>
-            {/* Course label */}
-            <Tooltip
-              title={`${course.fullName}: ${formatDate(
-                course.startDate,
-              )} - ${formatDate(course.endDate)}`}
-              arrow
-              placement="top"
-              TransitionComponent={Fade}
-              TransitionProps={{ timeout: 300 }}
-            >
-              <Typography
-                variant="caption"
-                onClick={(event) => handleCourseClick(course, event)}
-                onMouseEnter={() => setHoveredCourse(course.code)}
-                onMouseLeave={() => setHoveredCourse(null)}
-                sx={{
-                  position: "absolute",
-                  left: `${course.startPercent}%`,
-                  top: 12 + index * 24,
-                  height: "12px",
-                  transform: "translateY(-50%)",
-                  fontSize: "0.65rem",
-                  fontWeight: 600,
-                  color: (theme) => theme.palette.text.primary,
-                  whiteSpace: "nowrap",
-                  marginLeft: "4px",
-                  zIndex: 4,
-                  display: "flex",
-                  alignItems: "center",
-                  textShadow: (theme) =>
-                    theme.palette.mode === "dark"
-                      ? "0 1px 2px rgba(0,0,0,0.5)"
-                      : "0 1px 0 rgba(255,255,255,0.9)",
-                  backgroundColor: (theme) =>
-                    alpha(theme.palette.background.paper, 0.85),
-                  padding: "0 4px",
-                  borderRadius: "3px",
-                  cursor: "pointer",
-                  transition: "all 0.15s cubic-bezier(0.4, 0, 0.2, 1)",
-                  boxShadow:
-                    hoveredCourse === course.code
-                      ? (theme) =>
-                          `0 2px 4px ${alpha(
-                            course.color,
-                            0.4,
-                          )}, 0 0 1px ${alpha(theme.palette.common.black, 0.2)}`
-                      : "none",
-                  "&:hover": {
-                    backgroundColor: (theme) =>
-                      alpha(theme.palette.background.paper, 0.95),
-                  },
-                  "&:active": {
-                    transform: "translateY(-45%) scale(0.98)",
-                  },
-                }}
-              >
-                {course.code}
-              </Typography>
-            </Tooltip>
-
-            {/* Course bar */}
-            <Tooltip
-              title={`${course.fullName}: ${formatDate(
-                course.startDate,
-              )} - ${formatDate(course.endDate)}`}
-              arrow
-              placement="top"
-              TransitionComponent={Fade}
-              TransitionProps={{ timeout: 300 }}
-            >
-              <Box
-                onMouseEnter={() => setHoveredCourse(course.code)}
-                onMouseLeave={() => setHoveredCourse(null)}
-                onClick={(event) => handleCourseClick(course, event)}
-                sx={{
-                  position: "absolute",
-                  left: `${course.startPercent}%`,
-                  top: 12 + index * 24,
-                  width: `${course.widthPercent}%`,
-                  height: "12px",
-                  backgroundColor: course.color,
-                  opacity: hoveredCourse === course.code ? 1 : 0.85,
-                  borderRadius: "6px",
-                  cursor: "pointer",
-                  transition: "all 0.15s cubic-bezier(0.4, 0, 0.2, 1)",
-                  transform:
-                    hoveredCourse === course.code ? "translateY(-1px)" : "none",
-                  boxShadow:
-                    hoveredCourse === course.code
-                      ? (theme) =>
-                          `0 2px 4px ${alpha(
-                            course.color,
-                            0.4,
-                          )}, 0 0 1px ${alpha(theme.palette.common.black, 0.2)}`
-                      : "none",
-                  "&:hover": {
-                    opacity: 1,
-                    transform: "translateY(-1px)",
-                  },
-                  "&:active": {
-                    transform: "translateY(0px) scale(0.98)",
-                    transition: "all 0.1s cubic-bezier(0.4, 0, 0.2, 1)",
-                  },
-                  zIndex: hoveredCourse === course.code ? 3 : 2,
-                }}
-              />
-            </Tooltip>
-          </React.Fragment>
-        ))}
-      </Box>
-
-      {/* Date range indicators at the bottom */}
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          mt: 0.5,
-        }}
-      >
-        <Typography
-          variant="caption"
-          color="text.secondary"
-          fontSize="0.7rem"
-          sx={{ fontWeight: 500 }}
-        >
-          {formatDate(earliestDate)}
-        </Typography>
-        <Typography
-          variant="caption"
-          color="text.secondary"
-          fontSize="0.7rem"
-          sx={{ fontWeight: 500 }}
-        >
-          {formatDate(latestDate)}
-        </Typography>
-      </Box>
-    </Box>
+        <div className="mt-2 flex items-center justify-between text-[0.7rem] font-medium text-muted-foreground">
+          <span>{formatDate(earliestDate)}</span>
+          <span>{formatDate(latestDate)}</span>
+        </div>
+      </div>
+    </TooltipProvider>
   );
 }

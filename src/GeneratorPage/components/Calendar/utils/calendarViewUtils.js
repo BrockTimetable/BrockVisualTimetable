@@ -1,11 +1,12 @@
 import {
-  addPinnedComponent,
-  getPinnedComponents,
+  isComponentPinned,
+  pinComponent,
 } from "../../../scripts/pinnedComponents";
 import {
   generateTimetables,
   getValidTimetables,
 } from "../../../scripts/timetableGeneration/timetableGeneration";
+import { getBaseComponentId } from "../../../scripts/timetableGeneration/utils/componentIDUtils";
 
 // Calculate navigation date based on start date and day of week
 export const calculateNavigationDate = (startDate) => {
@@ -38,7 +39,6 @@ export const handleDurationChange = (
 ) => {
   if (previousDuration !== newDuration) {
     if (aprioriDurationTimetable && aprioriDurationTimetable.courses) {
-      const pinnedComponents = getPinnedComponents();
       let didPinNewComponent = false;
 
       aprioriDurationTimetable.courses.forEach((course) => {
@@ -51,9 +51,9 @@ export const handleDurationChange = (
               component.schedule &&
               component.schedule.duration == previousDuration
             ) {
-              const pinString = `${courseCode} MAIN ${component.id}`;
-              if (!pinnedComponents.includes(pinString)) {
-                addPinnedComponent(pinString);
+              const baseId = getBaseComponentId(component.id);
+              if (!isComponentPinned(courseCode, "MAIN", baseId)) {
+                pinComponent(courseCode, "MAIN", baseId);
                 didPinNewComponent = true;
               }
             }
@@ -76,9 +76,9 @@ export const handleDurationChange = (
                       ? "SEM"
                       : type.toUpperCase();
 
-                const pinString = `${courseCode} ${formattedType} ${component.id}`;
-                if (!pinnedComponents.includes(pinString)) {
-                  addPinnedComponent(pinString);
+                const baseId = getBaseComponentId(component.id);
+                if (!isComponentPinned(courseCode, formattedType, baseId)) {
+                  pinComponent(courseCode, formattedType, baseId);
                   didPinNewComponent = true;
                 }
               }

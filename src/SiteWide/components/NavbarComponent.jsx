@@ -1,205 +1,135 @@
-import React, { useContext, useState } from "react";
-import AppBar from "@mui/material/AppBar";
-import Box from "@mui/material/Box";
-import Typography from "@mui/material/Typography";
-import IconButton from "@mui/material/IconButton";
-import Brightness4Icon from "@mui/icons-material/Brightness4";
-import Brightness7Icon from "@mui/icons-material/Brightness7";
-import { useTheme } from "@mui/material/styles";
+import { useContext, useState } from "react";
 import ColorModeContext from "../contexts/ColorModeContext";
 import { Link } from "react-router-dom";
 import { useIsMobile } from "../utils/screenSizeUtils";
-import Drawer from "@mui/material/Drawer";
-import List from "@mui/material/List";
-import ListItemText from "@mui/material/ListItemText";
-import { ListItemButton, Divider, Avatar, ListItemIcon } from "@mui/material";
-import MenuIcon from "@mui/icons-material/Menu";
-// Import additional icons
-import HomeIcon from "@mui/icons-material/Home";
-import MenuBookIcon from "@mui/icons-material/MenuBook";
-import FeedbackIcon from "@mui/icons-material/Feedback";
-import GitHubIcon from "@mui/icons-material/GitHub";
+import {
+  Moon,
+  Sun,
+  Menu,
+  Home,
+  BookOpen,
+  MessageSquare,
+  Github,
+} from "lucide-react";
+import { Button } from "../../components/ui/button";
+import { Sheet, SheetContent, SheetTrigger } from "../../components/ui/sheet";
+import { Separator } from "../../components/ui/separator";
 
 const NavbarComponent = () => {
-  const theme = useTheme();
   const colorMode = useContext(ColorModeContext);
   const isMobile = useIsMobile();
   const [drawerOpen, setDrawerOpen] = useState(false);
 
-  const toggleDrawer = (open) => (event) => {
-    if (
-      event.type === "keydown" &&
-      (event.key === "Tab" || event.key === "Shift")
-    ) {
-      return;
-    }
-    setDrawerOpen(open);
-  };
-
-  const drawerContent = (
-    <Box
-      sx={{ width: 280 }}
-      role="presentation"
-      onClick={toggleDrawer(false)}
-      onKeyDown={toggleDrawer(false)}
-    >
-      <Box sx={{ p: 3, borderBottom: `1px solid ${theme.palette.divider}` }}>
-        <Typography variant="h6" component="div" sx={{ fontWeight: "bold" }}>
-          📚 brocktimetable.com
-        </Typography>
-      </Box>
-
-      <List>
-        <ListItemButton component={Link} to="/">
-          <ListItemIcon>
-            <HomeIcon />
-          </ListItemIcon>
-          <ListItemText primary="Generator" />
-        </ListItemButton>
-        <ListItemButton component={Link} to="/guide">
-          <ListItemIcon>
-            <MenuBookIcon />
-          </ListItemIcon>
-          <ListItemText primary="Guide" />
-        </ListItemButton>
-      </List>
-
-      <Divider />
-
-      <List>
-        <ListItemButton
-          component="a"
-          href="https://github.com/BrockTimetable/BrockVisualTimetable/issues"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <ListItemIcon>
-            <FeedbackIcon />
-          </ListItemIcon>
-          <ListItemText primary="Feedback" />
-        </ListItemButton>
-      </List>
-
-      <Divider />
-
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          p: 2,
-          mt: "auto",
-        }}
-      >
-        <IconButton
-          aria-label="github"
-          size="large"
-          component="a"
-          href="https://github.com/BrockTimetable/BrockVisualTimetable"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <GitHubIcon />
-        </IconButton>
-      </Box>
-    </Box>
-  );
-
   return (
-    <Box
-      sx={{
-        flexGrow: 1,
-        backgroundColor: theme.palette.background.primary,
-        color: theme.palette.text.primary,
-        padding: 2,
-        marginTop: 2,
-        height: "70px",
-        display: "flex",
-        alignItems: "center",
-        flexDirection: isMobile ? "column" : "row",
-      }}
-    >
-      <Box
-        display="flex"
-        alignItems="center"
-        justifyContent="space-between"
-        width="100%"
-      >
-        <Typography
-          variant={isMobile ? "h6" : "h4"}
-          component="div"
-          sx={{ fontWeight: "bold" }}
-        >
+    <div className="mt-2 flex h-[70px] w-full flex-col items-center bg-background px-4 text-foreground md:flex-row">
+      <div className="flex w-full items-center justify-between">
+        <div className={isMobile ? "text-xl font-bold" : "text-3xl font-bold"}>
           📚 brocktimetable.com
-        </Typography>
+        </div>
         {isMobile ? (
-          <>
-            <Box>
-              <IconButton
-                sx={{ mr: 2 }}
-                onClick={colorMode.toggleColorMode}
-                color="inherit"
-              >
-                {theme.palette.mode === "dark" ? (
-                  <Brightness7Icon />
-                ) : (
-                  <Brightness4Icon />
-                )}
-              </IconButton>
-              <IconButton
-                edge="start"
-                color="inherit"
-                aria-label="menu"
-                onClick={toggleDrawer(true)}
-              >
-                <MenuIcon />
-              </IconButton>
-            </Box>
-
-            <Drawer
-              anchor="left"
-              open={drawerOpen}
-              onClose={toggleDrawer(false)}
+          <div className="flex items-center gap-2">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={colorMode.toggleColorMode}
+              aria-label="Toggle color mode"
             >
-              {drawerContent}
-            </Drawer>
-          </>
+              <span className="dark:hidden">
+                <Moon className="h-5 w-5" />
+              </span>
+              <span className="hidden dark:inline-flex">
+                <Sun className="h-5 w-5" />
+              </span>
+            </Button>
+            <Sheet open={drawerOpen} onOpenChange={setDrawerOpen}>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="icon" aria-label="Open menu">
+                  <Menu className="h-5 w-5" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="left" className="flex w-72 flex-col p-0">
+                <div className="border-b border-border p-6">
+                  <div className="text-lg font-bold">📚 brocktimetable.com</div>
+                </div>
+                <nav className="flex-1 p-2">
+                  <ul className="space-y-1">
+                    <li>
+                      <Link
+                        className="flex items-center gap-3 rounded-md px-3 py-2 text-sm hover:bg-muted"
+                        to="/"
+                      >
+                        <Home className="h-4 w-4" />
+                        Generator
+                      </Link>
+                    </li>
+                    <li>
+                      <Link
+                        className="flex items-center gap-3 rounded-md px-3 py-2 text-sm hover:bg-muted"
+                        to="/guide"
+                      >
+                        <BookOpen className="h-4 w-4" />
+                        Guide
+                      </Link>
+                    </li>
+                  </ul>
+                </nav>
+                <Separator />
+                <div className="p-2">
+                  <a
+                    className="flex items-center gap-3 rounded-md px-3 py-2 text-sm hover:bg-muted"
+                    href="https://github.com/BrockTimetable/BrockVisualTimetable/issues"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <MessageSquare className="h-4 w-4" />
+                    Feedback
+                  </a>
+                </div>
+                <Separator />
+                <div className="flex justify-center p-4">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    asChild
+                    aria-label="GitHub"
+                  >
+                    <a
+                      href="https://github.com/BrockTimetable/BrockVisualTimetable"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <Github className="h-5 w-5" />
+                    </a>
+                  </Button>
+                </div>
+              </SheetContent>
+            </Sheet>
+          </div>
         ) : (
-          <Box display="flex" alignItems="center" flexDirection="row">
-            <Link
-              to="/"
-              style={{
-                marginRight: 16,
-                textDecoration: "none",
-                color: theme.palette.text.primary,
-              }}
-            >
+          <div className="flex items-center gap-4">
+            <Link className="text-sm font-medium hover:underline" to="/">
               Generator
             </Link>
-            <Link
-              to="/guide"
-              style={{
-                marginRight: 16,
-                textDecoration: "none",
-                color: theme.palette.text.primary,
-              }}
-            >
+            <Link className="text-sm font-medium hover:underline" to="/guide">
               Guide
             </Link>
-            <IconButton
-              sx={{ ml: 1 }}
+            <Button
+              variant="ghost"
+              size="icon"
               onClick={colorMode.toggleColorMode}
-              color="inherit"
+              aria-label="Toggle color mode"
             >
-              {theme.palette.mode === "dark" ? (
-                <Brightness7Icon />
-              ) : (
-                <Brightness4Icon />
-              )}
-            </IconButton>
-          </Box>
+              <span className="dark:hidden">
+                <Moon className="h-5 w-5" />
+              </span>
+              <span className="hidden dark:inline-flex">
+                <Sun className="h-5 w-5" />
+              </span>
+            </Button>
+          </div>
         )}
-      </Box>
-    </Box>
+      </div>
+    </div>
   );
 };
 

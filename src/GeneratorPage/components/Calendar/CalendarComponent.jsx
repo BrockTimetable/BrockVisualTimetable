@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useContext, useCallback } from "react";
+import { useState, useEffect, useContext, useCallback, useRef } from "react";
 import FullCalendar from "@fullcalendar/react";
-import { useSnackbar } from "notistack";
+import { toast } from "sonner";
 import CalendarNavBar from "./CalendarNavBar";
 import BorderBox from "../UI/BorderBox";
 import { CalendarDialogs } from "./components/CalendarDialogs";
@@ -37,8 +37,10 @@ import {
 import { getFullCalendarConfig } from "./utils/calendarConfigUtils.js";
 import MultiLineSnackbar from "../../../SiteWide/components/MultiLineSnackbar";
 import { useIsMobile } from "../../../SiteWide/utils/screenSizeUtils";
+
 let previousDuration = null;
 let aprioriDurationTimetable = null;
+
 export default function CalendarComponent({
   timetables,
   setTimetables,
@@ -47,11 +49,10 @@ export default function CalendarComponent({
   durations,
   sortOption,
 }) {
-  const { enqueueSnackbar } = useSnackbar();
-  const calendarRef = React.useRef(null);
-  const timetablesRef = React.useRef(timetables);
-  const currentTimetableIndexRef = React.useRef(0);
-  const courseColorsRef = React.useRef({});
+  const calendarRef = useRef(null);
+  const timetablesRef = useRef(timetables);
+  const currentTimetableIndexRef = useRef(0);
+  const courseColorsRef = useRef({});
   const [events, setEvents] = useState([]);
   const [currentTimetableIndex, setCurrentTimetableIndex] = useState(0);
   const { setCourseDetails } = useContext(CourseDetailsContext);
@@ -61,7 +62,6 @@ export default function CalendarComponent({
   const [truncationDialogOpen, setTruncationDialogOpen] = useState(false);
   const [noTimetablesGenerated, setNoTimetablesGenerated] = useState(false);
   const [noTimetablesDialogOpen, setNoTimetablesDialogOpen] = useState(false);
-  const [noCourses, setNoCourses] = useState(true);
   const [timeslotsOverridden, setTimeslotsOverridden] = useState(false);
   const [timeslotsOverriddenDialogOpen, setTimeslotsOverriddenDialogOpen] =
     useState(false);
@@ -72,45 +72,15 @@ export default function CalendarComponent({
   const [renameAnchorPosition, setRenameAnchorPosition] = useState(null);
   const [coursesForTimeline, setCoursesForTimeline] = useState([]);
 
-  // Screen size detection
   const isMobile = useIsMobile();
 
-  // Touch event handling
   useTouchEvents();
 
-  // Event bus handling
   useEventBusHandlers({
     setCurrentTimetableIndex,
     setIsTruncated,
     setTimeslotsOverridden,
   });
-
-  useEffect(() => {
-    timetablesRef.current = timetables;
-  }, [timetables]);
-
-  useEffect(() => {
-    currentTimetableIndexRef.current = currentTimetableIndex;
-  }, [currentTimetableIndex]);
-
-  useEffect(() => {
-    courseColorsRef.current = courseColors;
-    updateCalendarEvents();
-  }, [courseColors]);
-
-  useEffect(() => {
-    updateCalendarEvents();
-  }, [currentTimetableIndex, timetables]);
-
-  useEffect(() => {
-    if (selectedDuration) {
-      handleCalendarViewClick(selectedDuration);
-    }
-  }, [selectedDuration]);
-
-  useEffect(() => {
-    setCalendarUpdateHandler(() => updateCalendarEvents);
-  }, []);
 
   const handleLast = useCallback(() => {
     setCurrentTimetableIndex(timetables.length - 1);
@@ -121,7 +91,6 @@ export default function CalendarComponent({
     const currentIndex = currentTimetableIndexRef.current;
     const currentColors = { ...courseColorsRef.current };
 
-    // Ensure all courses have colors
     if (
       currentTimetables.length > 0 &&
       currentTimetables[0].courses.length > 0
@@ -144,14 +113,13 @@ export default function CalendarComponent({
       currentTimetables.length > 0 &&
       currentTimetables[0].courses.length > 0
     ) {
-      setNoCourses(false);
       const timetable = currentTimetables[currentIndex];
 
-      // Check if any courses have weekend classes
       const hasWeekendClasses = checkForWeekendClasses(timetable);
       setShowWeekends(hasWeekendClasses);
 
       if (
+        selectedDuration &&
         previousDuration === selectedDuration.split("-")[2] &&
         JSON.stringify(timetable)
       ) {
@@ -181,7 +149,6 @@ export default function CalendarComponent({
       setEvents(newEvents);
       setNoTimetablesGenerated(false);
     } else {
-      setNoCourses(true);
       const newEvents = createCalendarEvents(
         null,
         getDaysOfWeek,
@@ -195,44 +162,76 @@ export default function CalendarComponent({
     }
   }, [
     getDefaultColorForCourse,
-    enqueueSnackbar,
+    selectedDuration,
     setCourseDetails,
     setEvents,
-    setNoCourses,
     setNoTimetablesGenerated,
     handleLast,
   ]);
 
-  const handleCalendarViewClick = (durationLabel) => {
-    const calendarApi = calendarRef.current.getApi();
-    const [startUnix, endUnix, duration] = durationLabel.split("-");
+  const handleCalendarViewClick = useCallback(
+    (durationLabel) => {
+      const calendarApi = calendarRef.current.getApi();
+      const [startUnix, , duration] = durationLabel.split("-");
 
-    const startDate = new Date(parseInt(startUnix) * 1000);
-    const navigationDate = calculateNavigationDate(startDate);
-    calendarApi.gotoDate(navigationDate);
+      const startDate = new Date(parseInt(startUnix) * 1000);
+      const navigationDate = calculateNavigationDate(startDate);
+      calendarApi.gotoDate(navigationDate);
 
-    if (previousDuration == null) {
-      previousDuration = duration;
-    } else {
-      handleDurationChange(
-        previousDuration,
-        duration,
-        aprioriDurationTimetable,
-        setCurrentTimetableIndex,
-        setTimetables,
-        sortOption,
-      );
-      previousDuration = duration;
+      if (previousDuration == null) {
+        previousDuration = duration;
+      } else {
+        handleDurationChange(
+          previousDuration,
+          duration,
+          aprioriDurationTimetable,
+          setCurrentTimetableIndex,
+          setTimetables,
+          sortOption,
+        );
+        previousDuration = duration;
+      }
+
+      setSelectedDuration(durationLabel);
+
+      const message = getCalendarViewNotificationMessage(startDate);
+      toast.info(<MultiLineSnackbar message={message} />);
+    },
+    [
+      calendarRef,
+      setCurrentTimetableIndex,
+      setTimetables,
+      setSelectedDuration,
+      sortOption,
+    ],
+  );
+
+  useEffect(() => {
+    timetablesRef.current = timetables;
+  }, [timetables]);
+
+  useEffect(() => {
+    currentTimetableIndexRef.current = currentTimetableIndex;
+  }, [currentTimetableIndex]);
+
+  useEffect(() => {
+    courseColorsRef.current = courseColors;
+    updateCalendarEvents();
+  }, [courseColors, updateCalendarEvents]);
+
+  useEffect(() => {
+    updateCalendarEvents();
+  }, [currentTimetableIndex, timetables, updateCalendarEvents]);
+
+  useEffect(() => {
+    if (selectedDuration) {
+      handleCalendarViewClick(selectedDuration);
     }
+  }, [selectedDuration, handleCalendarViewClick]);
 
-    setSelectedDuration(durationLabel);
-
-    // Show calendar view notification
-    const message = getCalendarViewNotificationMessage(startDate);
-    enqueueSnackbar(<MultiLineSnackbar message={message} />, {
-      variant: "info",
-    });
-  };
+  useEffect(() => {
+    setCalendarUpdateHandler(() => updateCalendarEvents);
+  }, [setCalendarUpdateHandler, updateCalendarEvents]);
 
   const [shiftHeld, setShiftHeld] = useState(false);
   const [hoveredElement, setHoveredElement] = useState(null);
@@ -282,7 +281,7 @@ export default function CalendarComponent({
         }
       }
     }
-  }, [shiftHeld, hoveredElement]);
+  }, [hoveredElement, shiftHeld]);
 
   const handleEventMouseEnter = (mouseEnterInfo) => {
     setHoveredElement(mouseEnterInfo.el);
@@ -314,49 +313,134 @@ export default function CalendarComponent({
     }
   };
 
-  const handleEventClick = (clickInfo) => {
-    // Handle shift+click for quick rename
-    if (clickInfo.jsEvent && clickInfo.jsEvent.shiftKey) {
-      if (clickInfo.event.extendedProps.isBlocked) {
-        const blockId = clickInfo.event.id.replace("block-", "");
-        const blockEvent = getTimeBlockEvents().find(
-          (block) => block.id === blockId,
-        );
-        if (blockEvent) {
-          setBlockToRename({
-            id: blockId,
-            title: blockEvent.title,
-            isMultipleBlocks: false,
-          });
-          const anchorElement =
-            clickInfo.el ||
-            clickInfo.jsEvent?.target ||
-            document.querySelector(".fc-view-harness");
-          setRenameAnchorEl(anchorElement);
-          setRenameAnchorPosition(null);
-          setRenameDialogOpen(true);
-        }
-      }
+  const openRenameDialog = useCallback((clickInfo) => {
+    const blockId = clickInfo.event.id.replace("block-", "");
+    const blockEvent = getTimeBlockEvents().find(
+      (block) => block.id === blockId,
+    );
+    if (!blockEvent) {
       return;
     }
+    setBlockToRename({
+      id: blockId,
+      title: blockEvent.title,
+      isMultipleBlocks: false,
+    });
+    const anchorElement =
+      clickInfo.el ||
+      clickInfo.jsEvent?.target ||
+      document.querySelector(".fc-view-harness");
+    setRenameAnchorEl(anchorElement);
+    setRenameAnchorPosition(null);
+    setRenameDialogOpen(true);
+  }, []);
 
-    // Normal click handling
-    if (!clickInfo.event.extendedProps.isBlocked) {
-      handleCourseComponentClick(
-        clickInfo,
-        setCurrentTimetableIndex,
-        setTimetables,
-        sortOption,
-      );
-    } else {
-      handleTimeBlockRemoval(
-        clickInfo,
-        setCurrentTimetableIndex,
-        setTimetables,
-        sortOption,
-      );
+  const handleEventClick = useCallback(
+    (clickInfo, source = "fc") => {
+      const jsEvent = clickInfo.jsEvent;
+      const element =
+        clickInfo.el ||
+        jsEvent?.target?.closest?.(".fc-event") ||
+        jsEvent?.currentTarget;
+      const isBlocked = Boolean(clickInfo.event?.extendedProps?.isBlocked);
+      if (source !== "pointerdown" && element?._btSuppressNextClick) {
+        element._btSuppressNextClick = false;
+        return;
+      }
+      if (jsEvent && jsEvent.__btHandled) {
+        return;
+      }
+      if (jsEvent) {
+        jsEvent.__btHandled = true;
+      }
+      if (clickInfo.jsEvent && clickInfo.jsEvent.shiftKey) {
+        if (!isBlocked) {
+          return;
+        }
+        openRenameDialog(clickInfo);
+        return;
+      }
+
+      if (!isBlocked) {
+        handleCourseComponentClick(
+          clickInfo,
+          setCurrentTimetableIndex,
+          setTimetables,
+          sortOption,
+        );
+      } else {
+        handleTimeBlockRemoval(
+          clickInfo,
+          setCurrentTimetableIndex,
+          setTimetables,
+          sortOption,
+        );
+      }
+
+      updateCalendarEvents();
+    },
+    [
+      openRenameDialog,
+      setCurrentTimetableIndex,
+      setTimetables,
+      sortOption,
+      updateCalendarEvents,
+    ],
+  );
+
+  const handleEventDidMount = useCallback(
+    (mountInfo) => {
+      const dispatchClick = (jsEvent, source) => {
+        handleEventClick(
+          {
+            event: mountInfo.event,
+            el: mountInfo.el,
+            jsEvent,
+          },
+          source,
+        );
+      };
+
+      const nativeClickHandler = (jsEvent) => {
+        dispatchClick(jsEvent, "native");
+      };
+
+      const pointerDownHandler = (jsEvent) => {
+        if (jsEvent.button !== undefined && jsEvent.button !== 0) {
+          return;
+        }
+        dispatchClick(jsEvent, "pointerdown");
+        mountInfo.el._btSuppressNextClick = true;
+      };
+
+      mountInfo.el._btNativeClickHandler = nativeClickHandler;
+      mountInfo.el._btPointerDownHandler = pointerDownHandler;
+      mountInfo.el.addEventListener("click", nativeClickHandler);
+      if (window.PointerEvent) {
+        mountInfo.el.addEventListener("pointerdown", pointerDownHandler);
+      } else {
+        mountInfo.el.addEventListener("mousedown", pointerDownHandler);
+      }
+    },
+    [handleEventClick],
+  );
+
+  const handleEventWillUnmount = useCallback((mountInfo) => {
+    const nativeClickHandler = mountInfo.el._btNativeClickHandler;
+    if (nativeClickHandler) {
+      mountInfo.el.removeEventListener("click", nativeClickHandler);
+      delete mountInfo.el._btNativeClickHandler;
     }
-  };
+    const pointerDownHandler = mountInfo.el._btPointerDownHandler;
+    if (pointerDownHandler) {
+      if (window.PointerEvent) {
+        mountInfo.el.removeEventListener("pointerdown", pointerDownHandler);
+      } else {
+        mountInfo.el.removeEventListener("mousedown", pointerDownHandler);
+      }
+      delete mountInfo.el._btPointerDownHandler;
+    }
+  }, []);
 
   const handleNext = () => {
     setCurrentTimetableIndex((currentTimetableIndex + 1) % timetables.length);
@@ -390,18 +474,8 @@ export default function CalendarComponent({
           sortOption,
         );
       }
-      setBlockToRename(null);
+      handleRenameDialogClose();
     }
-  };
-
-  const handlePrevious = () => {
-    setCurrentTimetableIndex(
-      (currentTimetableIndex - 1 + timetables.length) % timetables.length,
-    );
-  };
-
-  const handleFirst = () => {
-    setCurrentTimetableIndex(0);
   };
 
   const handleSelect = (selectInfo) => {
@@ -417,11 +491,8 @@ export default function CalendarComponent({
     );
   };
 
-  const handleSelectAllow = (selectionInfo) => {
-    return true;
-  };
+  const handleSelectAllow = () => true;
 
-  // Function to navigate the calendar to a specific date
   const navigateToDate = useCallback(
     (date) => {
       if (calendarRef.current && calendarRef.current.getApi) {
@@ -436,7 +507,6 @@ export default function CalendarComponent({
     [calendarRef],
   );
 
-  // Prepare courses for timeline
   useEffect(() => {
     const courses = prepareCoursesForTimeline(
       timetables,
@@ -448,7 +518,6 @@ export default function CalendarComponent({
   return (
     <div id="Calendar">
       <BorderBox title="Calendar">
-        {/* Course Timeline Visualization - moved to the very top */}
         <CourseTimelineComponent
           addedCourses={coursesForTimeline}
           setSelectedDuration={setSelectedDuration}
@@ -461,16 +530,20 @@ export default function CalendarComponent({
           isTruncated={isTruncated}
           noTimetablesGenerated={noTimetablesGenerated}
           timeslotsOverridden={timeslotsOverridden}
-          handleFirst={handleFirst}
-          handlePrevious={handlePrevious}
+          handleFirst={() => setCurrentTimetableIndex(0)}
+          handlePrevious={() =>
+            setCurrentTimetableIndex(
+              (currentTimetableIndex - 1 + timetables.length) %
+                timetables.length,
+            )
+          }
           handleNext={handleNext}
-          handleLast={handleLast}
+          handleLast={() => setCurrentTimetableIndex(timetables.length - 1)}
           currentTimetableIndex={currentTimetableIndex}
           timetables={timetables}
           selectedDuration={selectedDuration}
           setSelectedDuration={setSelectedDuration}
           durations={durations}
-          noCourses={noCourses}
           sortByBracketContent={sortByBracketContent}
           setTruncationDialogOpen={setTruncationDialogOpen}
           setNoTimetablesDialogOpen={setNoTimetablesDialogOpen}
@@ -483,6 +556,8 @@ export default function CalendarComponent({
             showWeekends,
             events,
             handleEventClick,
+            handleEventDidMount,
+            handleEventWillUnmount,
             handleSelect,
             handleSelectAllow,
             handleEventMouseEnter,

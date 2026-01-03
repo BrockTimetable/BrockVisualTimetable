@@ -78,13 +78,23 @@ vi.mock("../../timeSlots", () => ({
 }));
 
 vi.mock("../../pinnedComponents", () => ({
-  getPinnedComponents: () => [
-    "BIOL2P02 DURATION 2",
-    "HIST4P29 DURATION 2",
-    "COSC1P02 DURATION 2",
-    "COSC1P50 DURATION 2",
-    "COSC1P50 SEM 2422204",
-  ],
+  getPinnedDuration: (courseCode) => {
+    if (
+      courseCode === "BIOL2P02" ||
+      courseCode === "HIST4P29" ||
+      courseCode === "COSC1P02" ||
+      courseCode === "COSC1P50"
+    ) {
+      return "2";
+    }
+    return null;
+  },
+  getPinnedComponentIds: (courseCode, componentType) => {
+    if (courseCode === "COSC1P50" && componentType === "SEM") {
+      return ["2422204"];
+    }
+    return [];
+  },
 }));
 
 describe("Complex Timetable Generation Test", () => {

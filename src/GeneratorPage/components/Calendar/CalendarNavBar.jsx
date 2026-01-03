@@ -1,20 +1,19 @@
-import React from "react";
 import {
-  Box,
-  Button,
-  FormControl,
-  InputLabel,
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
+  Info,
+  XCircle,
+} from "lucide-react";
+import { Button } from "../../../components/ui/button";
+import {
   Select,
-  MenuItem,
-  IconButton,
-  useTheme,
-} from "@mui/material";
-import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
-import NavigateNextIcon from "@mui/icons-material/NavigateNext";
-import NavigateFirstIcon from "@mui/icons-material/FirstPage";
-import NavigateLastIcon from "@mui/icons-material/LastPage";
-import InfoIcon from "@mui/icons-material/Info";
-import CancelIcon from "@mui/icons-material/Cancel";
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../../../components/ui/select";
 
 // Helper function to format duration display text from Unix timestamps
 const formatDurationText = (duration) => {
@@ -41,146 +40,121 @@ export default function CalendarNavBar({
   selectedDuration,
   setSelectedDuration,
   durations,
-  noCourses,
   sortByBracketContent,
   setTruncationDialogOpen,
   setNoTimetablesDialogOpen,
   setTimeslotsOverriddenDialogOpen,
 }) {
-  const theme = useTheme();
-
   return (
-    <Box
+    <div
       id="calendarNavBar"
-      sx={{
-        backgroundColor: theme.palette.background.paper,
-        border: `1px solid ${theme.palette.divider}`,
-        display: "flex",
-        alignItems: "center",
-        borderRadius: "8px",
-        padding: "8px",
-        marginBottom: "16px",
-        height: "auto",
-        transition: "background-color 0.5s ease",
-      }}
+      className="mb-4 flex h-auto items-center rounded-lg border border-border bg-card p-2 transition-colors"
     >
-      <Box
+      <div
         id="infoButtonBox"
-        sx={{
-          flex: { xs: "none", sm: 1 },
-          display: "flex",
-          justifyContent: { xs: "center", sm: "flex-start" },
-          order: { xs: 1, sm: 1 },
-        }}
+        className="order-1 flex flex-none justify-center sm:flex-1 sm:justify-start"
       >
         {isTruncated && (
-          <IconButton
-            color="warning"
+          <Button
+            variant="ghost"
+            size="icon"
             onClick={() => setTruncationDialogOpen(true)}
+            aria-label="Truncated results"
           >
-            <InfoIcon />
-          </IconButton>
+            <Info className="h-4 w-4 text-amber-500" />
+          </Button>
         )}
         {noTimetablesGenerated && (
-          <IconButton
-            color="error"
+          <Button
+            variant="ghost"
+            size="icon"
             onClick={() => setNoTimetablesDialogOpen(true)}
+            aria-label="No timetables"
           >
-            <CancelIcon />
-          </IconButton>
+            <XCircle className="h-4 w-4 text-destructive" />
+          </Button>
         )}
         {timeslotsOverridden && (
-          <IconButton
-            color="info"
-            onClick={() => setTimeslotsOverriddenDialogOpen(true)}
-          >
-            <InfoIcon />
-          </IconButton>
-        )}
-      </Box>
-      <Box
-        id="calendarNavButtons"
-        sx={{
-          flex: { xs: "none", sm: 1 },
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          whiteSpace: "nowrap",
-          order: { xs: 2, sm: 2 },
-        }}
-      >
-        <Box sx={{ marginRight: 1 }}>
           <Button
-            variant="contained"
+            variant="ghost"
+            size="icon"
+            onClick={() => setTimeslotsOverriddenDialogOpen(true)}
+            aria-label="Timeslots overridden"
+          >
+            <Info className="h-4 w-4 text-sky-500" />
+          </Button>
+        )}
+      </div>
+      <div
+        id="calendarNavButtons"
+        className="order-2 flex flex-none items-center justify-center whitespace-nowrap sm:flex-1"
+      >
+        <div className="mr-1">
+          <Button
+            size="icon"
             onClick={handleFirst}
             disabled={timetables.length <= 1}
+            aria-label="First timetable"
           >
-            <NavigateFirstIcon />
+            <ChevronsLeft className="h-4 w-4" />
           </Button>
-        </Box>
-        <Box sx={{ marginRight: 2 }}>
+        </div>
+        <div className="mr-2">
           <Button
-            variant="contained"
+            size="icon"
             onClick={handlePrevious}
             disabled={timetables.length <= 1}
+            aria-label="Previous timetable"
           >
-            <NavigateBeforeIcon />
+            <ChevronLeft className="h-4 w-4" />
           </Button>
-        </Box>
-        <Box
+        </div>
+        <div
           id="calendarTimetableNumber"
-          sx={{ flex: "0 1 auto", textAlign: "center", minWidth: "80px" }}
+          className="min-w-[80px] flex-[0_1_auto] text-center text-sm"
         >
           {currentTimetableIndex + 1} of {timetables.length}
-        </Box>
-        <Box sx={{ marginLeft: 2 }}>
+        </div>
+        <div className="ml-2">
           <Button
-            variant="contained"
+            size="icon"
             onClick={handleNext}
             disabled={timetables.length <= 1}
+            aria-label="Next timetable"
           >
-            <NavigateNextIcon />
+            <ChevronRight className="h-4 w-4" />
           </Button>
-        </Box>
-        <Box sx={{ marginLeft: 1 }}>
+        </div>
+        <div className="ml-1">
           <Button
-            variant="contained"
+            size="icon"
             onClick={handleLast}
             disabled={timetables.length <= 1}
+            aria-label="Last timetable"
           >
-            <NavigateLastIcon />
+            <ChevronsRight className="h-4 w-4" />
           </Button>
-        </Box>
-      </Box>
-      <Box
+        </div>
+      </div>
+      <div
         id="durationFormBox"
-        sx={{
-          flex: { xs: "none", sm: 1 },
-          display: "flex",
-          justifyContent: { xs: "center", sm: "flex-end" },
-          paddingTop: "4px",
-          paddingBottom: "4px",
-          marginRight: { xs: 0, sm: "4px" },
-          order: { xs: 3, sm: 3 },
-        }}
+        className="order-3 flex flex-none justify-center py-1 sm:flex-1 sm:justify-end sm:pr-1"
       >
-        <FormControl sx={{ width: 160 }} size="small">
-          <InputLabel id="duration-select-label">Duration</InputLabel>
-          <Select
-            labelId="duration-select-label"
-            id="duration-select"
-            label="Duration"
-            value={selectedDuration}
-            onChange={(e) => setSelectedDuration(e.target.value)}
-          >
-            {sortByBracketContent(durations).map((duration, index) => (
-              <MenuItem key={index} value={duration}>
-                {formatDurationText(duration)}
-              </MenuItem>
-            ))}
+        <div className="duration-select w-40">
+          <Select value={selectedDuration} onValueChange={setSelectedDuration}>
+            <SelectTrigger id="duration-select" aria-label="Duration">
+              <SelectValue placeholder="Duration" />
+            </SelectTrigger>
+            <SelectContent>
+              {sortByBracketContent(durations).map((duration, index) => (
+                <SelectItem key={index} value={duration}>
+                  {formatDurationText(duration)}
+                </SelectItem>
+              ))}
+            </SelectContent>
           </Select>
-        </FormControl>
-      </Box>
-    </Box>
+        </div>
+      </div>
+    </div>
   );
 }

@@ -1,18 +1,13 @@
-import React from "react";
-import Button from "@mui/material/Button";
-import Box from "@mui/material/Box";
-import AddBoxIcon from "@mui/icons-material/AddBox";
+import { PlusSquare } from "lucide-react";
+import { Button } from "../../../../components/ui/button";
 
 export default function AddButtonComponent({ onAddCourse }) {
   return (
-    <Box>
-      <Button
-        variant="contained"
-        onClick={onAddCourse}
-        startIcon={<AddBoxIcon />}
-      >
-        Add Course
+    <div>
+      <Button onClick={onAddCourse}>
+        <PlusSquare className="h-4 w-4" />
+        ADD COURSE
       </Button>
-    </Box>
+    </div>
   );
 }

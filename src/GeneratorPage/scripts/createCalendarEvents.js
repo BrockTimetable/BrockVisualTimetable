@@ -1,5 +1,6 @@
 let timeBlockEvents = [];
 import { updateExportData } from "./ExportCal";
+import { isComponentPinned } from "./pinnedComponents";
 
 export const createCalendarEvents = (
   timetable,
@@ -31,6 +32,7 @@ export const createCalendarEvents = (
   ) => {
     const uniqueId = getUniqueId(component.id);
     const customColor = courseColors[course.courseCode] || defaultColor;
+    const resolvedPinType = component.isMain ? "MAIN" : component.type;
     const event = {
       id: uniqueId,
       title: `${course.courseCode} ${component.type} ${
@@ -44,8 +46,15 @@ export const createCalendarEvents = (
       description: component.instructor,
       color: customColor,
       extendedProps: {
-        isPinned: component.pinned,
+        isPinned: isComponentPinned(
+          course.courseCode,
+          resolvedPinType,
+          component.id,
+        ),
         isMain: component.isMain ?? false,
+        courseCode: course.courseCode,
+        componentType: component.type,
+        componentId: component.id,
       },
     };
 

@@ -1,12 +1,12 @@
-import React from "react";
+import { Button } from "../../../components/ui/button";
 import {
   Dialog,
-  DialogActions,
   DialogContent,
-  DialogContentText,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
   DialogTitle,
-  Button,
-} from "@mui/material";
+} from "../../../components/ui/dialog";
 
 export default function TruncationDialog({
   truncationDialogOpen,
@@ -15,28 +15,32 @@ export default function TruncationDialog({
   return (
     <Dialog
       open={truncationDialogOpen}
-      onClose={handleCloseTruncationDialog}
+      onOpenChange={(value) => !value && handleCloseTruncationDialog()}
       aria-labelledby="alert-dialog-title"
       aria-describedby="alert-dialog-description"
       id="truncation-dialog"
     >
-      <DialogTitle id="alert-dialog-title">{"Truncated Results"}</DialogTitle>
       <DialogContent>
-        <DialogContentText id="alert-dialog-description" sx={{ mb: 2 }}>
-          The generated schedule results are truncated because the input is too
-          broad. Some possible course sections may not be shown.
-        </DialogContentText>
-        <DialogContentText>
-          To ensure all results are considered pin down some courses by clicking
-          on them to lock them in place or block out unwanted time blocks by
-          selecting the area on the calendar prior to adding more courses!
-        </DialogContentText>
+        <DialogHeader>
+          <DialogTitle id="alert-dialog-title">Truncated Results</DialogTitle>
+          <DialogDescription
+            id="alert-dialog-description"
+            className="space-y-3"
+          >
+            The generated schedule results are truncated because the input is
+            too broad. Some possible course sections may not be shown.
+            <span className="block">
+              To ensure all results are considered pin down some courses by
+              clicking on them to lock them in place or block out unwanted time
+              blocks by selecting the area on the calendar prior to adding more
+              courses!
+            </span>
+          </DialogDescription>
+        </DialogHeader>
+        <DialogFooter>
+          <Button onClick={handleCloseTruncationDialog}>Close</Button>
+        </DialogFooter>
       </DialogContent>
-      <DialogActions>
-        <Button onClick={handleCloseTruncationDialog} color="primary">
-          Close
-        </Button>
-      </DialogActions>
     </Dialog>
   );
 }

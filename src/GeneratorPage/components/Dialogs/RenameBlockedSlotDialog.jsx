@@ -1,14 +1,15 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
+import { Button } from "../../../components/ui/button";
+import { Input } from "../../../components/ui/input";
+import { Label } from "../../../components/ui/label";
 import {
-  Popover,
   Dialog,
   DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
   DialogTitle,
-  Button,
-  TextField,
-  Box,
-  Typography,
-} from "@mui/material";
+} from "../../../components/ui/dialog";
 import { useIsMobile } from "../../../SiteWide/utils/screenSizeUtils";
 
 export default function RenameBlockedSlotDialog({
@@ -18,9 +19,6 @@ export default function RenameBlockedSlotDialog({
   currentTitle = "",
   isCreating = false,
   isMultipleBlocks = false,
-  anchorEl,
-  anchorPosition,
-  forceAnchorPosition,
 }) {
   const [title, setTitle] = useState(currentTitle);
   const [error, setError] = useState("");
@@ -56,122 +54,52 @@ export default function RenameBlockedSlotDialog({
     }
   };
 
-  const dialogContent = (
-    <Box sx={{ minWidth: 180 }}>
-      <Typography
-        variant="h6"
-        sx={{ mb: 1, fontWeight: 600, fontSize: "1.1rem" }}
-      >
-        {isCreating
-          ? isMultipleBlocks
-            ? "Name Blocked Times"
-            : "Name Blocked Time"
-          : isMultipleBlocks
-            ? "Rename Times"
-            : "Rename Time"}
-      </Typography>
+  return (
+    <Dialog open={open} onOpenChange={(value) => !value && handleClose()}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>
+            {isCreating
+              ? isMultipleBlocks
+                ? "Name Blocked Times"
+                : "Name Blocked Time"
+              : isMultipleBlocks
+                ? "Rename Times"
+                : "Rename Time"}
+          </DialogTitle>
+          <DialogDescription>
+            {isMultipleBlocks
+              ? "Label these time slots"
+              : "Label this time slot"}
+          </DialogDescription>
+        </DialogHeader>
 
-      <Typography
-        variant="body2"
-        sx={{ mb: 2, color: "text.secondary", fontSize: "0.875rem" }}
-      >
-        {isMultipleBlocks ? "Label these time slots" : "Label this time slot"}
-      </Typography>
+        <div className="space-y-2">
+          <Label htmlFor="blocked-slot-name">Block Name</Label>
+          <Input
+            id="blocked-slot-name"
+            autoFocus={!isMobile}
+            value={title}
+            onChange={(e) => {
+              setTitle(e.target.value);
+              if (error) setError("");
+            }}
+            onKeyDown={handleKeyPress}
+            maxLength={50}
+            aria-invalid={!!error}
+          />
+          <p className="text-xs text-muted-foreground">
+            {error || "e.g., Work, Gym"}
+          </p>
+        </div>
 
-      <TextField
-        autoFocus={!isMobile}
-        fullWidth
-        label="Block Name"
-        variant="outlined"
-        size="small"
-        value={title}
-        onChange={(e) => {
-          setTitle(e.target.value);
-          if (error) setError("");
-        }}
-        onKeyPress={handleKeyPress}
-        error={!!error}
-        helperText={error || "e.g., Work, Gym"}
-        inputProps={{
-          maxLength: 50,
-        }}
-        sx={{ mb: 2 }}
-      />
-
-      <Box sx={{ display: "flex", gap: 1, justifyContent: "flex-end" }}>
-        <Button
-          onClick={handleClose}
-          size="small"
-          sx={{ color: "text.secondary", minWidth: 60 }}
-        >
-          Cancel
-        </Button>
-        <Button
-          onClick={handleSave}
-          variant="contained"
-          size="small"
-          sx={{ minWidth: 60 }}
-        >
-          {isCreating ? "Create" : "Save"}
-        </Button>
-      </Box>
-    </Box>
-  );
-
-  return isMobile ? (
-    <Dialog
-      open={open}
-      onClose={handleClose}
-      maxWidth="sm"
-      fullWidth
-      sx={{
-        "& .MuiDialog-paper": {
-          borderRadius: 2,
-          boxShadow: "0 8px 32px rgba(0,0,0,0.12)",
-          border: "1px solid rgba(0,0,0,0.08)",
-        },
-      }}
-    >
-      <DialogContent sx={{ p: 2 }}>{dialogContent}</DialogContent>
+        <DialogFooter>
+          <Button variant="ghost" onClick={handleClose}>
+            Cancel
+          </Button>
+          <Button onClick={handleSave}>{isCreating ? "Create" : "Save"}</Button>
+        </DialogFooter>
+      </DialogContent>
     </Dialog>
-  ) : (
-    <Popover
-      open={open}
-      anchorEl={forceAnchorPosition ? null : anchorEl}
-      {...(forceAnchorPosition || !anchorEl
-        ? {
-            anchorPosition: forceAnchorPosition || {
-              top: 100,
-              left: window.innerWidth / 2,
-            },
-          }
-        : {})}
-      onClose={handleClose}
-      anchorOrigin={{
-        vertical: "bottom",
-        horizontal: "center",
-      }}
-      transformOrigin={{
-        vertical: "top",
-        horizontal: "center",
-      }}
-      anchorReference={
-        forceAnchorPosition
-          ? "anchorPosition"
-          : anchorEl
-            ? "anchorEl"
-            : "anchorPosition"
-      }
-      sx={{
-        "& .MuiPopover-paper": {
-          borderRadius: 2,
-          boxShadow: "0 8px 32px rgba(0,0,0,0.12)",
-          border: "1px solid rgba(0,0,0,0.08)",
-          p: 2,
-        },
-      }}
-    >
-      {dialogContent}
-    </Popover>
   );
 }

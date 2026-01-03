@@ -2,3 +2,16 @@
   width: 25%;
   margin-top: 10px;
 }
+
+[cmdk-item] {
+  pointer-events: auto !important;
+  cursor: pointer !important;
+}
+
+[cmdk-group-heading] {
+  background-color: #b91c1c; /* Red-700 */
+  color: white !important;
+  font-weight: bold;
+  padding: 4px 8px;
+  text-transform: uppercase;
+}

@@ -4,7 +4,10 @@ import {
   filterByDuration,
 } from "./filterUtils";
 import { getBaseComponentId } from "./componentIDUtils";
-import { getPinnedComponents } from "../../pinnedComponents";
+import {
+  getPinnedComponentIds,
+  getPinnedDuration,
+} from "../../pinnedComponents";
 import { emitTruncationWarning } from "./UIEventsUtils";
 
 const maxComboThreshold = 50000;
@@ -41,17 +44,11 @@ export const cartesianProduct = (arrays) => {
 };
 
 export const generateSingleCourseCombinations = (course, timeSlots) => {
-  const pinnedComponents = getPinnedComponents();
-
-  const durationFilter = pinnedComponents.find((p) => {
-    const [pinnedCourse, type] = p.split(" ");
-    return pinnedCourse === course.courseCode && type === "DURATION";
-  });
+  const durationFilter = getPinnedDuration(course.courseCode);
 
   let validMainComponents = course.sections;
   if (durationFilter) {
-    const duration = durationFilter.split(" ")[2];
-    validMainComponents = filterByDuration(validMainComponents, duration);
+    validMainComponents = filterByDuration(validMainComponents, durationFilter);
   }
 
   const { availableGroups: mainAvailable } = filterComponentsAgainstTimeSlots(
@@ -85,13 +82,13 @@ export const generateSingleCourseCombinations = (course, timeSlots) => {
   };
 
   const labs = durationFilter
-    ? filterByDuration(course.labs, durationFilter.split(" ")[2])
+    ? filterByDuration(course.labs, durationFilter)
     : course.labs;
   const tutorials = durationFilter
-    ? filterByDuration(course.tutorials, durationFilter.split(" ")[2])
+    ? filterByDuration(course.tutorials, durationFilter)
     : course.tutorials;
   const seminars = durationFilter
-    ? filterByDuration(course.seminars, durationFilter.split(" ")[2])
+    ? filterByDuration(course.seminars, durationFilter)
     : course.seminars;
 
   const validLabs = processSecondary("LAB", labs);
@@ -99,6 +96,9 @@ export const generateSingleCourseCombinations = (course, timeSlots) => {
   const validSeminars = processSecondary("SEM", seminars);
 
   const singleCourseCombinations = [];
+  const pinnedLabIds = new Set(getPinnedComponentIds(course.courseCode, "LAB"));
+  const pinnedTutIds = new Set(getPinnedComponentIds(course.courseCode, "TUT"));
+  const pinnedSemIds = new Set(getPinnedComponentIds(course.courseCode, "SEM"));
 
   groupedMainComponents.forEach((mainComponentGroup) => {
     const mainComponentDuration = mainComponentGroup[0].schedule.duration;
@@ -123,33 +123,20 @@ export const generateSingleCourseCombinations = (course, timeSlots) => {
     const validTutorialsForMainComponent = matchSecondary(validTutorials);
     const validSeminarsForMainComponent = matchSecondary(validSeminars);
 
-    const pinnedLab = pinnedComponents.find(
-      (p) =>
-        p.includes("LAB") &&
-        !p.includes("LABR") &&
-        p.split(" ")[0] === course.courseCode,
-    );
-    const pinnedTut = pinnedComponents.find(
-      (p) => p.includes("TUT") && p.split(" ")[0] === course.courseCode,
-    );
-    const pinnedSem = pinnedComponents.find(
-      (p) => p.includes("SEM") && p.split(" ")[0] === course.courseCode,
-    );
-
     const isLabValid =
-      !pinnedLab ||
-      validLabsForMainComponent.some(
-        (lab) => getBaseComponentId(lab.id) === pinnedLab.split(" ")[2],
+      pinnedLabIds.size === 0 ||
+      validLabsForMainComponent.some((lab) =>
+        pinnedLabIds.has(getBaseComponentId(lab.id)),
       );
     const isTutValid =
-      !pinnedTut ||
-      validTutorialsForMainComponent.some(
-        (tut) => getBaseComponentId(tut.id) === pinnedTut.split(" ")[2],
+      pinnedTutIds.size === 0 ||
+      validTutorialsForMainComponent.some((tut) =>
+        pinnedTutIds.has(getBaseComponentId(tut.id)),
       );
     const isSemValid =
-      !pinnedSem ||
-      validSeminarsForMainComponent.some(
-        (sem) => getBaseComponentId(sem.id) === pinnedSem.split(" ")[2],
+      pinnedSemIds.size === 0 ||
+      validSeminarsForMainComponent.some((sem) =>
+        pinnedSemIds.has(getBaseComponentId(sem.id)),
       );
 
     if (!isLabValid || !isTutValid || !isSemValid) {

@@ -81,7 +81,7 @@
     padding-bottom: 5px;
   }
 
-  #durationFormBox .MuiFormControl-root {
+  #durationFormBox .duration-select {
     width: 100%;
   }
 
@@ -112,7 +112,7 @@
     justify-content: center;
   }
 
-  #calendarNavButtons > Box {
+  #calendarNavButtons > div {
     margin: 5px;
   }
 
@@ -134,7 +134,7 @@
     padding-bottom: 5px;
   }
 
-  #durationFormBox .MuiFormControl-root {
+  #durationFormBox .duration-select {
     width: 100%;
   }
 

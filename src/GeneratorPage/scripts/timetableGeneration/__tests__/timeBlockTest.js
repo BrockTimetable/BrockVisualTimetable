@@ -104,7 +104,8 @@ vi.mock("../../timeSlots", () => ({
 }));
 
 vi.mock("../../pinnedComponents", () => ({
-  getPinnedComponents: () => ["COSC1P02 DURATION 2"],
+  getPinnedDuration: (courseCode) => (courseCode === "COSC1P02" ? "2" : null),
+  getPinnedComponentIds: () => [],
 }));
 
 describe("COSC-1P02 Timetable Generation Test (All Labs Blocked Except Lab 7", () => {

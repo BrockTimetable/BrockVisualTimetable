@@ -1,4 +1,4 @@
-import React, { createContext, useState, useRef } from "react";
+import { createContext, useState, useRef } from "react";
 
 // Visually distinguishable colors that work well for both light and dark themes
 // Colors are ordered to maximize contrast between consecutive colors
@@ -25,28 +25,10 @@ export const CourseColorsContext = createContext();
 export const CourseColorsProvider = ({ children }) => {
   const [courseColors, setCourseColors] = useState({});
   const [usedColors, setUsedColors] = useState([]);
-  const [timetableHandlers, setTimetableHandlers] = useState(null);
   const [calendarHandler, setCalendarHandler] = useState(null);
-
-  const setTimetableUpdateHandlers = (handlers) => {
-    setTimetableHandlers(handlers);
-  };
 
   const setCalendarUpdateHandler = (handler) => {
     setCalendarHandler(handler);
-  };
-
-  const updateTimetables = () => {
-    if (timetableHandlers) {
-      const {
-        generateTimetables,
-        getValidTimetables,
-        setTimetables,
-        sortOption,
-      } = timetableHandlers;
-      generateTimetables(sortOption);
-      setTimetables(getValidTimetables());
-    }
   };
 
   const updateCalendarColors = () => {
@@ -92,12 +74,16 @@ export const CourseColorsProvider = ({ children }) => {
     }
   };
 
-  const getDefaultColorForCourse = (courseCode) => {
+  const getPreviewColor = () => {
+    return getNextColor();
+  };
+
+  const assignDefaultColorForCourse = (courseCode) => {
     if (courseColors[courseCode]) {
       return courseColors[courseCode];
     }
     const newColor = getNextColor();
-    // Update the colors state immediately to ensure consistency
+    // Update the colors state
     setCourseColors((prev) => ({
       ...prev,
       [courseCode]: newColor,
@@ -106,13 +92,17 @@ export const CourseColorsProvider = ({ children }) => {
     return newColor;
   };
 
+  const getDefaultColorForCourse = (courseCode) =>
+    assignDefaultColorForCourse(courseCode);
+
   return (
     <CourseColorsContext.Provider
       value={{
         courseColors,
         updateCourseColor,
+        assignDefaultColorForCourse,
         getDefaultColorForCourse,
-        setTimetableUpdateHandlers,
+        getPreviewColor,
         setCalendarUpdateHandler,
       }}
     >
