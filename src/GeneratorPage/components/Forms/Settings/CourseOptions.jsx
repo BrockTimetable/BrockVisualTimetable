@@ -10,12 +10,11 @@ export default function CourseOptions({
   term,
   timetableType,
   courseOptions,
-  courseInputValue,
+  courseValue,
   handleTableChange,
   handleTermChange,
   handleCourseCodeChange,
   addCourse,
-  setCourseInputValue,
 }) {
   return (
     <BorderBox title="Course Options">
@@ -29,8 +28,8 @@ export default function CourseOptions({
         timetableType={timetableType}
         term={term}
         onEnterPress={addCourse}
-        inputValue={courseInputValue}
-        setInputValue={setCourseInputValue}
+        value={courseValue}
+        setValue={handleCourseCodeChange}
       />
       <Box sx={{ height: "16px" }} />
       <AddButtonComponent onAddCourse={addCourse} />
