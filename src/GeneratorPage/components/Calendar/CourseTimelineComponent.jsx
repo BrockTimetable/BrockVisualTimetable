@@ -47,20 +47,6 @@ const parseEndDate = (dateStr) => {
   return new Date(dateStr);
 };
 
-const parseUnixTimestampSafe = (value) => {
-  if (!value) return null;
-  const numericValue =
-    typeof value === "number"
-      ? value
-      : typeof value === "string" && /^\d+$/.test(value)
-        ? parseInt(value, 10)
-        : null;
-
-  if (numericValue === null) return null;
-  const timestamp = numericValue > 1e12 ? numericValue : numericValue * 1000;
-  return new Date(timestamp);
-};
-
 const hexToRgba = (hex, alphaValue) => {
   const sanitized = hex.replace("#", "");
   const value =
@@ -114,7 +100,7 @@ export default function CourseTimelineComponent({
 
         if (!matchedDuration) {
           matchedDuration = durations.find((d) => {
-            const [, , durCode] = d.split("-");
+            const [_, __, durCode] = d.split("-");
             return durCode === durationCode;
           });
         }
@@ -238,44 +224,35 @@ export default function CourseTimelineComponent({
     setMousePosition(null);
   };
 
+  if (!addedCourses?.length) {
+    return null;
+  }
+
   const coursesWithDates = addedCourses
-    .map((courseItem) => {
+    .map((course) => {
       try {
+        const courseName = course.code?.toUpperCase();
         const courseString =
-          typeof courseItem === "string"
-            ? courseItem
-            : courseItem?.string ||
-              `${courseItem?.code || ""} ${courseItem?.section || ""}`.trim();
+          course.string ||
+          `${course.code} ${course.section || ""} (${course.duration || ""})`;
 
-        if (!courseString) {
-          return null;
-        }
-
-        const courseName =
-          typeof courseItem === "object" && courseItem?.code
-            ? courseItem.code
-            : courseString.split(" ").slice(0, 2).join("");
-
-        const course = courseDetails.find(
-          (detail) => detail.name === courseName,
-        );
-        const hasDirectDates =
-          typeof courseItem === "object" &&
-          (courseItem?.startDate || courseItem?.endDate);
+        let startDate = course.startDate
+          ? parseStartDate(course.startDate)
+          : null;
+        let endDate = course.endDate ? parseEndDate(course.endDate) : null;
 
         if (
-          !hasDirectDates &&
-          (!course || !course.startDate || !course.endDate)
+          !startDate ||
+          !endDate ||
+          isNaN(startDate.getTime()) ||
+          isNaN(endDate.getTime())
         ) {
-          return null;
+          const detail = courseDetails?.find((d) => d?.name === courseName);
+          if (detail?.startDate && detail?.endDate) {
+            startDate = parseStartDate(detail.startDate);
+            endDate = parseEndDate(detail.endDate);
+          }
         }
-
-        const startDate = hasDirectDates
-          ? parseUnixTimestampSafe(courseItem.startDate)
-          : parseStartDate(course.startDate);
-        const endDate = hasDirectDates
-          ? parseUnixTimestampSafe(courseItem.endDate)
-          : parseEndDate(course.endDate);
 
         if (
           !startDate ||
@@ -293,9 +270,7 @@ export default function CourseTimelineComponent({
           endDate,
           color:
             courseColors[courseName] || getDefaultColorForCourse(courseName),
-          duration: hasDirectDates
-            ? courseItem.duration || ""
-            : course.duration || "",
+          duration: course.duration || "",
         };
       } catch (error) {
         console.error("Error processing course:", error);
@@ -371,7 +346,7 @@ export default function CourseTimelineComponent({
 
   return (
     <TooltipProvider>
-      <div className="course-timeline-container mb-2 px-0.5">
+      <div className="mb-2 px-0.5">
         <div
           onClick={handleTimelineClick}
           onMouseMove={handleTimelineMouseMove}
@@ -462,11 +437,13 @@ export default function CourseTimelineComponent({
                       onClick={(event) => handleCourseClick(course, event)}
                       onMouseEnter={() => setHoveredCourse(course.code)}
                       onMouseLeave={() => setHoveredCourse(null)}
-                      className="absolute z-[4] ml-1 flex h-3 -translate-y-1/2 cursor-pointer items-center rounded-sm bg-card/85 px-1 text-[0.65rem] font-semibold text-foreground shadow-none transition-all"
+                      className="absolute z-[4] ml-1 flex h-3 -translate-y-1/2 cursor-pointer items-center rounded-sm bg-card/85 px-1 text-[0.65rem] font-semibold text-foreground shadow-none transition-all hover:bg-card/95 active:scale-[0.98] active:-translate-y-[45%]"
                       style={{
                         left: `${course.startPercent}%`,
                         top: 12 + index * 24,
                         boxShadow,
+                        textShadow:
+                          "0 1px 2px rgba(0,0,0,0.5), 0 1px 0 rgba(255,255,255,0.9)",
                       }}
                     >
                       {course.code}
@@ -481,7 +458,7 @@ export default function CourseTimelineComponent({
                       onMouseEnter={() => setHoveredCourse(course.code)}
                       onMouseLeave={() => setHoveredCourse(null)}
                       onClick={(event) => handleCourseClick(course, event)}
-                      className="absolute z-[2] h-3 cursor-pointer rounded-full transition-all"
+                      className="absolute z-[2] h-3 cursor-pointer rounded-full transition-all hover:opacity-100 hover:-translate-y-px active:scale-[0.98] active:translate-y-0"
                       style={{
                         left: `${course.startPercent}%`,
                         top: 12 + index * 24,
@@ -493,6 +470,7 @@ export default function CourseTimelineComponent({
                             ? "translateY(-1px)"
                             : "none",
                         boxShadow,
+                        zIndex: hoveredCourse === course.code ? 3 : 2,
                       }}
                     />
                   </TooltipTrigger>

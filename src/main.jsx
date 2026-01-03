@@ -5,6 +5,7 @@ import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import GeneratorPage from "./GeneratorPage";
 import GuidePage from "./GuidePage";
 import ColorModeContext from "./SiteWide/contexts/ColorModeContext";
+import { ScreenSizeProvider } from "./SiteWide/contexts/ScreenSizeContext";
 import CustomSnackbarProvider from "./SiteWide/components/SnackbarProvider";
 import ReactGA from "react-ga4";
 import "./index.css";
@@ -66,12 +67,14 @@ const App = () => {
 
   return (
     <Router>
-      <ColorModeContext.Provider value={colorMode}>
-        <Routes>
-          <Route path="/" element={<GeneratorPage />} />
-          <Route path="/guide" element={<GuidePage />} />
-        </Routes>
-      </ColorModeContext.Provider>
+      <ScreenSizeProvider>
+        <ColorModeContext.Provider value={colorMode}>
+          <Routes>
+            <Route path="/" element={<GeneratorPage />} />
+            <Route path="/guide" element={<GuidePage />} />
+          </Routes>
+        </ColorModeContext.Provider>
+      </ScreenSizeProvider>
     </Router>
   );
 };

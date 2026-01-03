@@ -1,20 +1,13 @@
-import { useEffect, useState } from "react";
+import { useScreenSize } from "../contexts/ScreenSizeContext";
 
-const useMediaQuery = (query) => {
-  const [matches, setMatches] = useState(() =>
-    typeof window !== "undefined" ? window.matchMedia(query).matches : false,
-  );
-
-  useEffect(() => {
-    const mediaQuery = window.matchMedia(query);
-    const handleChange = (event) => setMatches(event.matches);
-    mediaQuery.addEventListener("change", handleChange);
-    return () => mediaQuery.removeEventListener("change", handleChange);
-  }, [query]);
-
-  return matches;
+// These hooks now use the centralized ScreenSizeContext for better performance
+// The context uses both matchMedia and a throttled resize listener for immediate updates
+export const useIsMobile = () => {
+  const { isMobile } = useScreenSize();
+  return isMobile;
 };
 
-export const useIsMobile = () => useMediaQuery("(max-width: 600px)");
-
-export const useIsBelowMedium = () => useMediaQuery("(max-width: 900px)");
+export const useIsBelowMedium = () => {
+  const { isBelowMedium } = useScreenSize();
+  return isBelowMedium;
+};
