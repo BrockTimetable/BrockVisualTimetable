@@ -63,9 +63,9 @@ function GeneratorPage() {
         <div className="flex min-w-[350px] justify-center">
           <div className="w-full max-w-[1280px] pb-8">
             <NavbarComponent />
-            <div className="grid grid-cols-1 md:grid-cols-12">
+            <div className="grid grid-cols-1 gap-0 md:grid-cols-12 md:gap-0">
               <div className="md:col-span-4">
-                <div className="m-2">
+                <div className="m-0 sm:m-2">
                   <InputFormTopComponent
                     setTimetables={setTimetables}
                     setSelectedDuration={setSelectedDuration}
@@ -89,7 +89,7 @@ function GeneratorPage() {
                 </div>
               </div>
               <div className="md:col-span-8">
-                <div className="m-2 mt-0 sm:mt-2">
+                <div className="m-0 sm:m-2 sm:mt-2">
                   <CalendarComponent
                     timetables={timetables}
                     setTimetables={setTimetables}
@@ -102,7 +102,7 @@ function GeneratorPage() {
               </div>
               {isBelowMedium && (
                 <div className="md:col-span-12">
-                  <div className="m-2 mt-0 sm:mt-2">
+                  <div className="m-0 sm:m-2 sm:mt-2">
                     <InputFormBottomComponent
                       addedCourses={addedCourses}
                       setAddedCourses={setAddedCourses}

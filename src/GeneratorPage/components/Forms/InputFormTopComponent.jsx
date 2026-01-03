@@ -192,7 +192,7 @@ export default function InputFormTop({
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-0 sm:space-y-4">
       <CourseOptions
         term={term}
         timetableType={timetableType}
