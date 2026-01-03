@@ -56,6 +56,9 @@ export default function InputFormTop({
   const handleCourseCodeChange = (e, value) => {
     setCourseValue(value || "");
   };
+  const handleSetCourseValue = (value) => {
+    setCourseValue(value || "");
+  };
 
   const addCourse = async () => {
     const upperCode = (courseValue || "").trim().toUpperCase();
@@ -215,6 +218,7 @@ export default function InputFormTop({
             handleTableChange={handleTableChange}
             handleTermChange={handleTermChange}
             handleCourseCodeChange={handleCourseCodeChange}
+            setCourseValue={handleSetCourseValue}
             addCourse={addCourse}
           />
         </Grid>

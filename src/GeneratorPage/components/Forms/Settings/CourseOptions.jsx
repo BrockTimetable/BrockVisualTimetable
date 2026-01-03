@@ -14,6 +14,7 @@ export default function CourseOptions({
   handleTableChange,
   handleTermChange,
   handleCourseCodeChange,
+  setCourseValue,
   addCourse,
 }) {
   return (
@@ -29,7 +30,7 @@ export default function CourseOptions({
         term={term}
         onEnterPress={addCourse}
         value={courseValue}
-        setValue={handleCourseCodeChange}
+        setValue={setCourseValue}
       />
       <Box sx={{ height: "16px" }} />
       <AddButtonComponent onAddCourse={addCourse} />
