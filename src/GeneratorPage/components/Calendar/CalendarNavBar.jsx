@@ -1,20 +1,19 @@
 import React from "react";
-import {
-  Box,
-  Button,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  IconButton,
-  useTheme,
-} from "@mui/material";
+import { Box, IconButton, useTheme } from "@mui/material";
 import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 import NavigateFirstIcon from "@mui/icons-material/FirstPage";
 import NavigateLastIcon from "@mui/icons-material/LastPage";
 import InfoIcon from "@mui/icons-material/Info";
 import CancelIcon from "@mui/icons-material/Cancel";
+import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 // Helper function to format duration display text from Unix timestamps
 const formatDurationText = (duration) => {
@@ -111,18 +110,18 @@ export default function CalendarNavBar({
       >
         <Box sx={{ marginRight: 1 }}>
           <Button
-            variant="contained"
             onClick={handleFirst}
             disabled={timetables.length <= 1}
+            size="icon"
           >
             <NavigateFirstIcon />
           </Button>
         </Box>
         <Box sx={{ marginRight: 2 }}>
           <Button
-            variant="contained"
             onClick={handlePrevious}
             disabled={timetables.length <= 1}
+            size="icon"
           >
             <NavigateBeforeIcon />
           </Button>
@@ -135,18 +134,18 @@ export default function CalendarNavBar({
         </Box>
         <Box sx={{ marginLeft: 2 }}>
           <Button
-            variant="contained"
             onClick={handleNext}
             disabled={timetables.length <= 1}
+            size="icon"
           >
             <NavigateNextIcon />
           </Button>
         </Box>
         <Box sx={{ marginLeft: 1 }}>
           <Button
-            variant="contained"
             onClick={handleLast}
             disabled={timetables.length <= 1}
+            size="icon"
           >
             <NavigateLastIcon />
           </Button>
@@ -164,22 +163,18 @@ export default function CalendarNavBar({
           order: { xs: 3, sm: 3 },
         }}
       >
-        <FormControl sx={{ width: 160 }} size="small">
-          <InputLabel id="duration-select-label">Duration</InputLabel>
-          <Select
-            labelId="duration-select-label"
-            id="duration-select"
-            label="Duration"
-            value={selectedDuration}
-            onChange={(e) => setSelectedDuration(e.target.value)}
-          >
+        <Select value={selectedDuration} onValueChange={setSelectedDuration}>
+          <SelectTrigger className="duration-select" aria-label="Duration">
+            <SelectValue placeholder="Duration" />
+          </SelectTrigger>
+          <SelectContent>
             {sortByBracketContent(durations).map((duration, index) => (
-              <MenuItem key={index} value={duration}>
+              <SelectItem key={index} value={duration}>
                 {formatDurationText(duration)}
-              </MenuItem>
+              </SelectItem>
             ))}
-          </Select>
-        </FormControl>
+          </SelectContent>
+        </Select>
       </Box>
     </Box>
   );

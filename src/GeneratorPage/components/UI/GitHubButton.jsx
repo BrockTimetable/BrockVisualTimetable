@@ -1,31 +1,22 @@
 import React from "react";
-import { Box, Button } from "@mui/material";
+import { Box } from "@mui/material";
 import GitHubIcon from "@mui/icons-material/GitHub";
-import { useTheme } from "@mui/material/styles";
+import { Button } from "@/components/ui/button";
 
 const GitHubButton = () => {
-  const theme = useTheme();
-
   return (
     <Box
       sx={{ display: "flex", justifyContent: "center", alignItems: "center" }}
     >
-      <Button
-        component="a"
-        href="https://github.com/BrockTimetable/BrockVisualTimetable"
-        target="_blank"
-        rel="noopener noreferrer"
-        sx={{
-          backgroundColor: "black",
-          color: "white",
-          "&:hover": {
-            backgroundColor: "black",
-          },
-        }}
-        variant="contained"
-        startIcon={<GitHubIcon />}
-      >
-        View on GitHub
+      <Button asChild className="bg-black text-white hover:bg-black">
+        <a
+          href="https://github.com/BrockTimetable/BrockVisualTimetable"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <GitHubIcon className="mr-2 h-4 w-4" />
+          View on GitHub
+        </a>
       </Button>
     </Box>
   );

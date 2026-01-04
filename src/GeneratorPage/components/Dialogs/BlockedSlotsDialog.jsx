@@ -5,8 +5,8 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle,
-  Button,
 } from "@mui/material";
+import { Button } from "@/components/ui/button";
 
 export default function BlockedSlotsDialog({
   timeslotsOverriddenDialogOpen,
@@ -49,9 +49,7 @@ export default function BlockedSlotsDialog({
         </DialogContentText>
       </DialogContent>
       <DialogActions>
-        <Button onClick={handleCloseBlockedSlotsDialog} color="primary">
-          Close
-        </Button>
+        <Button onClick={handleCloseBlockedSlotsDialog}>Close</Button>
       </DialogActions>
     </Dialog>
   );

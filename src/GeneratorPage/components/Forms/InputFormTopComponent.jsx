@@ -60,8 +60,10 @@ export default function InputFormTop({
     setCourseValue(value || "");
   };
 
-  const addCourse = async () => {
-    const upperCode = (courseValue || "").trim().toUpperCase();
+  const addCourse = async (overrideValue) => {
+    const upperCode = ((overrideValue ?? courseValue) || "")
+      .trim()
+      .toUpperCase();
     if (!validateInputs(upperCode)) return;
 
     const { cleanCourseCode, duration } = parseCourseCode(upperCode);
@@ -199,10 +201,10 @@ export default function InputFormTop({
     setSelectedDuration(durationLabel);
   };
 
-  const handleSortChange = (e) => {
-    setSortChoice(e.target.value);
-    setSortOption(e.target.value);
-    generateTimetables(e.target.value);
+  const handleSortChange = (value) => {
+    setSortChoice(value);
+    setSortOption(value);
+    generateTimetables(value);
     setTimetables(getValidTimetables());
   };
 

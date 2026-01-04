@@ -8,7 +8,7 @@ import CssBaseline from "@mui/material/CssBaseline";
 import ColorModeContext from "./SiteWide/contexts/ColorModeContext";
 import CustomSnackbarProvider from "./SiteWide/components/SnackbarProvider";
 import ReactGA from "react-ga4";
-import "./GeneratorPage/css/index.css";
+import "./index.css";
 
 const App = () => {
   ReactGA.initialize("G-M2NP1M6YSK");
@@ -111,6 +111,7 @@ const App = () => {
     document.body.classList.toggle("dark-mode", mode === "dark");
     document.documentElement.classList.toggle("light-mode", mode === "light");
     document.documentElement.classList.toggle("dark-mode", mode === "dark");
+    document.documentElement.classList.toggle("dark", mode === "dark");
   }, [
     theme.palette.divider,
     theme.palette.outline,

@@ -1,45 +1,36 @@
 import React from "react";
-import "../../../css/TermSelect.css";
-
-import Box from "@mui/material/Box";
-import InputLabel from "@mui/material/InputLabel";
-import MenuItem from "@mui/material/MenuItem";
-import FormControl from "@mui/material/FormControl";
-import Select from "@mui/material/Select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export default function TermSelectComponent({ onTermChange }) {
   const [term, setTerm] = React.useState("FW");
 
-  function handleTermChange(event) {
-    const selectedTerm = event.target.value;
+  function handleTermChange(selectedTerm) {
     setTerm(selectedTerm);
     onTermChange(selectedTerm);
   }
 
   return (
-    <>
-      <Box>
-        <FormControl id="termSelectComponent" fullWidth>
-          <InputLabel id="term-select-label">Term</InputLabel>
-          <Select
-            labelId="term-select-label"
-            value={term}
-            label="Term"
-            onChange={handleTermChange}
-          >
-            <MenuItem value={""}>Select Term</MenuItem>
-            <MenuItem disabled={false} value={"FW"}>
-              Fall/Winter
-            </MenuItem>
-            <MenuItem disabled={true} value={"SP"}>
-              Spring 2025
-            </MenuItem>
-            <MenuItem disabled={true} value={"SU"}>
-              Summer 2025
-            </MenuItem>
-          </Select>
-        </FormControl>
-      </Box>
-    </>
+    <div id="termSelectComponent">
+      <Select value={term} onValueChange={handleTermChange}>
+        <SelectTrigger className="w-full" aria-label="Term">
+          <SelectValue placeholder="Select Term" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="FW">Fall/Winter</SelectItem>
+          <SelectItem disabled value="SP">
+            Spring 2025
+          </SelectItem>
+          <SelectItem disabled value="SU">
+            Summer 2025
+          </SelectItem>
+        </SelectContent>
+      </Select>
+    </div>
   );
 }

@@ -5,8 +5,8 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle,
-  Button,
 } from "@mui/material";
+import { Button } from "@/components/ui/button";
 
 export default function NoTimetablesDialog({
   noTimetablesDialogOpen,
@@ -39,9 +39,7 @@ export default function NoTimetablesDialog({
         </DialogContentText>
       </DialogContent>
       <DialogActions>
-        <Button onClick={handleCloseNoTimetablesDialog} color="primary">
-          Close
-        </Button>
+        <Button onClick={handleCloseNoTimetablesDialog}>Close</Button>
       </DialogActions>
     </Dialog>
   );

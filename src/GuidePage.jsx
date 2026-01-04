@@ -7,8 +7,6 @@ import { useIsBelowMedium } from "./SiteWide/utils/screenSizeUtils";
 import ReactGA from "react-ga4";
 import Typography from "@mui/material/Typography";
 import Link from "@mui/material/Link";
-import MenuItem from "@mui/material/MenuItem";
-import Select from "@mui/material/Select";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import ListItemText from "@mui/material/ListItemText";

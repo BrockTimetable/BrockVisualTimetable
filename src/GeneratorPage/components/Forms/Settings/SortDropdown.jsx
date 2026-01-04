@@ -1,20 +1,26 @@
 import React from "react";
-import Select from "@mui/material/Select";
-import MenuItem from "@mui/material/MenuItem";
-import FormControl from "@mui/material/FormControl";
-import InputLabel from "@mui/material/InputLabel";
 import Box from "@mui/material/Box";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
-export default function SortDropdown({ value, onChange }) {
+export default function SortDropdown({ value, onValueChange }) {
   return (
     <Box>
-      <FormControl fullWidth>
-        <Select value={value} onChange={onChange} displayEmpty>
-          <MenuItem value="default">Default</MenuItem>
-          <MenuItem value="sortByWaitingTime">Minimize Class Gaps</MenuItem>
-          <MenuItem value="minimizeClassDays">Minimize Class Days</MenuItem>
-        </Select>
-      </FormControl>
+      <Select value={value} onValueChange={onValueChange}>
+        <SelectTrigger className="w-full" aria-label="Sort options">
+          <SelectValue placeholder="Sort options" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="default">Default</SelectItem>
+          <SelectItem value="sortByWaitingTime">Minimize Class Gaps</SelectItem>
+          <SelectItem value="minimizeClassDays">Minimize Class Days</SelectItem>
+        </SelectContent>
+      </Select>
     </Box>
   );
 }

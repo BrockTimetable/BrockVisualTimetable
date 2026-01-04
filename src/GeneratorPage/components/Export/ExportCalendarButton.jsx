@@ -1,10 +1,10 @@
 import React from "react";
-import { Button } from "@mui/material";
+import { Button } from "@/components/ui/button";
 import { exportCal } from "../../scripts/ExportCal.js";
 
 export default function ExportCalendarButton() {
   return (
-    <Button variant="outlined" onClick={exportCal}>
+    <Button variant="outline" onClick={exportCal}>
       Export Calendar
     </Button>
   );

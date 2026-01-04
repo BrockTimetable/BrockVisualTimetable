@@ -23,6 +23,10 @@
   margin-left: 0;
 }
 
+.duration-select {
+  width: 160px;
+}
+
 #calPrev,
 #calNext {
   margin: 0 1%;
@@ -81,7 +85,7 @@
     padding-bottom: 5px;
   }
 
-  #durationFormBox .MuiFormControl-root {
+  #durationFormBox .duration-select {
     width: 100%;
   }
 
@@ -134,7 +138,7 @@
     padding-bottom: 5px;
   }
 
-  #durationFormBox .MuiFormControl-root {
+  #durationFormBox .duration-select {
     width: 100%;
   }
 

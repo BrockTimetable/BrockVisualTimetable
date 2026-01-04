@@ -5,8 +5,8 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle,
-  Button,
 } from "@mui/material";
+import { Button } from "@/components/ui/button";
 
 export default function TruncationDialog({
   truncationDialogOpen,
@@ -33,9 +33,7 @@ export default function TruncationDialog({
         </DialogContentText>
       </DialogContent>
       <DialogActions>
-        <Button onClick={handleCloseTruncationDialog} color="primary">
-          Close
-        </Button>
+        <Button onClick={handleCloseTruncationDialog}>Close</Button>
       </DialogActions>
     </Dialog>
   );

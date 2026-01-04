@@ -4,12 +4,12 @@ import {
   Dialog,
   DialogContent,
   DialogTitle,
-  Button,
   TextField,
   Box,
   Typography,
 } from "@mui/material";
 import { useIsMobile } from "../../../SiteWide/utils/screenSizeUtils";
+import { Button } from "@/components/ui/button";
 
 export default function RenameBlockedSlotDialog({
   open,
@@ -101,17 +101,13 @@ export default function RenameBlockedSlotDialog({
       <Box sx={{ display: "flex", gap: 1, justifyContent: "flex-end" }}>
         <Button
           onClick={handleClose}
-          size="small"
-          sx={{ color: "text.secondary", minWidth: 60 }}
+          size="sm"
+          variant="ghost"
+          className="min-w-[60px] text-muted-foreground"
         >
           Cancel
         </Button>
-        <Button
-          onClick={handleSave}
-          variant="contained"
-          size="small"
-          sx={{ minWidth: 60 }}
-        >
+        <Button onClick={handleSave} size="sm" className="min-w-[60px]">
           {isCreating ? "Create" : "Save"}
         </Button>
       </Box>
