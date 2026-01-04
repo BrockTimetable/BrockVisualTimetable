@@ -47,6 +47,8 @@ export default function CalendarNavBar({
   setTimeslotsOverriddenDialogOpen,
 }) {
   const theme = useTheme();
+  const navButtonClassName =
+    "bg-red-600 text-white hover:bg-red-700 disabled:bg-red-600/40 transition-none";
 
   return (
     <Box
@@ -60,7 +62,6 @@ export default function CalendarNavBar({
         padding: "8px",
         marginBottom: "16px",
         height: "auto",
-        transition: "background-color 0.5s ease",
       }}
     >
       <Box
@@ -113,6 +114,7 @@ export default function CalendarNavBar({
             onClick={handleFirst}
             disabled={timetables.length <= 1}
             size="icon"
+            className={navButtonClassName}
           >
             <NavigateFirstIcon />
           </Button>
@@ -122,6 +124,7 @@ export default function CalendarNavBar({
             onClick={handlePrevious}
             disabled={timetables.length <= 1}
             size="icon"
+            className={navButtonClassName}
           >
             <NavigateBeforeIcon />
           </Button>
@@ -137,6 +140,7 @@ export default function CalendarNavBar({
             onClick={handleNext}
             disabled={timetables.length <= 1}
             size="icon"
+            className={navButtonClassName}
           >
             <NavigateNextIcon />
           </Button>
@@ -146,6 +150,7 @@ export default function CalendarNavBar({
             onClick={handleLast}
             disabled={timetables.length <= 1}
             size="icon"
+            className={navButtonClassName}
           >
             <NavigateLastIcon />
           </Button>
@@ -164,7 +169,10 @@ export default function CalendarNavBar({
         }}
       >
         <Select value={selectedDuration} onValueChange={setSelectedDuration}>
-          <SelectTrigger className="duration-select" aria-label="Duration">
+          <SelectTrigger
+            className="duration-select w-auto"
+            aria-label="Duration"
+          >
             <SelectValue placeholder="Duration" />
           </SelectTrigger>
           <SelectContent>

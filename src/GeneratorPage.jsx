@@ -28,6 +28,7 @@ import {
   clearCoursePins,
   clearAllPins,
 } from "./GeneratorPage/scripts/pinnedComponents";
+import FooterComponent from "./SiteWide/components/FooterComponent";
 
 function GeneratorPage() {
   ReactGA.send({
@@ -91,9 +92,16 @@ function GeneratorPage() {
           setTimetables={setTimetables}
           sortOption={sortOption}
         />
-        <Box sx={{ minWidth: 350, display: "flex", justifyContent: "center" }}>
+        <Box
+          sx={{
+            minWidth: 350,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+          }}
+        >
           <CssBaseline />
-          <Box sx={{ maxWidth: 1280, width: "100%" }} mb={8}>
+          <Box sx={{ maxWidth: 1280, width: "100%" }}>
             <NavbarComponent />
             <Grid container spacing={0} justifyContent="center">
               <Grid item xs={12} md={4}>
@@ -151,6 +159,7 @@ function GeneratorPage() {
               open={isChangelogOpen}
               handleClose={handleCloseChangelog}
             />
+            <FooterComponent />
           </Box>
         </Box>
       </CourseColorsProvider>

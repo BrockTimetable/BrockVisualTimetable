@@ -16,6 +16,7 @@ import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
 import { useTheme } from "@mui/material/styles";
 import Divider from "@mui/material/Divider";
+import FooterComponent from "./SiteWide/components/FooterComponent";
 
 function GuidePage() {
   ReactGA.send({
@@ -56,14 +57,21 @@ function GuidePage() {
   };
 
   return (
-    <Box sx={{ minWidth: 350, display: "flex", justifyContent: "center" }}>
+    <Box
+      sx={{
+        minWidth: 350,
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+      }}
+    >
       <CssBaseline />
       <Box sx={{ maxWidth: 1280, width: "100%" }}>
         <NavbarComponent />
         <Box sx={{ maxWidth: 960, width: "100%", mx: "auto" }}>
           <Grid container spacing={0} justifyContent="center">
             <Grid item xs={12}>
-              <Box m={2} mb={8}>
+              <Box m={2}>
                 <Typography variant="h5" gutterBottom>
                   <strong>Guide to Course Registration</strong>
                 </Typography>
@@ -419,6 +427,7 @@ function GuidePage() {
             </Grid>
           </Grid>
         </Box>
+        <FooterComponent />
       </Box>
     </Box>
   );

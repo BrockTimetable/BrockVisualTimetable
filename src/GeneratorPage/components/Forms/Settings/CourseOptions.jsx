@@ -3,7 +3,6 @@ import Box from "@mui/material/Box";
 import TimeTableSelectComponent from "../CourseSearch/TimeTableSelectComponent";
 import TermSelectComponent from "../CourseSearch/TermSelectComponent";
 import CourseSearchComponent from "../CourseSearch/CourseSearchComponent";
-import AddButtonComponent from "../CourseSearch/AddButtonComponent";
 import BorderBox from "../../UI/BorderBox";
 
 export default function CourseOptions({
@@ -20,9 +19,9 @@ export default function CourseOptions({
   return (
     <BorderBox title="Course Options">
       <TimeTableSelectComponent onTableChange={handleTableChange} />
-      <Box sx={{ height: "16px" }} />
+      <Box sx={{ height: "12px" }} />
       <TermSelectComponent onTermChange={handleTermChange} />
-      <Box sx={{ height: "16px" }} />
+      <Box sx={{ height: "12px" }} />
       <CourseSearchComponent
         onCourseCodeChange={handleCourseCodeChange}
         courseOptions={courseOptions}
@@ -32,8 +31,6 @@ export default function CourseOptions({
         value={courseValue}
         setValue={setCourseValue}
       />
-      <Box sx={{ height: "16px" }} />
-      <AddButtonComponent onAddCourse={addCourse} />
     </BorderBox>
   );
 }

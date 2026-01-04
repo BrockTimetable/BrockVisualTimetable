@@ -2,7 +2,6 @@ import React from "react";
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
 import CourseList from "./CourseList/CourseList";
-import SourceCode from "../UI/SourceCode";
 import PerformanceMetrics from "./Settings/PerformanceMetrics";
 import Tips from "./Settings/Tips";
 import ExportOptions from "./Settings/ExportOptions";
@@ -49,9 +48,6 @@ export default function InputFormBottomComponent({
         )}
         <Grid item xs={12}>
           <ExportOptions />
-        </Grid>
-        <Grid item xs={12}>
-          <SourceCode />
         </Grid>
       </Grid>
     </Box>

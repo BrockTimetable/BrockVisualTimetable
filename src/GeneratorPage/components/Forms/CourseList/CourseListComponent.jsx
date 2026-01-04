@@ -1,9 +1,6 @@
 import React, { useContext } from "react";
 import CourseListItemComponent from "./CourseListItemComponent";
-import Box from "@mui/material/Box";
-import List from "@mui/material/List";
 import { CourseDetailsContext } from "../../../contexts/CourseDetailsContext";
-import { useTheme } from "@mui/material/styles";
 
 export default function CourseListComponent({
   courses = [],
@@ -19,26 +16,22 @@ export default function CourseListComponent({
   };
 
   return (
-    <Box>
+    <div className="space-y-3">
       {courses.length === 0 && (
-        <p style={{ textAlign: "center", bgcolor: "text.primary" }}>
+        <p className="text-center text-sm text-muted-foreground">
           No courses added
         </p>
       )}
-      {courses.length > 0 && (
-        <List fullWidth component="nav" aria-labelledby="nested-list-subheader">
-          {courses.map((course) => (
-            <CourseListItemComponent
-              course={course}
-              courseDetail={getCourseDetail(course)}
-              removeCourse={onRemoveCourse}
-              setTimetables={setTimetables}
-              sortOption={sortOption}
-              key={course}
-            />
-          ))}
-        </List>
-      )}
-    </Box>
+      {courses.map((course) => (
+        <CourseListItemComponent
+          course={course}
+          courseDetail={getCourseDetail(course)}
+          removeCourse={onRemoveCourse}
+          setTimetables={setTimetables}
+          sortOption={sortOption}
+          key={course}
+        />
+      ))}
+    </div>
   );
 }

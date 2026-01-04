@@ -56,8 +56,5 @@
 
   body {
     @apply bg-background text-foreground;
-    transition:
-      background-color 0.5s ease,
-      color 0.5s ease;
   }
 }

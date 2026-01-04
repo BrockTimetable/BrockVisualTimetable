@@ -94,7 +94,7 @@ export default function CourseSearchComponent({
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="w-full justify-between"
+          className="w-full justify-between transition-none"
         >
           {value ? value : "Add a course"}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
