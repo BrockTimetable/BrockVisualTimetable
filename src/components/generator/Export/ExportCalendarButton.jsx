@@ -4,7 +4,7 @@ import { exportCal } from "@/lib/generator/ExportCal.js";
 
 export default function ExportCalendarButton() {
   return (
-    <Button variant="outline" onClick={exportCal}>
+    <Button variant="outline" onClick={exportCal} className="transition-none">
       Export Calendar
     </Button>
   );
