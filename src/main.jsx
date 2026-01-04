@@ -1,14 +1,14 @@
 import React, { useMemo, useState, useEffect } from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-import GeneratorPage from "./GeneratorPage";
-import GuidePage from "./GuidePage";
+import GeneratorPage from "@/pages/GeneratorPage";
+import GuidePage from "@/pages/GuidePage";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
-import ColorModeContext from "./SiteWide/contexts/ColorModeContext";
-import CustomSnackbarProvider from "./SiteWide/components/SnackbarProvider";
+import ColorModeContext from "@/lib/contexts/sitewide/ColorModeContext";
+import CustomSnackbarProvider from "@/components/sitewide/SnackbarProvider";
 import ReactGA from "react-ga4";
-import "./index.css";
+import "@/styles/index.css";
 
 const App = () => {
   ReactGA.initialize("G-M2NP1M6YSK");
