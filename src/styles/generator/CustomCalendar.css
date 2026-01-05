@@ -68,3 +68,11 @@ body.dark-mode .fc-event {
 .fc-timegrid-event .fc-event-main {
   padding: 0;
 }
+
+.fc .fc-timegrid-axis-cushion {
+  font-size: 0.875rem !important;
+}
+
+.fc .fc-timegrid-axis {
+  width: 70px !important;
+}
