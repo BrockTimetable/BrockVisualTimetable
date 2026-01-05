@@ -3,7 +3,6 @@ import FullCalendar from "@fullcalendar/react";
 import { useSnackbar } from "notistack";
 import CalendarNavBar from "./CalendarNavBar";
 import BorderBox from "../UI/BorderBox";
-import { CalendarDialogs } from "./components/CalendarDialogs";
 import CourseTimelineComponent from "./CourseTimelineComponent";
 import RenameBlockedSlotDialog from "../Dialogs/RenameBlockedSlotDialog";
 import "@/styles/generator/Calendar.css";
@@ -58,13 +57,9 @@ export default function CalendarComponent({
   const { courseColors, setCalendarUpdateHandler, getDefaultColorForCourse } =
     useContext(CourseColorsContext);
   const [isTruncated, setIsTruncated] = useState(false);
-  const [truncationDialogOpen, setTruncationDialogOpen] = useState(false);
   const [noTimetablesGenerated, setNoTimetablesGenerated] = useState(false);
-  const [noTimetablesDialogOpen, setNoTimetablesDialogOpen] = useState(false);
   const [noCourses, setNoCourses] = useState(true);
   const [timeslotsOverridden, setTimeslotsOverridden] = useState(false);
-  const [timeslotsOverriddenDialogOpen, setTimeslotsOverriddenDialogOpen] =
-    useState(false);
   const [showWeekends, setShowWeekends] = useState(false);
   const [renameDialogOpen, setRenameDialogOpen] = useState(false);
   const [blockToRename, setBlockToRename] = useState(null);
@@ -472,9 +467,6 @@ export default function CalendarComponent({
           durations={durations}
           noCourses={noCourses}
           sortByBracketContent={sortByBracketContent}
-          setTruncationDialogOpen={setTruncationDialogOpen}
-          setNoTimetablesDialogOpen={setNoTimetablesDialogOpen}
-          setTimeslotsOverriddenDialogOpen={setTimeslotsOverriddenDialogOpen}
         />
 
         <FullCalendar
@@ -489,15 +481,6 @@ export default function CalendarComponent({
             handleEventMouseLeave,
             isMobile,
           })}
-        />
-
-        <CalendarDialogs
-          truncationDialogOpen={truncationDialogOpen}
-          setTruncationDialogOpen={setTruncationDialogOpen}
-          noTimetablesDialogOpen={noTimetablesDialogOpen}
-          setNoTimetablesDialogOpen={setNoTimetablesDialogOpen}
-          timeslotsOverriddenDialogOpen={timeslotsOverriddenDialogOpen}
-          setTimeslotsOverriddenDialogOpen={setTimeslotsOverriddenDialogOpen}
         />
 
         <RenameBlockedSlotDialog

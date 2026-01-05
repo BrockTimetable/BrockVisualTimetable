@@ -34,9 +34,9 @@ const App = () => {
         palette: {
           mode: mode,
           primary: {
-            main: "#cc0000",
-            light: "#ff6666",
-            dark: "#990000",
+            main: "hsl(0 72% 50%)",
+            light: "hsl(0 72% 60%)",
+            dark: "hsl(0 72% 40%)",
             contrastText: "#ffffff",
           },
           secondary: {
@@ -70,8 +70,8 @@ const App = () => {
             contrastText: "#ffffff",
           },
           background: {
-            default: mode === "light" ? "#ffffff" : "#242526",
-            paper: mode === "light" ? "#f5f5f5" : "#1d1d1d",
+            default: "hsl(var(--background))",
+            paper: "hsl(var(--card))",
           },
           text: {
             primary: mode === "light" ? "#000000" : "#ffffff",

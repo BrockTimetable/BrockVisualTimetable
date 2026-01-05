@@ -1,13 +1,18 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
+import { cn } from "@/lib/utils";
 import {
   Popover,
+  PopoverAnchor,
+  PopoverContent,
+} from "@/components/ui/popover";
+import {
   Dialog,
   DialogContent,
+  DialogDescription,
+  DialogHeader,
   DialogTitle,
-  TextField,
-  Box,
-  Typography,
-} from "@mui/material";
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 import { useIsMobile } from "@/lib/utils/screenSizeUtils";
 import { Button } from "@/components/ui/button";
 
@@ -24,6 +29,9 @@ export default function RenameBlockedSlotDialog({
 }) {
   const [title, setTitle] = useState(currentTitle);
   const [error, setError] = useState("");
+  const virtualAnchorRef = useRef({
+    getBoundingClientRect: () => new DOMRect(),
+  });
 
   const isMobile = useIsMobile();
 
@@ -50,124 +58,145 @@ export default function RenameBlockedSlotDialog({
     onClose();
   };
 
-  const handleKeyPress = (event) => {
+  const handleKeyDown = (event) => {
     if (event.key === "Enter") {
       handleSave();
     }
   };
 
-  const dialogContent = (
-    <Box sx={{ minWidth: 180 }}>
-      <Typography
-        variant="h6"
-        sx={{ mb: 1, fontWeight: 600, fontSize: "1.1rem" }}
-      >
-        {isCreating
-          ? isMultipleBlocks
-            ? "Name Blocked Times"
-            : "Name Blocked Time"
-          : isMultipleBlocks
-            ? "Rename Times"
-            : "Rename Time"}
-      </Typography>
+  const dialogTitle = isCreating
+    ? isMultipleBlocks
+      ? "Name Blocked Times"
+      : "Name Blocked Time"
+    : isMultipleBlocks
+      ? "Rename Times"
+      : "Rename Time";
 
-      <Typography
-        variant="body2"
-        sx={{ mb: 2, color: "text.secondary", fontSize: "0.875rem" }}
-      >
-        {isMultipleBlocks ? "Label these time slots" : "Label this time slot"}
-      </Typography>
+  const dialogDescription = isMultipleBlocks
+    ? "Label these time slots"
+    : "Label this time slot";
 
-      <TextField
+  const fieldId = "block-name";
+  const helperId = "block-name-helper";
+
+  const formFields = (
+    <div className="space-y-1.5">
+      <label className="text-sm font-medium text-foreground" htmlFor={fieldId}>
+        Block Name
+      </label>
+      <Input
+        id={fieldId}
         autoFocus={!isMobile}
-        fullWidth
-        label="Block Name"
-        variant="outlined"
-        size="small"
         value={title}
         onChange={(e) => {
           setTitle(e.target.value);
           if (error) setError("");
         }}
-        onKeyPress={handleKeyPress}
-        error={!!error}
-        helperText={error || "e.g., Work, Gym"}
-        inputProps={{
-          maxLength: 50,
-        }}
-        sx={{ mb: 2 }}
+        onKeyDown={handleKeyDown}
+        aria-invalid={!!error}
+        aria-describedby={helperId}
+        maxLength={50}
       />
-
-      <Box sx={{ display: "flex", gap: 1, justifyContent: "flex-end" }}>
-        <Button
-          onClick={handleClose}
-          size="sm"
-          variant="ghost"
-          className="min-w-[60px] text-muted-foreground"
-        >
-          Cancel
-        </Button>
-        <Button onClick={handleSave} size="sm" className="min-w-[60px]">
-          {isCreating ? "Create" : "Save"}
-        </Button>
-      </Box>
-    </Box>
+      <p
+        id={helperId}
+        className={cn(
+          "text-xs",
+          error ? "text-destructive" : "text-muted-foreground",
+        )}
+      >
+        {error || "e.g., Work, Gym"}
+      </p>
+    </div>
   );
+
+  const actions = (
+    <div className="flex justify-end gap-2">
+      <Button
+        onClick={handleClose}
+        size="sm"
+        variant="ghost"
+        className="min-w-[60px] text-muted-foreground"
+      >
+        Cancel
+      </Button>
+      <Button onClick={handleSave} size="sm" className="min-w-[60px]">
+        {isCreating ? "Create" : "Save"}
+      </Button>
+    </div>
+  );
+
+  const popoverContent = (
+    <div className="min-w-[220px] space-y-3">
+      <div className="space-y-1">
+        <div className="text-base font-semibold">{dialogTitle}</div>
+        <div className="text-sm text-muted-foreground">{dialogDescription}</div>
+      </div>
+      {formFields}
+      {actions}
+    </div>
+  );
+
+  useEffect(() => {
+    if (!open) return;
+    const preferredAnchorPosition = forceAnchorPosition || anchorPosition;
+    let x = window.innerWidth / 2;
+    let y = 100;
+
+    if (
+      preferredAnchorPosition?.left != null &&
+      preferredAnchorPosition?.top != null
+    ) {
+      x = preferredAnchorPosition.left;
+      y = preferredAnchorPosition.top;
+    } else if (anchorEl?.getBoundingClientRect) {
+      const rect = anchorEl.getBoundingClientRect();
+      x = rect.left + rect.width / 2;
+      y = rect.bottom;
+    }
+
+    virtualAnchorRef.current = {
+      getBoundingClientRect: () => new DOMRect(x, y, 0, 0),
+    };
+  }, [open, anchorEl, anchorPosition, forceAnchorPosition]);
 
   return isMobile ? (
     <Dialog
       open={open}
-      onClose={handleClose}
-      maxWidth="sm"
-      fullWidth
-      sx={{
-        "& .MuiDialog-paper": {
-          borderRadius: 2,
-          boxShadow: "0 8px 32px rgba(0,0,0,0.12)",
-          border: "1px solid rgba(0,0,0,0.08)",
-        },
+      onOpenChange={(nextOpen) => {
+        if (!nextOpen) {
+          handleClose();
+        }
       }}
     >
-      <DialogContent sx={{ p: 2 }}>{dialogContent}</DialogContent>
+      <DialogContent className="sm:max-w-[420px]">
+        <DialogHeader>
+          <DialogTitle>{dialogTitle}</DialogTitle>
+          <DialogDescription>{dialogDescription}</DialogDescription>
+        </DialogHeader>
+        <div className="space-y-3">
+          {formFields}
+          {actions}
+        </div>
+      </DialogContent>
     </Dialog>
   ) : (
     <Popover
       open={open}
-      anchorEl={forceAnchorPosition ? null : anchorEl}
-      {...(forceAnchorPosition || !anchorEl
-        ? {
-            anchorPosition: forceAnchorPosition || {
-              top: 100,
-              left: window.innerWidth / 2,
-            },
-          }
-        : {})}
-      onClose={handleClose}
-      anchorOrigin={{
-        vertical: "bottom",
-        horizontal: "center",
-      }}
-      transformOrigin={{
-        vertical: "top",
-        horizontal: "center",
-      }}
-      anchorReference={
-        forceAnchorPosition
-          ? "anchorPosition"
-          : anchorEl
-            ? "anchorEl"
-            : "anchorPosition"
-      }
-      sx={{
-        "& .MuiPopover-paper": {
-          borderRadius: 2,
-          boxShadow: "0 8px 32px rgba(0,0,0,0.12)",
-          border: "1px solid rgba(0,0,0,0.08)",
-          p: 2,
-        },
+      onOpenChange={(nextOpen) => {
+        if (!nextOpen) {
+          handleClose();
+        }
       }}
     >
-      {dialogContent}
+      <PopoverAnchor virtualRef={virtualAnchorRef} />
+      <PopoverContent
+        align="center"
+        side="bottom"
+        sideOffset={8}
+        className="w-[280px]"
+      >
+        {popoverContent}
+      </PopoverContent>
     </Popover>
   );
 }

@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, IconButton, useTheme } from "@mui/material";
+import { Box, useTheme } from "@mui/material";
 import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 import NavigateFirstIcon from "@mui/icons-material/FirstPage";
@@ -7,6 +7,11 @@ import NavigateLastIcon from "@mui/icons-material/LastPage";
 import InfoIcon from "@mui/icons-material/Info";
 import CancelIcon from "@mui/icons-material/Cancel";
 import { Button } from "@/components/ui/button";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import {
   Select,
   SelectContent,
@@ -42,13 +47,12 @@ export default function CalendarNavBar({
   durations,
   noCourses,
   sortByBracketContent,
-  setTruncationDialogOpen,
-  setNoTimetablesDialogOpen,
-  setTimeslotsOverriddenDialogOpen,
 }) {
   const theme = useTheme();
   const navButtonClassName =
     "bg-red-600 text-white hover:bg-red-700 disabled:bg-red-600/40 transition-none";
+  const infoButtonBaseClassName =
+    "transition-colors disabled:opacity-50 focus-visible:ring-0 focus-visible:ring-offset-0 hover:bg-accent/60";
 
   return (
     <Box
@@ -74,28 +78,89 @@ export default function CalendarNavBar({
         }}
       >
         {isTruncated && (
-          <IconButton
-            color="warning"
-            onClick={() => setTruncationDialogOpen(true)}
-          >
-            <InfoIcon />
-          </IconButton>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className={`${infoButtonBaseClassName} text-amber-600 hover:text-amber-600`}
+                aria-label="View truncated results info"
+              >
+                <InfoIcon />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent align="start" sideOffset={8}>
+              <div className="space-y-2 text-sm">
+                <div className="font-medium">Truncated Results</div>
+                <p className="text-muted-foreground">
+                  The generated schedule results are truncated because the input
+                  is too broad. Some possible course sections may not be shown.
+                </p>
+                <p className="text-muted-foreground">
+                  Pin down courses by clicking them to lock in place, or block
+                  out unwanted time blocks before adding more courses.
+                </p>
+              </div>
+            </PopoverContent>
+          </Popover>
         )}
         {noTimetablesGenerated && (
-          <IconButton
-            color="error"
-            onClick={() => setNoTimetablesDialogOpen(true)}
-          >
-            <CancelIcon />
-          </IconButton>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className={`${infoButtonBaseClassName} text-red-600 hover:text-red-600`}
+                aria-label="View no timetables generated info"
+              >
+                <CancelIcon />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent align="start" sideOffset={8}>
+              <div className="space-y-2 text-sm">
+                <div className="font-medium">No Timetables Generated</div>
+                <p className="text-muted-foreground">
+                  This can happen if a course is not offered for this duration
+                  or the selected courses always overlap.
+                </p>
+                <p className="text-muted-foreground">
+                  Try unblocking or unpinning some components, or remove the
+                  last course you added.
+                </p>
+              </div>
+            </PopoverContent>
+          </Popover>
         )}
         {timeslotsOverridden && (
-          <IconButton
-            color="info"
-            onClick={() => setTimeslotsOverriddenDialogOpen(true)}
-          >
-            <InfoIcon />
-          </IconButton>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className={`${infoButtonBaseClassName} text-sky-600 hover:text-sky-600`}
+                aria-label="View time block overlap info"
+              >
+                <InfoIcon />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent align="start" sideOffset={8}>
+              <div className="space-y-2 text-sm">
+                <div className="font-medium">
+                  Time Block Constraint Course Overlap
+                </div>
+                <p className="text-muted-foreground">
+                  One or more course components conflict with your blocked time
+                  slots, so the generated timetable overlaps your constraints.
+                </p>
+                <p className="text-muted-foreground">
+                  Consider unblocking time slots or choosing different courses.
+                </p>
+              </div>
+            </PopoverContent>
+          </Popover>
         )}
       </Box>
       <Box

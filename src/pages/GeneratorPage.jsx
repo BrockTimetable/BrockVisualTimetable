@@ -105,7 +105,7 @@ function GeneratorPage() {
             <NavbarComponent />
             <Grid container spacing={0} justifyContent="center">
               <Grid item xs={12} md={4}>
-                <Box m={2} mb={0}>
+                <Box ml={2} mr={{ xs: 2, md: 1 }} mt={2} mb={0}>
                   <InputFormTopComponent
                     setTimetables={setTimetables}
                     setSelectedDuration={setSelectedDuration}
@@ -129,7 +129,7 @@ function GeneratorPage() {
                 </Box>
               </Grid>
               <Grid item xs={12} md={8}>
-                <Box m={2} mt={{ xs: 0, sm: 2 }} mb={0}>
+                <Box ml={{ xs: 2, md: 1 }} mr={2} mt={{ xs: 0, sm: 2 }} mb={0}>
                   <CalendarComponent
                     timetables={timetables}
                     setTimetables={setTimetables}
