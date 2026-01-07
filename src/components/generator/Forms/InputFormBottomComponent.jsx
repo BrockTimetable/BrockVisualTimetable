@@ -38,9 +38,9 @@ export default function InputFormBottomComponent({
             sortOption={sortOption}
           />
         </Grid>
-        <Grid item xs={12}>
+        {/* <Grid item xs={12}>
           <Tips />
-        </Grid>
+        </Grid> */}
         {process.env.NODE_ENV === "development" && (
           <Grid item xs={12}>
             <PerformanceMetrics />

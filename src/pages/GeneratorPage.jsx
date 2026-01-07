@@ -15,6 +15,7 @@ import {
   CourseColorsContext,
 } from "@/lib/contexts/generator/CourseColorsContext";
 import ChangelogDialogComponent from "@/components/generator/Dialogs/ChangelogDialogComponent";
+import IntroGuideWidget from "@/components/generator/Dialogs/IntroGuideWidget";
 import ReactGA from "react-ga4";
 import {
   generateTimetables,
@@ -159,6 +160,7 @@ function GeneratorPage() {
               open={isChangelogOpen}
               handleClose={handleCloseChangelog}
             />
+            <IntroGuideWidget />
             <FooterComponent />
           </Box>
         </Box>
