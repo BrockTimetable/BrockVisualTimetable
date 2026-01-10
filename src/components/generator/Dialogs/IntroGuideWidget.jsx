@@ -8,6 +8,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 const GUIDE_STORAGE_KEY = "hasSeenIntroGuide";
 
@@ -101,22 +102,23 @@ const IntroGuideWidget = () => {
             <p className="text-xs text-muted-foreground">{step.description}</p>
           </div>
         </CardContent>
-        <CardFooter className="w-full justify-between gap-2">
+        <CardFooter className="w-full justify-end gap-2">
           <Button
             variant="secondary"
+            size="icon"
             onClick={handleBack}
             disabled={isFirstStep}
+            aria-label="Previous step"
           >
-            Back
+            <ChevronLeft className="h-4 w-4" />
           </Button>
-          <div className="flex items-center gap-2">
-            <Button variant="ghost" onClick={handleClose}>
-              Skip
-            </Button>
-            <Button onClick={isLastStep ? handleClose : handleNext}>
-              {isLastStep ? "Finish" : "Next"}
-            </Button>
-          </div>
+          <Button
+            size="icon"
+            onClick={isLastStep ? handleClose : handleNext}
+            aria-label={isLastStep ? "Finish guide" : "Next step"}
+          >
+            <ChevronRight className="h-4 w-4" />
+          </Button>
         </CardFooter>
       </Card>
     </div>
