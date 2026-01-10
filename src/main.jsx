@@ -1,14 +1,14 @@
 import React, { useMemo, useState, useEffect } from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-import GeneratorPage from "./GeneratorPage";
-import GuidePage from "./GuidePage";
+import GeneratorPage from "@/pages/GeneratorPage";
+import GuidePage from "@/pages/GuidePage";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
-import ColorModeContext from "./SiteWide/contexts/ColorModeContext";
-import CustomSnackbarProvider from "./SiteWide/components/SnackbarProvider";
+import ColorModeContext from "@/lib/contexts/sitewide/ColorModeContext";
+import CustomSnackbarProvider from "@/components/sitewide/SnackbarProvider";
 import ReactGA from "react-ga4";
-import "./GeneratorPage/css/index.css";
+import "@/styles/index.css";
 
 const App = () => {
   ReactGA.initialize("G-M2NP1M6YSK");
@@ -34,9 +34,9 @@ const App = () => {
         palette: {
           mode: mode,
           primary: {
-            main: "#cc0000",
-            light: "#ff6666",
-            dark: "#990000",
+            main: "hsl(0 72% 50%)",
+            light: "hsl(0 72% 60%)",
+            dark: "hsl(0 72% 40%)",
             contrastText: "#ffffff",
           },
           secondary: {
@@ -70,8 +70,8 @@ const App = () => {
             contrastText: "#ffffff",
           },
           background: {
-            default: mode === "light" ? "#ffffff" : "#242526",
-            paper: mode === "light" ? "#f5f5f5" : "#1d1d1d",
+            default: "hsl(var(--background))",
+            paper: "hsl(var(--card))",
           },
           text: {
             primary: mode === "light" ? "#000000" : "#ffffff",
@@ -111,6 +111,7 @@ const App = () => {
     document.body.classList.toggle("dark-mode", mode === "dark");
     document.documentElement.classList.toggle("light-mode", mode === "light");
     document.documentElement.classList.toggle("dark-mode", mode === "dark");
+    document.documentElement.classList.toggle("dark", mode === "dark");
   }, [
     theme.palette.divider,
     theme.palette.outline,

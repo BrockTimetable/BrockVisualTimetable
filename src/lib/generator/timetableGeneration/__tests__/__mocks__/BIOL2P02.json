@@ -1,0 +1,168 @@
+{
+  "courseCode": "BIOL2P02",
+  "sections": [
+    {
+      "id": "2133101",
+      "schedule": {
+        "duration": "2",
+        "days": "T",
+        "time": "1300-1400",
+        "startDate": "1756872000",
+        "endDate": "1764651600"
+      },
+      "type": "LEC",
+      "sectionNumber": "1",
+      "instructor": "Skandalis, Adonis / Lepp, Amanda"
+    },
+    {
+      "id": "0",
+      "schedule": {
+        "duration": "2",
+        "days": "M",
+        "time": "1600-1700",
+        "startDate": "1756872000",
+        "endDate": "1764651600"
+      },
+      "type": "LEC2",
+      "sectionNumber": "1",
+      "instructor": ""
+    },
+    {
+      "id": "0",
+      "schedule": {
+        "duration": "2",
+        "days": "F",
+        "time": "1700-1800",
+        "startDate": "1756872000",
+        "endDate": "1764651600"
+      },
+      "type": "LEC3",
+      "sectionNumber": "1",
+      "instructor": ""
+    }
+  ],
+  "labs": [
+    {
+      "id": "2133401",
+      "schedule": {
+        "duration": "2",
+        "days": "W",
+        "time": "1400-1700",
+        "startDate": "1756872000",
+        "endDate": "1764651600"
+      },
+      "type": "LAB",
+      "sectionNumber": "1"
+    },
+    {
+      "id": "2133402",
+      "schedule": {
+        "duration": "2",
+        "days": "W",
+        "time": "1400-1700",
+        "startDate": "1756872000",
+        "endDate": "1764651600"
+      },
+      "type": "LAB",
+      "sectionNumber": "2"
+    },
+    {
+      "id": "2133403",
+      "schedule": {
+        "duration": "2",
+        "days": "W",
+        "time": "1000-1300",
+        "startDate": "1756872000",
+        "endDate": "1764651600"
+      },
+      "type": "LAB",
+      "sectionNumber": "3"
+    },
+    {
+      "id": "2133404",
+      "schedule": {
+        "duration": "2",
+        "days": "W",
+        "time": "1000-1300",
+        "startDate": "1756872000",
+        "endDate": "1764651600"
+      },
+      "type": "LAB",
+      "sectionNumber": "4"
+    },
+    {
+      "id": "2133405",
+      "schedule": {
+        "duration": "2",
+        "days": "R",
+        "time": "1400-1700",
+        "startDate": "1756872000",
+        "endDate": "1764651600"
+      },
+      "type": "LAB",
+      "sectionNumber": "5"
+    },
+    {
+      "id": "2133406",
+      "schedule": {
+        "duration": "2",
+        "days": "R",
+        "time": "1400-1700",
+        "startDate": "1756872000",
+        "endDate": "1764651600"
+      },
+      "type": "LAB",
+      "sectionNumber": "6"
+    },
+    {
+      "id": "2133407",
+      "schedule": {
+        "duration": "2",
+        "days": "R",
+        "time": "1000-1300",
+        "startDate": "1756872000",
+        "endDate": "1764651600"
+      },
+      "type": "LAB",
+      "sectionNumber": "7"
+    },
+    {
+      "id": "2133408",
+      "schedule": {
+        "duration": "2",
+        "days": "R",
+        "time": "1000-1300",
+        "startDate": "1756872000",
+        "endDate": "1764651600"
+      },
+      "type": "LAB",
+      "sectionNumber": "8"
+    },
+    {
+      "id": "2133409",
+      "schedule": {
+        "duration": "2",
+        "days": "F",
+        "time": "1000-1300",
+        "startDate": "1756872000",
+        "endDate": "1764651600"
+      },
+      "type": "LAB",
+      "sectionNumber": "9"
+    },
+    {
+      "id": "2133410",
+      "schedule": {
+        "duration": "2",
+        "days": "F",
+        "time": "1000-1300",
+        "startDate": "1756872000",
+        "endDate": "1764651600"
+      },
+      "type": "LAB",
+      "sectionNumber": "10"
+    }
+  ],
+  "tutorials": [],
+  "seminars": []
+}
