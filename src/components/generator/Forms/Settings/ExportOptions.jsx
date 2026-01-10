@@ -24,7 +24,7 @@ export default function ExportOptions() {
         <div>
           <Separator className="mb-2" />
           <Collapsible open={showHelp} onOpenChange={setShowHelp}>
-            <CollapsibleTrigger className="flex w-full items-center gap-2 rounded-md px-2 pt-1.5 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground">
+            <CollapsibleTrigger className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground">
               <Info className="h-4 w-4" />
               <span className="flex-1 text-left">How to use the .ics file</span>
               {showHelp ? (
