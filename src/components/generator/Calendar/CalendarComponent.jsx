@@ -177,6 +177,8 @@ export default function CalendarComponent({
       setNoTimetablesGenerated(false);
     } else {
       setNoCourses(true);
+      previousDuration = null;
+      aprioriDurationTimetable = null;
       const newEvents = createCalendarEvents(
         null,
         getDaysOfWeek,
