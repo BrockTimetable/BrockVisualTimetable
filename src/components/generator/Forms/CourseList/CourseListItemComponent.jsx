@@ -71,7 +71,7 @@ export default function CourseListComponent({
       <Card className="transition-none hover:bg-muted/40">
         <CollapsibleTrigger asChild>
           <CardHeader className="cursor-pointer flex flex-row items-center justify-between space-y-0 py-3">
-            <CardTitle className="text-base font-semibold uppercase">
+            <CardTitle className="text-base font-normal uppercase">
               {course}
             </CardTitle>
             <div className="flex items-center gap-2">
