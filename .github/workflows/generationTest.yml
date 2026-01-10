@@ -24,7 +24,7 @@ jobs:
       - name: Run tests
         run: |
           echo "Running Timetable Generation Tests..."
-          npx vitest run src/GeneratorPage/scripts/timetableGeneration/__tests__ --reporter verbose || {
+          npx vitest run src/lib/generator/timetableGeneration/__tests__ --reporter verbose || {
             echo "❌ Timetable generation tests failed!";
             exit 1;
           }
