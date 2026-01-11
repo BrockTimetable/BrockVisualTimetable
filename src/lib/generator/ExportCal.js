@@ -1,5 +1,14 @@
+import ReactGA from "react-ga4";
+
+const isAnalyticsEnabled = import.meta.env.PROD;
 let cachedTimetableData;
 export function exportCal() {
+  if (isAnalyticsEnabled) {
+    ReactGA.event({
+      category: "Generator Event",
+      action: "Export Timetable",
+    });
+  }
   const blob = new Blob([generateICSFileData()], { type: "text/calendar" });
   const url = URL.createObjectURL(blob);
 
