@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -45,9 +45,19 @@ export default function CourseListComponent({
   removeCourse,
 }) {
   const [open, setOpen] = React.useState(false);
-  const { courseColors, updateCourseColor, getDefaultColorForCourse } =
-    useContext(CourseColorsContext);
+  const {
+    courseColors,
+    updateCourseColor,
+    getDefaultColorForCourse,
+    initializeCourseColor,
+  } = useContext(CourseColorsContext);
   const courseCode = course.split(" ")[0] + course.split(" ")[1];
+
+  useEffect(() => {
+    if (!courseColors[courseCode]) {
+      initializeCourseColor(courseCode);
+    }
+  }, [courseCode]);
 
   const handleRemoveClick = () => {
     setOpen(false);
