@@ -17,6 +17,8 @@ import { addPinnedComponent } from "@/lib/generator/pinnedComponents";
 import CourseOptions from "./Settings/CourseOptions";
 import SortOptions from "./Settings/SortOptions";
 
+const isAnalyticsEnabled = import.meta.env.PROD;
+
 export default function InputFormTop({
   setTimetables,
   setSelectedDuration,
@@ -171,11 +173,13 @@ export default function InputFormTop({
       updateDurations(durationLabel);
     }
 
-    ReactGA.event({
-      category: "Generator Event",
-      action: "Added Course",
-      label: `${cleanCourseCode} D${duration}`,
-    });
+    if (isAnalyticsEnabled) {
+      ReactGA.event({
+        category: "Generator Event",
+        action: "Added Course",
+        label: `${cleanCourseCode} D${duration}`,
+      });
+    }
   };
 
   const getDurationDates = (courseData, duration) => {
