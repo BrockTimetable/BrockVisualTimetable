@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { NavbarComponent } from "@/components/guide";
 import CssBaseline from "@mui/material/CssBaseline";
 import Grid from "@mui/material/Grid";
@@ -19,11 +19,14 @@ import Divider from "@mui/material/Divider";
 import FooterComponent from "@/components/sitewide/FooterComponent";
 
 function GuidePage() {
-  ReactGA.send({
-    hitType: "pageview",
-    page: "Guide",
-    title: "Brock Visual Guide",
-  });
+  useEffect(() => {
+    if (!import.meta.env.PROD) return;
+    ReactGA.send({
+      hitType: "pageview",
+      page: "Guide",
+      title: "Brock Visual Guide",
+    });
+  }, []);
   const isBelowMedium = useIsBelowMedium();
   const theme = useTheme();
   const [openCourseCode, setOpenCourseCode] = useState(false);

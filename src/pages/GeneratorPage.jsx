@@ -31,11 +31,14 @@ import {
 import FooterComponent from "@/components/sitewide/FooterComponent";
 
 function GeneratorPage() {
-  ReactGA.send({
-    hitType: "pageview",
-    page: "Generator",
-    title: "Brock Visual TimeTable",
-  });
+  useEffect(() => {
+    if (!import.meta.env.PROD) return;
+    ReactGA.send({
+      hitType: "pageview",
+      page: "Generator",
+      title: "Brock Visual TimeTable",
+    });
+  }, []);
   const [timetables, setTimetables] = useState([]);
   const [selectedDuration, setSelectedDuration] = useState("");
   const [durations, setDurations] = useState([]);

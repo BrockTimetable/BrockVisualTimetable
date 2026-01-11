@@ -1,6 +1,8 @@
 import eventBus from "@/lib/eventBus";
 import ReactGA from "react-ga4";
 
+const isAnalyticsEnabled = import.meta.env.PROD;
+
 export const emitNoValidTimetablesFound = () => {
   eventBus.emit("snackbar", {
     message:
@@ -47,10 +49,12 @@ export const emitTruncationWarning = () => {
       "The generated schedule results are truncated! Click the yellow '!' icon for more information!",
     variant: "warning",
   });
-  ReactGA.event({
-    category: "Generator Event",
-    action: "Truncation",
-  });
+  if (isAnalyticsEnabled) {
+    ReactGA.event({
+      category: "Generator Event",
+      action: "Truncation",
+    });
+  }
 };
 
 export const clearTruncationFlag = () => {
