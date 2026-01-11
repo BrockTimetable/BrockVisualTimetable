@@ -338,13 +338,13 @@ function GuidePage() {
                 </Typography>
                 <List sx={{ listStyle: "decimal", pl: 4 }}>
                   <ListItem sx={{ display: "list-item", py: 0 }}>
-                    <ListItemText primary="is for 8 month courses, spanning from September to April." />
+                    <ListItemText primary="D1 is for 8 month courses, spanning from September to April." />
                   </ListItem>
                   <ListItem sx={{ display: "list-item", py: 0 }}>
-                    <ListItemText primary="is for fall courses, spanning from September to December." />
+                    <ListItemText primary="D2 is for fall courses, spanning from September to December." />
                   </ListItem>
                   <ListItem sx={{ display: "list-item", py: 0 }}>
-                    <ListItemText primary="is for winter courses, spanning from January to April." />
+                    <ListItemText primary="D3 is for winter courses, spanning from January to April." />
                   </ListItem>
                 </List>
                 <Typography variant="body1" gutterBottom>
