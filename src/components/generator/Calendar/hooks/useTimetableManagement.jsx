@@ -65,7 +65,10 @@ export const useTimetableManagement = ({
         navigationDate.setDate(navigationDate.getDate() - daysToSubtract);
       }
 
-      calendarApi.gotoDate(navigationDate);
+      // Defer gotoDate to avoid flushSync warning during React render
+      queueMicrotask(() => {
+        calendarApi.gotoDate(navigationDate);
+      });
 
       if (previousDuration == null) {
         previousDuration = duration;

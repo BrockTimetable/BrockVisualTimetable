@@ -201,12 +201,18 @@ export default function CalendarComponent({
   ]);
 
   const handleCalendarViewClick = (durationLabel) => {
-    const calendarApi = calendarRef.current.getApi();
+    const calendarApi = calendarRef.current?.getApi();
+    if (!calendarApi) return;
+
     const [startUnix, endUnix, duration] = durationLabel.split("-");
 
     const startDate = new Date(parseInt(startUnix) * 1000);
     const navigationDate = calculateNavigationDate(startDate);
-    calendarApi.gotoDate(navigationDate);
+
+    // Defer gotoDate to avoid flushSync warning during React render
+    queueMicrotask(() => {
+      calendarApi.gotoDate(navigationDate);
+    });
 
     if (previousDuration == null) {
       previousDuration = duration;
@@ -424,7 +430,10 @@ export default function CalendarComponent({
       if (calendarRef.current && calendarRef.current.getApi) {
         try {
           const calendarApi = calendarRef.current.getApi();
-          calendarApi.gotoDate(date);
+          // Defer gotoDate to avoid flushSync warning during React render
+          queueMicrotask(() => {
+            calendarApi.gotoDate(date);
+          });
         } catch (error) {
           // Error handling silently ignored
         }
