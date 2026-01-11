@@ -1,11 +1,4 @@
-import {
-  addPinnedComponent,
-  getPinnedComponents,
-} from "@/lib/generator/pinnedComponents";
-import {
-  generateTimetables,
-  getValidTimetables,
-} from "@/lib/generator/timetableGeneration/timetableGeneration";
+import { getBaseComponentId } from "@/lib/generator/timetableGeneration/utils/componentIDUtils";
 
 // Calculate navigation date based on start date and day of week
 export const calculateNavigationDate = (startDate) => {
@@ -27,73 +20,103 @@ export const calculateNavigationDate = (startDate) => {
   return navigationDate;
 };
 
-// Handle duration change logic with component pinning
-export const handleDurationChange = (
-  previousDuration,
-  newDuration,
-  aprioriDurationTimetable,
-  setCurrentTimetableIndex,
-  setTimetables,
-  sortOption,
-) => {
-  if (previousDuration !== newDuration) {
-    if (aprioriDurationTimetable && aprioriDurationTimetable.courses) {
-      const pinnedComponents = getPinnedComponents();
-      let didPinNewComponent = false;
-
-      aprioriDurationTimetable.courses.forEach((course) => {
-        const courseCode = course.courseCode;
-
-        // Handle main components
-        if (course.mainComponents) {
-          course.mainComponents.forEach((component) => {
-            if (
-              component.schedule &&
-              component.schedule.duration == previousDuration
-            ) {
-              const pinString = `${courseCode} MAIN ${component.id}`;
-              if (!pinnedComponents.includes(pinString)) {
-                addPinnedComponent(pinString);
-                didPinNewComponent = true;
-              }
-            }
-          });
-        }
-
-        // Handle secondary components
-        if (course.secondaryComponents) {
-          Object.entries(course.secondaryComponents).forEach(
-            ([type, component]) => {
-              if (
-                component &&
-                component.schedule &&
-                component.schedule.duration == previousDuration
-              ) {
-                const formattedType =
-                  type.toLowerCase() === "tutorial"
-                    ? "TUT"
-                    : type.toLowerCase() === "seminar"
-                      ? "SEM"
-                      : type.toUpperCase();
-
-                const pinString = `${courseCode} ${formattedType} ${component.id}`;
-                if (!pinnedComponents.includes(pinString)) {
-                  addPinnedComponent(pinString);
-                  didPinNewComponent = true;
-                }
-              }
-            },
-          );
-        }
-      });
-
-      setCurrentTimetableIndex(0);
-      if (didPinNewComponent) {
-        generateTimetables(sortOption);
-        setTimetables(getValidTimetables());
-      }
-    }
+const getViewRangeSeconds = (viewRange) => {
+  if (!viewRange?.start || !viewRange?.end) {
+    return null;
   }
+
+  return {
+    start: Math.floor(viewRange.start.getTime() / 1000),
+    end: Math.floor((viewRange.end.getTime() - 1) / 1000),
+  };
+};
+
+const doesComponentOverlapRange = (component, range) => {
+  if (!range) return true;
+
+  const { startDate, endDate } = component.schedule || {};
+  if (startDate == null || endDate == null) {
+    return true;
+  }
+
+  return startDate <= range.end && endDate >= range.start;
+};
+
+const buildComponentSignature = (component, type, range) => {
+  if (!component || !component.schedule) return null;
+  if (!doesComponentOverlapRange(component, range)) return null;
+
+  const baseId = getBaseComponentId(component.id);
+  const duration = component.schedule.duration ?? "";
+  return `${type}:${baseId}:${duration}`;
+};
+
+export const getVisibleTimetableSignature = (timetable, viewRange) => {
+  if (!timetable?.courses || !viewRange) {
+    return null;
+  }
+
+  const range = getViewRangeSeconds(viewRange);
+  const courseSignatures = [];
+
+  timetable.courses.forEach((course) => {
+    const componentSignatures = [];
+
+    if (course.mainComponents) {
+      course.mainComponents.forEach((component) => {
+        const signature = buildComponentSignature(component, "MAIN", range);
+        if (signature) componentSignatures.push(signature);
+      });
+    }
+
+    if (course.secondaryComponents) {
+      const { lab, tutorial, seminar } = course.secondaryComponents;
+      const labSignature = buildComponentSignature(lab, "LAB", range);
+      const tutSignature = buildComponentSignature(tutorial, "TUT", range);
+      const semSignature = buildComponentSignature(seminar, "SEM", range);
+
+      if (labSignature) componentSignatures.push(labSignature);
+      if (tutSignature) componentSignatures.push(tutSignature);
+      if (semSignature) componentSignatures.push(semSignature);
+    }
+
+    if (componentSignatures.length > 0) {
+      componentSignatures.sort();
+      courseSignatures.push(
+        `${course.courseCode}|${componentSignatures.join(",")}`,
+      );
+    }
+  });
+
+  if (courseSignatures.length === 0) {
+    return "no-visible-courses";
+  }
+
+  courseSignatures.sort();
+  return courseSignatures.join("||");
+};
+
+export const getVisibleTimetables = (timetables, viewRange) => {
+  if (!Array.isArray(timetables)) return [];
+  if (!viewRange) return timetables;
+
+  const uniqueSignatures = new Set();
+  const filteredTimetables = [];
+
+  timetables.forEach((timetable) => {
+    const signature = getVisibleTimetableSignature(timetable, viewRange);
+    if (signature == null) {
+      filteredTimetables.push(timetable);
+      return;
+    }
+
+    if (!uniqueSignatures.has(signature)) {
+      uniqueSignatures.add(signature);
+      filteredTimetables.push(timetable);
+    }
+  });
+
+  return filteredTimetables;
 };
 
 // Get calendar view notification message
