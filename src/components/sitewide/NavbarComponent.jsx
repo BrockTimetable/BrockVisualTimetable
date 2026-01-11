@@ -38,6 +38,7 @@ const NavbarComponent = () => {
       label: "Guide",
       to: "/guide",
       icon: BookOpen,
+      newTab: true,
     },
   ];
 
@@ -60,10 +61,17 @@ const NavbarComponent = () => {
               asChild
               onClick={() => setDrawerOpen(false)}
             >
-              <Link to={item.to}>
-                <Icon className="mr-2 h-4 w-4" />
-                {item.label}
-              </Link>
+              {item.newTab ? (
+                <a href={item.to} target="_blank" rel="noopener noreferrer">
+                  <Icon className="mr-2 h-4 w-4" />
+                  {item.label}
+                </a>
+              ) : (
+                <Link to={item.to}>
+                  <Icon className="mr-2 h-4 w-4" />
+                  {item.label}
+                </Link>
+              )}
             </Button>
           );
         })}
@@ -138,7 +146,13 @@ const NavbarComponent = () => {
           <div className="flex items-center gap-2">
             {navItems.map((item) => (
               <Button key={item.label} variant="ghost" asChild>
-                <Link to={item.to}>{item.label}</Link>
+                {item.newTab ? (
+                  <a href={item.to} target="_blank" rel="noopener noreferrer">
+                    {item.label}
+                  </a>
+                ) : (
+                  <Link to={item.to}>{item.label}</Link>
+                )}
               </Button>
             ))}
             <Button
