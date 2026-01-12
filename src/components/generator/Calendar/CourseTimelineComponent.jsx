@@ -205,6 +205,11 @@ export default function CourseTimelineComponent({
 
   const handleTimelineClick = (event) => {
     try {
+      // Only handle clicks on the timeline background, not on course elements
+      if (event.target !== event.currentTarget) {
+        return;
+      }
+
       if (!setSelectedDuration || !durations || durations.length === 0) return;
 
       // Get the click position relative to the timeline container
@@ -221,6 +226,7 @@ export default function CourseTimelineComponent({
       // Find the closest duration to the clicked date
       const closestMatch = getClosestDuration(clickedDate);
       if (closestMatch) {
+        console.log("[Timeline Background] Setting duration to:", closestMatch);
         setSelectedDuration(closestMatch);
       }
     } catch (error) {
