@@ -1,4 +1,10 @@
-import React, { useState, useEffect, useContext, useCallback } from "react";
+import React, {
+  useState,
+  useEffect,
+  useContext,
+  useCallback,
+  useMemo,
+} from "react";
 import FullCalendar from "@fullcalendar/react";
 import { useSnackbar } from "notistack";
 import CalendarNavBar from "./CalendarNavBar";
@@ -30,14 +36,12 @@ import { useEventBusHandlers } from "./hooks/useEventBusHandlers.js";
 import { prepareCoursesForTimeline } from "./utils/courseTimelineUtils.js";
 import {
   calculateNavigationDate,
-  handleDurationChange,
   getCalendarViewNotificationMessage,
+  getVisibleTimetables,
 } from "./utils/calendarViewUtils.js";
 import { getFullCalendarConfig } from "./utils/calendarConfigUtils.js";
 import MultiLineSnackbar from "@/components/sitewide/MultiLineSnackbar";
 import { useIsMobile } from "@/lib/utils/screenSizeUtils";
-let previousDuration = null;
-let aprioriDurationTimetable = null;
 export default function CalendarComponent({
   timetables,
   setTimetables,
@@ -53,6 +57,7 @@ export default function CalendarComponent({
   const courseColorsRef = React.useRef({});
   const [events, setEvents] = useState([]);
   const [currentTimetableIndex, setCurrentTimetableIndex] = useState(0);
+  const [viewRange, setViewRange] = useState(null);
   const { setCourseDetails } = useContext(CourseDetailsContext);
   const { courseColors, setCalendarUpdateHandler, getDefaultColorForCourse } =
     useContext(CourseColorsContext);
@@ -66,6 +71,11 @@ export default function CalendarComponent({
   const [renameAnchorEl, setRenameAnchorEl] = useState(null);
   const [renameAnchorPosition, setRenameAnchorPosition] = useState(null);
   const [coursesForTimeline, setCoursesForTimeline] = useState([]);
+
+  const visibleTimetables = useMemo(
+    () => getVisibleTimetables(timetables, viewRange),
+    [timetables, viewRange],
+  );
 
   // Screen size detection
   const isMobile = useIsMobile();
@@ -81,12 +91,19 @@ export default function CalendarComponent({
   });
 
   useEffect(() => {
-    timetablesRef.current = timetables;
-  }, [timetables]);
+    timetablesRef.current = visibleTimetables;
+  }, [visibleTimetables]);
 
   useEffect(() => {
     currentTimetableIndexRef.current = currentTimetableIndex;
   }, [currentTimetableIndex]);
+
+  useEffect(() => {
+    if (visibleTimetables.length === 0) return;
+    if (currentTimetableIndex >= visibleTimetables.length) {
+      setCurrentTimetableIndex(0);
+    }
+  }, [currentTimetableIndex, visibleTimetables.length]);
 
   useEffect(() => {
     courseColorsRef.current = courseColors;
@@ -95,7 +112,7 @@ export default function CalendarComponent({
 
   useEffect(() => {
     updateCalendarEvents();
-  }, [currentTimetableIndex, timetables]);
+  }, [currentTimetableIndex, visibleTimetables]);
 
   useEffect(() => {
     if (selectedDuration) {
@@ -108,8 +125,9 @@ export default function CalendarComponent({
   }, []);
 
   const handleLast = useCallback(() => {
-    setCurrentTimetableIndex(timetables.length - 1);
-  }, [timetables.length]);
+    if (visibleTimetables.length === 0) return;
+    setCurrentTimetableIndex(visibleTimetables.length - 1);
+  }, [visibleTimetables.length]);
 
   const updateCalendarEvents = useCallback(() => {
     const currentTimetables = timetablesRef.current;
@@ -146,13 +164,6 @@ export default function CalendarComponent({
       const hasWeekendClasses = checkForWeekendClasses(timetable);
       setShowWeekends(hasWeekendClasses);
 
-      if (
-        previousDuration === selectedDuration.split("-")[2] &&
-        JSON.stringify(timetable)
-      ) {
-        aprioriDurationTimetable = JSON.parse(JSON.stringify(timetable));
-      }
-
       const newEvents = createCalendarEvents(
         timetable,
         getDaysOfWeek,
@@ -177,8 +188,6 @@ export default function CalendarComponent({
       setNoTimetablesGenerated(false);
     } else {
       setNoCourses(true);
-      previousDuration = null;
-      aprioriDurationTimetable = null;
       const newEvents = createCalendarEvents(
         null,
         getDaysOfWeek,
@@ -204,7 +213,7 @@ export default function CalendarComponent({
     const calendarApi = calendarRef.current?.getApi();
     if (!calendarApi) return;
 
-    const [startUnix, endUnix, duration] = durationLabel.split("-");
+    const [startUnix] = durationLabel.split("-");
 
     const startDate = new Date(parseInt(startUnix) * 1000);
     const navigationDate = calculateNavigationDate(startDate);
@@ -214,19 +223,7 @@ export default function CalendarComponent({
       calendarApi.gotoDate(navigationDate);
     });
 
-    if (previousDuration == null) {
-      previousDuration = duration;
-    } else {
-      handleDurationChange(
-        previousDuration,
-        duration,
-        aprioriDurationTimetable,
-        setCurrentTimetableIndex,
-        setTimetables,
-        sortOption,
-      );
-      previousDuration = duration;
-    }
+    setCurrentTimetableIndex(0);
 
     setSelectedDuration(durationLabel);
 
@@ -236,6 +233,13 @@ export default function CalendarComponent({
       variant: "info",
     });
   };
+
+  const handleDatesSet = useCallback((dateInfo) => {
+    setViewRange({
+      start: dateInfo.start,
+      end: dateInfo.end,
+    });
+  }, []);
 
   const [shiftHeld, setShiftHeld] = useState(false);
   const [hoveredElement, setHoveredElement] = useState(null);
@@ -362,7 +366,10 @@ export default function CalendarComponent({
   };
 
   const handleNext = () => {
-    setCurrentTimetableIndex((currentTimetableIndex + 1) % timetables.length);
+    if (visibleTimetables.length === 0) return;
+    setCurrentTimetableIndex(
+      (currentTimetableIndex + 1) % visibleTimetables.length,
+    );
   };
 
   const handleRenameDialogClose = () => {
@@ -398,8 +405,10 @@ export default function CalendarComponent({
   };
 
   const handlePrevious = () => {
+    if (visibleTimetables.length === 0) return;
     setCurrentTimetableIndex(
-      (currentTimetableIndex - 1 + timetables.length) % timetables.length,
+      (currentTimetableIndex - 1 + visibleTimetables.length) %
+        visibleTimetables.length,
     );
   };
 
@@ -445,11 +454,11 @@ export default function CalendarComponent({
   // Prepare courses for timeline
   useEffect(() => {
     const courses = prepareCoursesForTimeline(
-      timetables,
+      visibleTimetables,
       currentTimetableIndex,
     );
     setCoursesForTimeline(courses);
-  }, [timetables, currentTimetableIndex]);
+  }, [visibleTimetables, currentTimetableIndex]);
 
   return (
     <div id="Calendar">
@@ -472,7 +481,7 @@ export default function CalendarComponent({
           handleNext={handleNext}
           handleLast={handleLast}
           currentTimetableIndex={currentTimetableIndex}
-          timetables={timetables}
+          timetables={visibleTimetables}
           selectedDuration={selectedDuration}
           setSelectedDuration={setSelectedDuration}
           durations={durations}
@@ -485,6 +494,7 @@ export default function CalendarComponent({
             calendarRef,
             showWeekends,
             events,
+            handleDatesSet,
             handleEventClick,
             handleSelect,
             handleSelectAllow,

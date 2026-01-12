@@ -1,17 +1,8 @@
 import { useCallback, useRef } from "react";
 import { useSnackbar } from "notistack";
 import MultiLineSnackbar from "@/components/sitewide/MultiLineSnackbar";
-import {
-  addPinnedComponent,
-  getPinnedComponents,
-} from "@/lib/generator/pinnedComponents";
-import {
-  generateTimetables,
-  getValidTimetables,
-} from "@/lib/generator/timetableGeneration/timetableGeneration";
 
 let previousDuration = null;
-let aprioriDurationTimetable = null;
 
 export const useTimetableManagement = ({
   timetables,
@@ -73,61 +64,8 @@ export const useTimetableManagement = ({
       if (previousDuration == null) {
         previousDuration = duration;
       } else if (previousDuration !== duration) {
-        if (aprioriDurationTimetable && aprioriDurationTimetable.courses) {
-          const pinnedComponents = getPinnedComponents();
-          let didPinNewComponent = false;
-
-          aprioriDurationTimetable.courses.forEach((course) => {
-            const courseCode = course.courseCode;
-
-            if (course.mainComponents) {
-              course.mainComponents.forEach((component) => {
-                if (
-                  component.schedule &&
-                  component.schedule.duration == previousDuration
-                ) {
-                  const pinString = `${courseCode} MAIN ${component.id}`;
-                  if (!pinnedComponents.includes(pinString)) {
-                    addPinnedComponent(pinString);
-                    didPinNewComponent = true;
-                  }
-                }
-              });
-            }
-
-            if (course.secondaryComponents) {
-              Object.entries(course.secondaryComponents).forEach(
-                ([type, component]) => {
-                  if (
-                    component &&
-                    component.schedule &&
-                    component.schedule.duration == previousDuration
-                  ) {
-                    const formattedType =
-                      type.toLowerCase() === "tutorial"
-                        ? "TUT"
-                        : type.toLowerCase() === "seminar"
-                          ? "SEM"
-                          : type.toUpperCase();
-
-                    const pinString = `${courseCode} ${formattedType} ${component.id}`;
-                    if (!pinnedComponents.includes(pinString)) {
-                      addPinnedComponent(pinString);
-                      didPinNewComponent = true;
-                    }
-                  }
-                },
-              );
-            }
-          });
-
-          previousDuration = duration;
-          setCurrentTimetableIndex(0);
-          if (didPinNewComponent) {
-            generateTimetables(sortOption);
-            setTimetables(getValidTimetables());
-          }
-        }
+        previousDuration = duration;
+        setCurrentTimetableIndex(0);
       }
 
       setSelectedDuration(durationLabel);
@@ -156,12 +94,7 @@ export const useTimetableManagement = ({
     ],
   );
 
-  // Function to set the apriori duration timetable
-  const setAprioriDurationTimetable = useCallback((timetable, duration) => {
-    if (previousDuration === duration && JSON.stringify(timetable)) {
-      aprioriDurationTimetable = JSON.parse(JSON.stringify(timetable));
-    }
-  }, []);
+  const setAprioriDurationTimetable = useCallback(() => {}, []);
 
   return {
     handleNext,

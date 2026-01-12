@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/collapsible";
 import { Separator } from "@/components/ui/separator";
 
-export default function ExportOptions() {
+export default function ExportOptions({ timetables, durations }) {
   const [showHelp, setShowHelp] = useState(false);
 
   return (
@@ -17,7 +17,7 @@ export default function ExportOptions() {
       <div className="flex flex-col gap-2">
         {/* Main export section */}
         <div className="flex justify-center">
-          <ExportCalendarButton />
+          <ExportCalendarButton timetables={timetables} durations={durations} />
         </div>
 
         {/* Help section */}
