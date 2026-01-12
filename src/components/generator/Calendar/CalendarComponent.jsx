@@ -98,7 +98,6 @@ export default function CalendarComponent({
   }, [currentTimetableIndex, timetables]);
 
   useEffect(() => {
-    console.log("[CalendarComponent] selectedDuration changed to:", selectedDuration);
     if (selectedDuration) {
       handleCalendarViewClick(selectedDuration);
     }
@@ -202,12 +201,10 @@ export default function CalendarComponent({
   ]);
 
   const handleCalendarViewClick = (durationLabel) => {
-    console.log("[handleCalendarViewClick] Called with:", durationLabel);
     const calendarApi = calendarRef.current?.getApi();
     if (!calendarApi) return;
 
     const [startUnix, endUnix, duration] = durationLabel.split("-");
-    console.log("[handleCalendarViewClick] Duration code:", duration, "previousDuration:", previousDuration);
 
     const startDate = new Date(parseInt(startUnix) * 1000);
     const navigationDate = calculateNavigationDate(startDate);
@@ -219,9 +216,7 @@ export default function CalendarComponent({
 
     if (previousDuration == null) {
       previousDuration = duration;
-      console.log("[handleCalendarViewClick] Set previousDuration to:", previousDuration);
     } else {
-      console.log("[handleCalendarViewClick] Calling handleDurationChange:", previousDuration, "→", duration);
       handleDurationChange(
         previousDuration,
         duration,
@@ -231,11 +226,9 @@ export default function CalendarComponent({
         sortOption,
       );
       previousDuration = duration;
-      console.log("[handleCalendarViewClick] Updated previousDuration to:", previousDuration);
     }
 
     // Ensure the dropdown is updated to match the calendar view
-    console.log("[handleCalendarViewClick] Calling setSelectedDuration with:", durationLabel);
     setSelectedDuration(durationLabel);
 
     // Show calendar view notification
