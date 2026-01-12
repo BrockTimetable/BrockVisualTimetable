@@ -11,7 +11,10 @@ import ReactGA from "react-ga4";
 import "@/styles/index.css";
 
 const App = () => {
-  ReactGA.initialize("G-M2NP1M6YSK");
+  useEffect(() => {
+    if (!import.meta.env.PROD) return;
+    ReactGA.initialize("G-M2NP1M6YSK");
+  }, []);
   const [mode, setMode] = useState(() => {
     const prefersDark = window.matchMedia(
       "(prefers-color-scheme: dark)",

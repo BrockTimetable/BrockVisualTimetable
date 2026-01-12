@@ -1,4 +1,10 @@
-import React, { createContext, useState, useRef } from "react";
+import React, {
+  createContext,
+  useState,
+  useRef,
+  useCallback,
+  useEffect,
+} from "react";
 
 // Visually distinguishable colors that work well for both light and dark themes
 // Colors are ordered to maximize contrast between consecutive colors
@@ -25,6 +31,7 @@ export const CourseColorsContext = createContext();
 export const CourseColorsProvider = ({ children }) => {
   const [courseColors, setCourseColors] = useState({});
   const [usedColors, setUsedColors] = useState([]);
+  const usedColorsRef = useRef([]);
   const [timetableHandlers, setTimetableHandlers] = useState(null);
   const [calendarHandler, setCalendarHandler] = useState(null);
 
@@ -56,16 +63,21 @@ export const CourseColorsProvider = ({ children }) => {
   };
 
   const getNextColor = () => {
+    const currentUsedColors = usedColorsRef.current;
     const availableColors = defaultColors.filter(
-      (color) => !usedColors.includes(color),
+      (color) => !currentUsedColors.includes(color),
     );
     if (availableColors.length === 0) {
       // If all colors are used, start over with a slight variation
-      const colorIndex = usedColors.length % defaultColors.length;
+      const colorIndex = currentUsedColors.length % defaultColors.length;
       return defaultColors[colorIndex];
     }
     return availableColors[0];
   };
+
+  useEffect(() => {
+    usedColorsRef.current = usedColors;
+  }, [usedColors]);
 
   const colourTimeoutRef = useRef(false);
   const updateCourseColor = (courseCode, color) => {
@@ -96,15 +108,33 @@ export const CourseColorsProvider = ({ children }) => {
     if (courseColors[courseCode]) {
       return courseColors[courseCode];
     }
-    const newColor = getNextColor();
-    // Update the colors state immediately to ensure consistency
-    setCourseColors((prev) => ({
-      ...prev,
-      [courseCode]: newColor,
-    }));
-    setUsedColors((current) => [...current, newColor]);
-    return newColor;
+    return getNextColor();
   };
+
+  const initializeCourseColor = useCallback((courseCode) => {
+    setCourseColors((prev) => {
+      if (prev[courseCode]) {
+        return prev;
+      }
+      const currentUsedColors = usedColorsRef.current;
+      const availableColors = defaultColors.filter(
+        (color) => !currentUsedColors.includes(color),
+      );
+      let newColor;
+      if (availableColors.length === 0) {
+        const colorIndex = currentUsedColors.length % defaultColors.length;
+        newColor = defaultColors[colorIndex];
+      } else {
+        newColor = availableColors[0];
+      }
+      // Update usedColors
+      setUsedColors((current) => [...current, newColor]);
+      return {
+        ...prev,
+        [courseCode]: newColor,
+      };
+    });
+  }, []);
 
   return (
     <CourseColorsContext.Provider
@@ -112,6 +142,7 @@ export const CourseColorsProvider = ({ children }) => {
         courseColors,
         updateCourseColor,
         getDefaultColorForCourse,
+        initializeCourseColor,
         setTimetableUpdateHandlers,
         setCalendarUpdateHandler,
       }}
