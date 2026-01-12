@@ -234,8 +234,9 @@ export default function CalendarComponent({
       console.log("[handleCalendarViewClick] Updated previousDuration to:", previousDuration);
     }
 
-    // Note: setSelectedDuration is not called here because it's already set
-    // before this function is called via the useEffect that listens to selectedDuration changes
+    // Ensure the dropdown is updated to match the calendar view
+    console.log("[handleCalendarViewClick] Calling setSelectedDuration with:", durationLabel);
+    setSelectedDuration(durationLabel);
 
     // Show calendar view notification
     const message = getCalendarViewNotificationMessage(startDate);
