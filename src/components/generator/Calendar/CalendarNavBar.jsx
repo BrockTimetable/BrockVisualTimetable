@@ -48,6 +48,7 @@ export default function CalendarNavBar({
   noCourses,
   sortByBracketContent,
 }) {
+  console.log("[CalendarNavBar] Rendering with selectedDuration:", selectedDuration);
   const theme = useTheme();
   const navButtonClassName =
     "bg-red-600 text-white hover:bg-red-700 disabled:bg-red-600/40 transition-none";

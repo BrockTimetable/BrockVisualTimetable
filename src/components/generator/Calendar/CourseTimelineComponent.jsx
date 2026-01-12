@@ -66,6 +66,7 @@ export default function CourseTimelineComponent({
   const handleCourseClick = (course, event) => {
     try {
       event.stopPropagation(); // Stop the click from reaching the timeline background
+      console.log("[Timeline] Clicked course:", course);
       if (
         setSelectedDuration &&
         durations &&
@@ -73,6 +74,7 @@ export default function CourseTimelineComponent({
         course.duration
       ) {
         const durationCode = course.duration;
+        console.log("[Timeline] Duration code:", durationCode);
 
         // Convert start and end dates to Unix timestamps
         const startTimestamp = Math.floor(course.startDate.getTime() / 1000);
@@ -120,7 +122,10 @@ export default function CourseTimelineComponent({
         }
 
         if (matchedDuration) {
+          console.log("[Timeline] Matched duration:", matchedDuration);
           setSelectedDuration(matchedDuration);
+        } else {
+          console.warn("[Timeline] No matched duration found");
         }
       }
 
