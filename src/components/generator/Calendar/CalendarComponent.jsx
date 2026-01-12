@@ -228,7 +228,8 @@ export default function CalendarComponent({
       previousDuration = duration;
     }
 
-    setSelectedDuration(durationLabel);
+    // Note: setSelectedDuration is not called here because it's already set
+    // before this function is called via the useEffect that listens to selectedDuration changes
 
     // Show calendar view notification
     const message = getCalendarViewNotificationMessage(startDate);
