@@ -12,6 +12,8 @@ export default function InputFormBottomComponent({
   addedCourses,
   setAddedCourses,
   setTimetables,
+  timetables,
+  durations,
   sortOption,
   generateTimetables,
   getValidTimetables,
@@ -47,7 +49,7 @@ export default function InputFormBottomComponent({
           </Grid>
         )}
         <Grid item xs={12}>
-          <ExportOptions />
+          <ExportOptions timetables={timetables} durations={durations} />
         </Grid>
       </Grid>
     </Box>

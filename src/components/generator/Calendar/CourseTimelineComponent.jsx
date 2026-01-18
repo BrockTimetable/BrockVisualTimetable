@@ -239,10 +239,15 @@ export default function CourseTimelineComponent({
           course.string ||
           `${course.code} ${course.section || ""} (${course.duration || ""})`;
 
-        let startDate = course.startDate
-          ? parseStartDate(course.startDate)
-          : null;
-        let endDate = course.endDate ? parseEndDate(course.endDate) : null;
+        let startDate = course.startDate;
+        let endDate = course.endDate;
+
+        if (startDate && !(startDate instanceof Date)) {
+          startDate = parseStartDate(startDate);
+        }
+        if (endDate && !(endDate instanceof Date)) {
+          endDate = parseEndDate(endDate);
+        }
 
         if (
           !startDate ||
@@ -268,6 +273,7 @@ export default function CourseTimelineComponent({
         }
 
         return {
+          id: `${courseName}-${course.duration || "nodur"}-${startDate.getTime()}`,
           code: courseName,
           fullName: courseString,
           startDate,
@@ -525,7 +531,7 @@ export default function CourseTimelineComponent({
 
         {/* Course bars with labels */}
         {coursesWithDates.map((course, index) => (
-          <React.Fragment key={course.code}>
+          <React.Fragment key={course.id}>
             {/* Course label */}
             <Tooltip
               title={`${course.fullName}: ${formatDate(
@@ -539,7 +545,7 @@ export default function CourseTimelineComponent({
               <Typography
                 variant="caption"
                 onClick={(event) => handleCourseClick(course, event)}
-                onMouseEnter={() => setHoveredCourse(course.code)}
+                onMouseEnter={() => setHoveredCourse(course.id)}
                 onMouseLeave={() => setHoveredCourse(null)}
                 sx={{
                   position: "absolute",
@@ -566,7 +572,7 @@ export default function CourseTimelineComponent({
                   cursor: "pointer",
                   transition: "all 0.15s cubic-bezier(0.4, 0, 0.2, 1)",
                   boxShadow:
-                    hoveredCourse === course.code
+                    hoveredCourse === course.id
                       ? (theme) =>
                           `0 2px 4px ${alpha(
                             course.color,
@@ -597,7 +603,7 @@ export default function CourseTimelineComponent({
               TransitionProps={{ timeout: 300 }}
             >
               <Box
-                onMouseEnter={() => setHoveredCourse(course.code)}
+                onMouseEnter={() => setHoveredCourse(course.id)}
                 onMouseLeave={() => setHoveredCourse(null)}
                 onClick={(event) => handleCourseClick(course, event)}
                 sx={{
@@ -607,14 +613,14 @@ export default function CourseTimelineComponent({
                   width: `${course.widthPercent}%`,
                   height: "12px",
                   backgroundColor: course.color,
-                  opacity: hoveredCourse === course.code ? 1 : 0.85,
+                  opacity: hoveredCourse === course.id ? 1 : 0.85,
                   borderRadius: "6px",
                   cursor: "pointer",
                   transition: "all 0.15s cubic-bezier(0.4, 0, 0.2, 1)",
                   transform:
-                    hoveredCourse === course.code ? "translateY(-1px)" : "none",
+                    hoveredCourse === course.id ? "translateY(-1px)" : "none",
                   boxShadow:
-                    hoveredCourse === course.code
+                    hoveredCourse === course.id
                       ? (theme) =>
                           `0 2px 4px ${alpha(
                             course.color,
@@ -629,7 +635,7 @@ export default function CourseTimelineComponent({
                     transform: "translateY(0px) scale(0.98)",
                     transition: "all 0.1s cubic-bezier(0.4, 0, 0.2, 1)",
                   },
-                  zIndex: hoveredCourse === course.code ? 3 : 2,
+                  zIndex: hoveredCourse === course.id ? 3 : 2,
                 }}
               />
             </Tooltip>

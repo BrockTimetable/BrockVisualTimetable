@@ -105,6 +105,8 @@ function GeneratorPage() {
                         addedCourses={addedCourses}
                         setAddedCourses={setAddedCourses}
                         setTimetables={setTimetables}
+                        timetables={timetables}
+                        durations={durations}
                         sortOption={sortOption}
                         generateTimetables={generateTimetables}
                         getValidTimetables={getValidTimetables}
@@ -132,6 +134,8 @@ function GeneratorPage() {
                       addedCourses={addedCourses}
                       setAddedCourses={setAddedCourses}
                       setTimetables={setTimetables}
+                      timetables={timetables}
+                      durations={durations}
                       sortOption={sortOption}
                       generateTimetables={generateTimetables}
                       getValidTimetables={getValidTimetables}

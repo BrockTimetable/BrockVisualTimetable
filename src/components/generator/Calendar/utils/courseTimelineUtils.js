@@ -1,4 +1,5 @@
 import { getCourseData } from "@/lib/generator/courseData";
+import { getPinnedComponents } from "@/lib/generator/pinnedComponents";
 
 export const prepareCoursesForTimeline = (
   timetables,
@@ -14,50 +15,60 @@ export const prepareCoursesForTimeline = (
 
     const coursesData = getCourseData();
     const courses = [];
+    const pinnedComponents = getPinnedComponents();
+
+    const pinnedDurations = {};
+
+    pinnedComponents.forEach((pin) => {
+      if (pin.includes("DURATION")) {
+        const parts = pin.split(" ");
+        const courseCode = parts[0];
+        const duration = parts[2];
+        pinnedDurations[courseCode] = duration;
+      }
+    });
 
     if (coursesData && Object.keys(coursesData).length > 0) {
       for (const key of Object.keys(coursesData)) {
         const course = coursesData[key];
 
-        if (course.courseCode) {
-          let sectionInfo = "";
-          let durationInfo = "";
-          let startDate = "";
-          let endDate = "";
+        if (course.sections && course.sections.length > 0) {
+          const processedOfferings = new Set();
 
-          if (course.sections && course.sections.length > 0) {
-            const section = course.sections[0];
-            if (section.sectionNumber) {
-              sectionInfo = section.sectionNumber;
-            }
-
+          course.sections.forEach((section) => {
             if (section.schedule) {
-              if (section.schedule.duration) {
-                durationInfo = section.schedule.duration;
+              const duration = section.schedule.duration || "";
+              const startDate = section.schedule.startDate || "";
+              const endDate = section.schedule.endDate || "";
+              const sectionNum = section.sectionNumber || "";
+              const code = course.courseCode;
+
+              if (pinnedDurations[code] && pinnedDurations[code] !== duration) {
+                return;
               }
 
-              if (section.schedule.startDate) {
-                startDate = section.schedule.startDate;
-              }
+              const offeringKey = `${code}-${duration}-${startDate}-${endDate}`;
 
-              if (section.schedule.endDate) {
-                endDate = section.schedule.endDate;
+              if (
+                !processedOfferings.has(offeringKey) &&
+                (startDate || endDate)
+              ) {
+                const courseStr = `${code} ${sectionNum} (${duration})`;
+
+                const courseObject = {
+                  string: courseStr,
+                  code: code,
+                  section: sectionNum,
+                  duration: duration,
+                  startDate: startDate,
+                  endDate: endDate,
+                };
+
+                courses.push(courseObject);
+                processedOfferings.add(offeringKey);
               }
             }
-          }
-
-          const courseStr = `${course.courseCode} ${sectionInfo} (${durationInfo})`;
-
-          const courseObject = {
-            string: courseStr,
-            code: course.courseCode,
-            section: sectionInfo,
-            duration: durationInfo,
-            startDate: startDate,
-            endDate: endDate,
-          };
-
-          courses.push(courseObject);
+          });
         } else if (course.code) {
           const courseStr = `${course.code} ${course.section || ""} (${
             course.duration || ""
