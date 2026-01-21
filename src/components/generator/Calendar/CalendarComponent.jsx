@@ -63,7 +63,7 @@ export default function CalendarComponent({
     useContext(CourseColorsContext);
   const [isTruncated, setIsTruncated] = useState(false);
   const [noTimetablesGenerated, setNoTimetablesGenerated] = useState(false);
-  const [noCourses, setNoCourses] = useState(true);
+  const [, setNoCourses] = useState(true);
   const [timeslotsOverridden, setTimeslotsOverridden] = useState(false);
   const [showWeekends, setShowWeekends] = useState(false);
   const [renameDialogOpen, setRenameDialogOpen] = useState(false);
@@ -485,7 +485,6 @@ export default function CalendarComponent({
           selectedDuration={selectedDuration}
           setSelectedDuration={setSelectedDuration}
           durations={durations}
-          noCourses={noCourses}
           sortByBracketContent={sortByBracketContent}
         />
 

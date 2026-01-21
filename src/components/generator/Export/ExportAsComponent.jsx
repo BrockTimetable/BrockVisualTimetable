@@ -1,8 +1,4 @@
-import * as React from "react";
-import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
-import ImageIcon from "@mui/icons-material/Image";
-import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
-import TableChartIcon from "@mui/icons-material/TableChart";
+import { ChevronDown, FileImage, FileText, Table } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -35,20 +31,20 @@ export default function ExportAsComponent() {
         <DropdownMenuTrigger asChild>
           <Button>
             Export As
-            <KeyboardArrowDownIcon className="ml-2 h-4 w-4" />
+            <ChevronDown className="ml-2 h-4 w-4" />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <DropdownMenuItem onSelect={handlePNG}>
-            <ImageIcon className="mr-2 h-4 w-4" />
+            <FileImage className="mr-2 h-4 w-4" />
             PNG
           </DropdownMenuItem>
           <DropdownMenuItem onSelect={handlePDF}>
-            <PictureAsPdfIcon className="mr-2 h-4 w-4" />
+            <FileText className="mr-2 h-4 w-4" />
             PDF
           </DropdownMenuItem>
           <DropdownMenuItem onSelect={handleExcel}>
-            <TableChartIcon className="mr-2 h-4 w-4" />
+            <Table className="mr-2 h-4 w-4" />
             Excel Sheet
           </DropdownMenuItem>
         </DropdownMenuContent>

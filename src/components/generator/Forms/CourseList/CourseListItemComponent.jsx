@@ -1,9 +1,6 @@
 import React, { useContext, useEffect } from "react";
-import ExpandLess from "@mui/icons-material/ExpandLess";
-import ExpandMore from "@mui/icons-material/ExpandMore";
-import DeleteIcon from "@mui/icons-material/Delete";
+import { ChevronDown, ChevronUp, Palette, Trash2 } from "lucide-react";
 import { CourseColorsContext } from "@/lib/contexts/generator/CourseColorsContext";
-import ColorLensIcon from "@mui/icons-material/ColorLens";
 import { clearCoursePins } from "@/lib/generator/pinnedComponents";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -90,7 +87,7 @@ export default function CourseListComponent({
                 onClick={(e) => e.stopPropagation()}
                 style={{ backgroundColor: currentColor }}
               >
-                <ColorLensIcon className="h-4 w-4 text-background" />
+                <Palette className="h-4 w-4 text-background" />
                 <input
                   type="color"
                   value={currentColor}
@@ -116,12 +113,12 @@ export default function CourseListComponent({
                 }}
                 aria-label={`Remove ${course}`}
               >
-                <DeleteIcon className="h-4 w-4" />
+                <Trash2 className="h-4 w-4" />
               </Button>
               {open ? (
-                <ExpandLess className="h-5 w-5 text-muted-foreground" />
+                <ChevronUp className="h-5 w-5 text-muted-foreground" />
               ) : (
-                <ExpandMore className="h-5 w-5 text-muted-foreground" />
+                <ChevronDown className="h-5 w-5 text-muted-foreground" />
               )}
             </div>
           </CardHeader>

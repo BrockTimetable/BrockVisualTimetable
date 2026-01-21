@@ -7,28 +7,22 @@
     <link rel="icon" href="/favicon.ico" />
     <title>Brock Visual TimeTable</title>
     <script>
-      // Set theme before React loads to prevent flash
+      // Set theme before React loads to prevent flash.
       (function () {
+        const storageKey = "bt-theme-mode";
+        const storedMode = window.localStorage.getItem(storageKey);
         const prefersDark = window.matchMedia(
           "(prefers-color-scheme: dark)",
         ).matches;
-        const theme = prefersDark ? "dark" : "light";
-        const bgColor = prefersDark ? "#242526" : "#ffffff";
+        const theme =
+          storedMode === "light" || storedMode === "dark"
+            ? storedMode
+            : prefersDark
+              ? "dark"
+              : "light";
 
-        // Set background color immediately
-        document.documentElement.style.backgroundColor = bgColor;
-        document.documentElement.classList.add(theme + "-mode");
-
-        // Set body styles when available
-        if (document.body) {
-          document.body.style.backgroundColor = bgColor;
-          document.body.classList.add(theme + "-mode");
-        } else {
-          document.addEventListener("DOMContentLoaded", function () {
-            document.body.style.backgroundColor = bgColor;
-            document.body.classList.add(theme + "-mode");
-          });
-        }
+        document.documentElement.classList.toggle("dark", theme === "dark");
+        document.documentElement.style.colorScheme = theme;
       })();
     </script>
   </head>

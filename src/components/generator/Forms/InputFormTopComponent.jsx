@@ -1,6 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
-import Box from "@mui/material/Box";
-import Grid from "@mui/material/Grid";
+import { useState, useEffect, useRef } from "react";
 import { useSnackbar } from "notistack";
 import ReactGA from "react-ga4";
 
@@ -213,28 +211,22 @@ export default function InputFormTop({
   };
 
   return (
-    <Box>
-      <Grid container spacing={{ xs: 0, sm: 2 }}>
-        <Grid item xs={12}>
-          <CourseOptions
-            term={term}
-            timetableType={timetableType}
-            courseOptions={courseOptions}
-            courseValue={courseValue}
-            handleTableChange={handleTableChange}
-            handleTermChange={handleTermChange}
-            handleCourseCodeChange={handleCourseCodeChange}
-            setCourseValue={handleSetCourseValue}
-            addCourse={addCourse}
-          />
-        </Grid>
-        <Grid item xs={12}>
-          <SortOptions
-            sortChoice={sortChoice}
-            handleSortChange={handleSortChange}
-          />
-        </Grid>
-      </Grid>
-    </Box>
+    <div className="space-y-4">
+      <CourseOptions
+        term={term}
+        timetableType={timetableType}
+        courseOptions={courseOptions}
+        courseValue={courseValue}
+        handleTableChange={handleTableChange}
+        handleTermChange={handleTermChange}
+        handleCourseCodeChange={handleCourseCodeChange}
+        setCourseValue={handleSetCourseValue}
+        addCourse={addCourse}
+      />
+      <SortOptions
+        sortChoice={sortChoice}
+        handleSortChange={handleSortChange}
+      />
+    </div>
   );
 }

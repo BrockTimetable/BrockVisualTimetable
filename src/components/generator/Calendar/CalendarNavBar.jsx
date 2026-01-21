@@ -1,11 +1,11 @@
-import React from "react";
-import { Box, useTheme } from "@mui/material";
-import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
-import NavigateNextIcon from "@mui/icons-material/NavigateNext";
-import NavigateFirstIcon from "@mui/icons-material/FirstPage";
-import NavigateLastIcon from "@mui/icons-material/LastPage";
-import InfoIcon from "@mui/icons-material/Info";
-import CancelIcon from "@mui/icons-material/Cancel";
+import {
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
+  CircleX,
+  Info,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Popover,
@@ -45,37 +45,21 @@ export default function CalendarNavBar({
   selectedDuration,
   setSelectedDuration,
   durations,
-  noCourses,
   sortByBracketContent,
 }) {
-  const theme = useTheme();
   const navButtonClassName =
     "bg-red-600 text-white hover:bg-red-700 disabled:bg-red-600/40 transition-none";
   const infoButtonBaseClassName =
     "transition-colors disabled:opacity-50 focus-visible:ring-0 focus-visible:ring-offset-0 hover:bg-accent/60";
 
   return (
-    <Box
+    <div
       id="calendarNavBar"
-      sx={{
-        backgroundColor: theme.palette.background.paper,
-        border: `1px solid ${theme.palette.divider}`,
-        display: "flex",
-        alignItems: "center",
-        borderRadius: "8px",
-        padding: "8px",
-        marginBottom: "16px",
-        height: "auto",
-      }}
+      className="mb-4 flex h-auto items-center rounded-lg border border-border bg-card p-2"
     >
-      <Box
+      <div
         id="infoButtonBox"
-        sx={{
-          flex: { xs: "none", sm: 1 },
-          display: "flex",
-          justifyContent: { xs: "center", sm: "flex-start" },
-          order: { xs: 1, sm: 1 },
-        }}
+        className="order-1 flex flex-none justify-center sm:flex-1 sm:justify-start"
       >
         {isTruncated && (
           <Popover>
@@ -87,7 +71,7 @@ export default function CalendarNavBar({
                 className={`${infoButtonBaseClassName} text-amber-600 hover:text-amber-600`}
                 aria-label="View truncated results info"
               >
-                <InfoIcon />
+                <Info className="h-4 w-4" />
               </Button>
             </PopoverTrigger>
             <PopoverContent align="start" sideOffset={8}>
@@ -115,7 +99,7 @@ export default function CalendarNavBar({
                 className={`${infoButtonBaseClassName} text-red-600 hover:text-red-600`}
                 aria-label="View no timetables generated info"
               >
-                <CancelIcon />
+                <CircleX className="h-4 w-4" />
               </Button>
             </PopoverTrigger>
             <PopoverContent align="start" sideOffset={8}>
@@ -143,7 +127,7 @@ export default function CalendarNavBar({
                 className={`${infoButtonBaseClassName} text-sky-600 hover:text-sky-600`}
                 aria-label="View time block overlap info"
               >
-                <InfoIcon />
+                <Info className="h-4 w-4" />
               </Button>
             </PopoverTrigger>
             <PopoverContent align="start" sideOffset={8}>
@@ -162,76 +146,61 @@ export default function CalendarNavBar({
             </PopoverContent>
           </Popover>
         )}
-      </Box>
-      <Box
+      </div>
+      <div
         id="calendarNavButtons"
-        sx={{
-          flex: { xs: "none", sm: 1 },
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          whiteSpace: "nowrap",
-          order: { xs: 2, sm: 2 },
-        }}
+        className="order-2 flex flex-none items-center justify-center whitespace-nowrap sm:flex-1"
       >
-        <Box sx={{ marginRight: 1 }}>
+        <div className="mr-1">
           <Button
             onClick={handleFirst}
             disabled={timetables.length <= 1}
             size="icon"
             className={navButtonClassName}
           >
-            <NavigateFirstIcon />
+            <ChevronsLeft className="h-5 w-5" />
           </Button>
-        </Box>
-        <Box sx={{ marginRight: 2 }}>
+        </div>
+        <div className="mr-2">
           <Button
             onClick={handlePrevious}
             disabled={timetables.length <= 1}
             size="icon"
             className={navButtonClassName}
           >
-            <NavigateBeforeIcon />
+            <ChevronLeft className="h-5 w-5" />
           </Button>
-        </Box>
-        <Box
+        </div>
+        <div
           id="calendarTimetableNumber"
-          sx={{ flex: "0 1 auto", textAlign: "center", minWidth: "80px" }}
+          className="min-w-[80px] flex-[0_1_auto] text-center text-sm font-medium text-foreground"
         >
           {currentTimetableIndex + 1} of {timetables.length}
-        </Box>
-        <Box sx={{ marginLeft: 2 }}>
+        </div>
+        <div className="ml-2">
           <Button
             onClick={handleNext}
             disabled={timetables.length <= 1}
             size="icon"
             className={navButtonClassName}
           >
-            <NavigateNextIcon />
+            <ChevronRight className="h-5 w-5" />
           </Button>
-        </Box>
-        <Box sx={{ marginLeft: 1 }}>
+        </div>
+        <div className="ml-1">
           <Button
             onClick={handleLast}
             disabled={timetables.length <= 1}
             size="icon"
             className={navButtonClassName}
           >
-            <NavigateLastIcon />
+            <ChevronsRight className="h-5 w-5" />
           </Button>
-        </Box>
-      </Box>
-      <Box
+        </div>
+      </div>
+      <div
         id="durationFormBox"
-        sx={{
-          flex: { xs: "none", sm: 1 },
-          display: "flex",
-          justifyContent: { xs: "center", sm: "flex-end" },
-          paddingTop: "4px",
-          paddingBottom: "4px",
-          marginRight: { xs: 0, sm: "4px" },
-          order: { xs: 3, sm: 3 },
-        }}
+        className="order-3 flex flex-none justify-center py-1 sm:flex-1 sm:justify-end sm:pr-1"
       >
         <Select value={selectedDuration} onValueChange={setSelectedDuration}>
           <SelectTrigger
@@ -248,7 +217,7 @@ export default function CalendarNavBar({
             ))}
           </SelectContent>
         </Select>
-      </Box>
-    </Box>
+      </div>
+    </div>
   );
 }

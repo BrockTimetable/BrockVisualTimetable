@@ -3,51 +3,51 @@
   --calendar-grid-color-dark: var(--theme-outline-color);
 }
 
-body.light-mode .fc .fc-timegrid-slot,
-body.light-mode .fc .fc-col-header-cell,
-body.light-mode .fc .fc-daygrid-day,
-body.light-mode .fc .fc-daygrid-day-frame,
-body.light-mode .fc .fc-timegrid-axis,
-body.light-mode .fc .fc-timegrid-divider,
-body.light-mode .fc .fc-timegrid-lines,
-body.light-mode .fc .fc-timegrid-bg,
-body.light-mode .fc .fc-timegrid-slots,
-body.light-mode .fc .fc-scrollgrid,
-body.light-mode .fc .fc-scrollgrid-sync-inner,
-body.light-mode .fc .fc-scrollgrid-liquid,
-body.light-mode .fc .fc-scrollgrid-section,
-body.light-mode .fc .fc-scrollgrid-section table,
-body.light-mode .fc .fc-scrollgrid-section td,
-body.light-mode .fc .fc-scrollgrid-section th {
+.fc .fc-timegrid-slot,
+.fc .fc-col-header-cell,
+.fc .fc-daygrid-day,
+.fc .fc-daygrid-day-frame,
+.fc .fc-timegrid-axis,
+.fc .fc-timegrid-divider,
+.fc .fc-timegrid-lines,
+.fc .fc-timegrid-bg,
+.fc .fc-timegrid-slots,
+.fc .fc-scrollgrid,
+.fc .fc-scrollgrid-sync-inner,
+.fc .fc-scrollgrid-liquid,
+.fc .fc-scrollgrid-section,
+.fc .fc-scrollgrid-section table,
+.fc .fc-scrollgrid-section td,
+.fc .fc-scrollgrid-section th {
   border-color: var(--calendar-grid-color-light);
 }
 
-body.dark-mode .fc .fc-timegrid-slot,
-body.dark-mode .fc .fc-col-header-cell,
-body.dark-mode .fc .fc-daygrid-day,
-body.dark-mode .fc .fc-daygrid-day-frame,
-body.dark-mode .fc .fc-timegrid-axis,
-body.dark-mode .fc .fc-timegrid-divider,
-body.dark-mode .fc .fc-timegrid-lines,
-body.dark-mode .fc .fc-timegrid-bg,
-body.dark-mode .fc .fc-timegrid-slots,
-body.dark-mode .fc .fc-scrollgrid,
-body.dark-mode .fc .fc-scrollgrid-sync-inner,
-body.dark-mode .fc .fc-scrollgrid-liquid,
-body.dark-mode .fc .fc-scrollgrid-section,
-body.dark-mode .fc .fc-scrollgrid-section table,
-body.dark-mode .fc .fc-scrollgrid-section td,
-body.dark-mode .fc .fc-scrollgrid-section th {
+.dark .fc .fc-timegrid-slot,
+.dark .fc .fc-col-header-cell,
+.dark .fc .fc-daygrid-day,
+.dark .fc .fc-daygrid-day-frame,
+.dark .fc .fc-timegrid-axis,
+.dark .fc .fc-timegrid-divider,
+.dark .fc .fc-timegrid-lines,
+.dark .fc .fc-timegrid-bg,
+.dark .fc .fc-timegrid-slots,
+.dark .fc .fc-scrollgrid,
+.dark .fc .fc-scrollgrid-sync-inner,
+.dark .fc .fc-scrollgrid-liquid,
+.dark .fc .fc-scrollgrid-section,
+.dark .fc .fc-scrollgrid-section table,
+.dark .fc .fc-scrollgrid-section td,
+.dark .fc .fc-scrollgrid-section th {
   border-color: var(--calendar-grid-color-dark);
 }
 
-body.light-mode .fc-event {
+.fc-event {
   border: none;
   border-radius: 3px;
   box-shadow: 0 0 1px var(--calendar-grid-color-light);
 }
 
-body.dark-mode .fc-event {
+.dark .fc-event {
   border: none;
   border-radius: 3px;
   box-shadow: 0 0 1px var(--calendar-grid-color-dark);

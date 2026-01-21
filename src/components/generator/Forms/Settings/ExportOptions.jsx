@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import BorderBox from "../../UI/BorderBox";
 import ExportCalendarButton from "../../Export/ExportCalendarButton";
 import { Info, ChevronDown, ChevronUp } from "lucide-react";

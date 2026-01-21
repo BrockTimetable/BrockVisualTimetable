@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { exportCal } from "@/lib/generator/ExportCal.js";
 import { getVisibleTimetables } from "@/components/generator/Calendar/utils/calendarViewUtils.js";

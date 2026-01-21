@@ -1,10 +1,4 @@
-import React, {
-  createContext,
-  useState,
-  useRef,
-  useCallback,
-  useEffect,
-} from "react";
+import { createContext, useState, useRef, useCallback, useEffect } from "react";
 
 // Visually distinguishable colors that work well for both light and dark themes
 // Colors are ordered to maximize contrast between consecutive colors

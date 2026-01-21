@@ -5,9 +5,6 @@ import {
   InputFormBottomComponent,
   InputFormTopComponent,
 } from "@/components/generator";
-import CssBaseline from "@mui/material/CssBaseline";
-import Grid from "@mui/material/Grid";
-import Box from "@mui/material/Box";
 import { useIsBelowMedium } from "@/lib/utils/screenSizeUtils";
 import { CourseDetailsProvider } from "@/lib/contexts/generator/CourseDetailsContext";
 import {
@@ -20,14 +17,8 @@ import {
   generateTimetables,
   getValidTimetables,
 } from "@/lib/generator/timetableGeneration/timetableGeneration";
-import {
-  removeCourseData,
-  clearAllCourseData,
-} from "@/lib/generator/courseData";
-import {
-  clearCoursePins,
-  clearAllPins,
-} from "@/lib/generator/pinnedComponents";
+import { clearAllCourseData } from "@/lib/generator/courseData";
+import { clearAllPins } from "@/lib/generator/pinnedComponents";
 import FooterComponent from "@/components/sitewide/FooterComponent";
 
 function GeneratorPage() {
@@ -59,15 +50,6 @@ function GeneratorPage() {
     };
   }, []);
 
-  const removeCourse = (course) => {
-    const cleanCourseCode = course.split(" ").slice(0, 2).join("");
-    setAddedCourses(addedCourses.filter((c) => c !== course));
-    removeCourseData(cleanCourseCode);
-    clearCoursePins(cleanCourseCode);
-    generateTimetables(sortOption);
-    setTimetables(getValidTimetables());
-  };
-
   return (
     <CourseDetailsProvider>
       <CourseColorsProvider>
@@ -77,20 +59,12 @@ function GeneratorPage() {
           setTimetables={setTimetables}
           sortOption={sortOption}
         />
-        <Box
-          sx={{
-            minWidth: 350,
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-          }}
-        >
-          <CssBaseline />
-          <Box sx={{ maxWidth: 1280, width: "100%" }}>
+        <div className="flex min-w-[350px] flex-col items-center">
+          <div className="w-full max-w-[1280px]">
             <NavbarComponent />
-            <Grid container spacing={0} justifyContent="center">
-              <Grid item xs={12} md={4}>
-                <Box ml={2} mr={{ xs: 2, md: 1 }} mt={2} mb={0}>
+            <div className="grid grid-cols-1 justify-center md:grid-cols-12">
+              <div className="md:col-span-4">
+                <div className="mx-2 mt-2 md:mx-1">
                   <InputFormTopComponent
                     setTimetables={setTimetables}
                     setSelectedDuration={setSelectedDuration}
@@ -100,7 +74,7 @@ function GeneratorPage() {
                     setAddedCourses={setAddedCourses}
                   />
                   {!isBelowMedium && (
-                    <Box mt={2}>
+                    <div className="mt-4">
                       <InputFormBottomComponent
                         addedCourses={addedCourses}
                         setAddedCourses={setAddedCourses}
@@ -111,12 +85,12 @@ function GeneratorPage() {
                         generateTimetables={generateTimetables}
                         getValidTimetables={getValidTimetables}
                       />
-                    </Box>
+                    </div>
                   )}
-                </Box>
-              </Grid>
-              <Grid item xs={12} md={8}>
-                <Box ml={{ xs: 2, md: 1 }} mr={2} mt={{ xs: 0, sm: 2 }} mb={0}>
+                </div>
+              </div>
+              <div className="md:col-span-8">
+                <div className="mx-2 mt-0 sm:mt-2 md:mx-1">
                   <CalendarComponent
                     timetables={timetables}
                     setTimetables={setTimetables}
@@ -125,11 +99,11 @@ function GeneratorPage() {
                     durations={durations}
                     sortOption={sortOption}
                   />
-                </Box>
-              </Grid>
+                </div>
+              </div>
               {isBelowMedium && (
-                <Grid item xs={12}>
-                  <Box m={2} mt={{ xs: 0, sm: 2 }}>
+                <div className="md:col-span-12">
+                  <div className="mx-2 mt-0 sm:mt-2">
                     <InputFormBottomComponent
                       addedCourses={addedCourses}
                       setAddedCourses={setAddedCourses}
@@ -140,14 +114,14 @@ function GeneratorPage() {
                       generateTimetables={generateTimetables}
                       getValidTimetables={getValidTimetables}
                     />
-                  </Box>
-                </Grid>
+                  </div>
+                </div>
               )}
-            </Grid>
+            </div>
             <IntroGuideWidget />
             <FooterComponent />
-          </Box>
-        </Box>
+          </div>
+        </div>
       </CourseColorsProvider>
     </CourseDetailsProvider>
   );
