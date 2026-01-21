@@ -39,7 +39,7 @@
   max-width: 100%;
 }
 
-/* Timeline styles moved to inline Material UI styles */
+/* Timeline styles moved to inline styles */
 
 @media (max-width: 1325px) {
   .fc-event-main {
@@ -59,7 +59,7 @@
     justify-content: center;
   }
 
-  #calendarNavButtons > Box {
+  #calendarNavButtons > div {
     margin: 5px;
   }
 
@@ -112,7 +112,7 @@
     justify-content: center;
   }
 
-  #calendarNavButtons > Box {
+  #calendarNavButtons > div {
     margin: 5px;
   }
 

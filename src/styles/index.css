@@ -24,6 +24,8 @@
     --destructive-foreground: 210 40% 98%;
     --ring: 215 20.2% 65.1%;
     --radius: 0.5rem;
+    --theme-divider-color: hsl(var(--border));
+    --theme-outline-color: hsl(var(--ring));
   }
 
   .dark {
@@ -46,6 +48,8 @@
     --destructive: 0 65% 38%;
     --destructive-foreground: 0 0% 98%;
     --ring: 0 0% 45%;
+    --theme-divider-color: hsl(var(--border));
+    --theme-outline-color: hsl(var(--ring));
   }
 }
 

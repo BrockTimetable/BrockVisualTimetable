@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { SnackbarProvider, useSnackbar } from "notistack";
 import eventBus from "@/lib/eventBus";
 

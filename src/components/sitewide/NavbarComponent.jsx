@@ -1,5 +1,4 @@
-import React, { useContext, useState } from "react";
-import { useTheme } from "@mui/material/styles";
+import { useContext, useState } from "react";
 import ColorModeContext from "@/lib/contexts/sitewide/ColorModeContext";
 import { Link } from "react-router-dom";
 import { useIsMobile } from "@/lib/utils/screenSizeUtils";
@@ -23,7 +22,6 @@ import {
 import { Separator } from "@/components/ui/separator";
 
 const NavbarComponent = () => {
-  const theme = useTheme();
   const colorMode = useContext(ColorModeContext);
   const isMobile = useIsMobile();
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -122,7 +120,7 @@ const NavbarComponent = () => {
               onClick={colorMode.toggleColorMode}
               aria-label="Toggle theme"
             >
-              {theme.palette.mode === "dark" ? (
+              {colorMode.mode === "dark" ? (
                 <Sun className="h-5 w-5" />
               ) : (
                 <Moon className="h-5 w-5" />
@@ -161,7 +159,7 @@ const NavbarComponent = () => {
               onClick={colorMode.toggleColorMode}
               aria-label="Toggle theme"
             >
-              {theme.palette.mode === "dark" ? (
+              {colorMode.mode === "dark" ? (
                 <Sun className="h-5 w-5" />
               ) : (
                 <Moon className="h-5 w-5" />

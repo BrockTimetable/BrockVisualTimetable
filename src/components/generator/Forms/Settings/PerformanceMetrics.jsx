@@ -1,5 +1,3 @@
-import React from "react";
-import { Typography, Box } from "@mui/material";
 import BorderBox from "../../UI/BorderBox";
 import { getGenerationPerformance } from "@/lib/generator/timetableGeneration/timetableGeneration";
 
@@ -34,24 +32,20 @@ export default function PerformanceMetrics() {
 
   return (
     <BorderBox title="Generation Performance">
-      <Typography variant="h6" gutterBottom>
-        Generation Performance
-      </Typography>
-      <Box>
-        <Typography variant="body2" color="text.secondary">
-          Generation Time: {formattedTime}
-        </Typography>
-        <Typography variant="body2" color="text.secondary">
+      <div className="space-y-1 text-sm text-muted-foreground">
+        <div className="text-xs font-semibold uppercase tracking-wide text-foreground">
+          Generation Performance
+        </div>
+        <div>Generation Time: {formattedTime}</div>
+        <div>
           Combinations Processed:{" "}
           {metrics.totalCombinationsProcessed.toLocaleString()}
-        </Typography>
-        <Typography variant="body2" color="text.secondary">
+        </div>
+        <div>
           Valid Timetables: {metrics.validTimetablesFound.toLocaleString()}
-        </Typography>
-        <Typography variant="body2" color="text.secondary">
-          Combinations/Second: {combinationsPerSecond.toLocaleString()}
-        </Typography>
-      </Box>
+        </div>
+        <div>Combinations/Second: {combinationsPerSecond.toLocaleString()}</div>
+      </div>
     </BorderBox>
   );
 }

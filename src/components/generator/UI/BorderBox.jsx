@@ -1,92 +1,81 @@
-import React, { useState } from "react";
-import Box from "@mui/material/Box";
-import IconButton from "@mui/material/IconButton";
-import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
-import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
-import Collapse from "@mui/material/Collapse";
+import { useRef, useState } from "react";
+import { ChevronDown } from "lucide-react";
 
 export default function BorderBox({ title, children }) {
   const [isExpanded, setIsExpanded] = useState(true);
+  const [contentHeight, setContentHeight] = useState(0);
+  const [isAnimating, setIsAnimating] = useState(false);
+  const [maxHeight, setMaxHeight] = useState("none");
+  const contentRef = useRef(null);
 
-  const toggleExpand = () => {
-    setIsExpanded(!isExpanded);
+  const measureContentHeight = () =>
+    contentRef.current ? contentRef.current.scrollHeight : 0;
+  const transitionDuration = Math.min(
+    320,
+    Math.max(140, Math.round(120 + contentHeight / 4)),
+  );
+  const opacityDuration = Math.max(120, Math.round(transitionDuration * 0.7));
+  const transition = isAnimating
+    ? `max-height ${transitionDuration}ms ease, opacity ${opacityDuration}ms ease`
+    : "none";
+
+  const handleToggle = () => {
+    const measuredHeight = measureContentHeight();
+    setContentHeight(measuredHeight);
+    setIsAnimating(true);
+
+    if (isExpanded) {
+      setMaxHeight(`${measuredHeight}px`);
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          setMaxHeight("0px");
+        });
+      });
+    } else {
+      setMaxHeight(`${measuredHeight}px`);
+    }
+
+    setIsExpanded((prev) => !prev);
+  };
+
+  const handleTransitionEnd = (event) => {
+    if (event.propertyName !== "max-height") return;
+    setIsAnimating(false);
+    if (isExpanded) {
+      setMaxHeight("none");
+    }
   };
 
   return (
-    <Box
-      sx={{
-        borderBottom: (theme) => ({
-          xs: `1px solid ${theme.palette.primary.main}`,
-          sm: `1px solid ${theme.palette.primary.main}`,
-        }),
-        borderTop: (theme) => ({
-          xs: `none`,
-          sm: `1px solid ${theme.palette.primary.main}`,
-        }),
-        borderLeft: (theme) => ({
-          xs: "none",
-          sm: `1px solid ${theme.palette.primary.main}`,
-        }),
-        borderRight: (theme) => ({
-          xs: "none",
-          sm: `1px solid ${theme.palette.primary.main}`,
-        }),
-        borderRadius: {
-          xs: "0px",
-          sm: "8px",
-        },
-        width: {
-          xs: "100vw",
-          sm: "auto",
-        },
-        marginLeft: {
-          xs: "calc(-50vw + 50%)",
-          sm: "0",
-        },
-        marginRight: {
-          xs: "calc(-50vw + 50%)",
-          sm: "0",
-        },
-        overflow: "hidden",
-        transition: "all 0.3s ease",
-      }}
-    >
-      <Box
-        onClick={toggleExpand}
-        sx={{
-          backgroundColor: "primary.main",
-          padding: "4px 8px",
-          color: "white",
-          fontWeight: "bold",
-          fontSize: "0.875rem",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          cursor: "pointer",
-          "&:hover": {
-            backgroundColor: "primary.dark",
-          },
-        }}
+    <div className="w-full overflow-hidden rounded-none border border-primary/70 sm:rounded-lg">
+      <button
+        type="button"
+        onClick={handleToggle}
+        className="flex w-full items-center justify-between bg-primary px-3 py-2 text-left text-xs font-semibold uppercase tracking-wide text-primary-foreground transition-colors hover:bg-primary/90"
       >
-        {title}
-        <IconButton
-          size="small"
-          sx={{
-            color: "white",
-            padding: "0px",
-            transition: "transform 0.3s ease",
-            transform: isExpanded ? "rotate(0deg)" : "rotate(-90deg)",
-            "&:hover": {
-              backgroundColor: "rgba(255, 255, 255, 0.1)",
-            },
-          }}
+        <span>{title}</span>
+        <span
+          className={`transition-transform duration-200 ${
+            isExpanded ? "rotate-0" : "-rotate-90"
+          }`}
         >
-          <KeyboardArrowUpIcon />
-        </IconButton>
-      </Box>
-      <Collapse in={isExpanded} timeout={300}>
-        <Box sx={{ padding: "16px" }}>{children}</Box>
-      </Collapse>
-    </Box>
+          <ChevronDown className="h-4 w-4" />
+        </span>
+      </button>
+      <div
+        className="overflow-hidden px-4 will-change-[max-height,opacity]"
+        style={{
+          maxHeight,
+          opacity: isExpanded ? 1 : 0,
+          transition,
+        }}
+        onTransitionEnd={handleTransitionEnd}
+        aria-hidden={!isExpanded}
+      >
+        <div ref={contentRef} className="py-4">
+          {children}
+        </div>
+      </div>
+    </div>
   );
 }

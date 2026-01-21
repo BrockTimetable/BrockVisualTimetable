@@ -1,4 +1,3 @@
-import React from "react";
 import CourseListComponent from "./CourseListComponent";
 import BorderBox from "../../UI/BorderBox";
 
