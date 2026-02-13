@@ -26,7 +26,7 @@ export default function InputFormTop({
   setAddedCourses,
 }) {
   const { enqueueSnackbar } = useSnackbar();
-  const [term, setTerm] = useState("FW");
+  const [term, setTerm] = useState("SP");
   const [courseValue, setCourseValue] = useState("");
   const [timetableType, setTimetableType] = useState("UG");
   const [courseOptions, setCourseOptions] = useState([]);
