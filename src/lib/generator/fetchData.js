@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_BASE_URL = "https://api.brocktimetable.com/api";
+const API_BASE_URL = "https://brocktimetable.connorbernard.com/api";
 
 const fetchData = async (endpoint, params) => {
   try {
