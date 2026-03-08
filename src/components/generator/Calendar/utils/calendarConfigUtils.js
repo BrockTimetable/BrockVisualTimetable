@@ -10,6 +10,7 @@ export const getFullCalendarConfig = ({
   handleEventClick,
   handleSelect,
   handleSelectAllow,
+  handleUnselect,
   handleEventMouseEnter,
   handleEventMouseLeave,
   isMobile = false,
@@ -21,6 +22,7 @@ export const getFullCalendarConfig = ({
   headerToolbar: false,
   height: 835,
   dayHeaderFormat: { weekday: "short" },
+  dayHeaderContent: (arg) => arg.text.toUpperCase(),
   dayCellClassNames: (arg) =>
     arg.date.getDay() === new Date().getDay() ? "fc-day-today" : "",
   slotMinTime: "08:00:00",
@@ -29,6 +31,15 @@ export const getFullCalendarConfig = ({
   allDaySlot: true,
   allDayText: "ONLINE",
   eventContent: (eventInfo) => renderEventContent(eventInfo, isMobile),
+  eventClassNames: (arg) =>
+    arg.event.extendedProps?.isPinned ? ["fc-event-pinned"] : [],
+  eventDidMount: (arg) => {
+    if (arg.event.extendedProps?.isPinned) {
+      arg.el.style.borderColor = "transparent";
+      arg.el.style.borderWidth = "1px";
+      arg.el.style.borderStyle = "solid";
+    }
+  },
   eventClick: handleEventClick,
   eventMouseEnter: handleEventMouseEnter,
   eventMouseLeave: handleEventMouseLeave,
@@ -37,6 +48,7 @@ export const getFullCalendarConfig = ({
   selectMinDistance: 25,
   select: handleSelect,
   selectAllow: handleSelectAllow,
+  unselect: handleUnselect,
   longPressDelay: 0,
   selectLongPressDelay: 500,
   firstDay: 1,

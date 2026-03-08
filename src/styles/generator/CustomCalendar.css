@@ -1,78 +1,180 @@
-:root {
-  --calendar-grid-color-light: var(--theme-divider-color);
-  --calendar-grid-color-dark: var(--theme-outline-color);
+#Calendar .fc {
+  --fc-border-color: hsl(var(--border) / 0.65);
+  --fc-page-bg-color: hsl(var(--background));
+  --fc-neutral-bg-color: hsl(var(--muted) / 0.55);
+  --fc-neutral-text-color: hsl(var(--muted-foreground));
+  --fc-today-bg-color: hsl(var(--accent) / 0.38);
+  --fc-now-indicator-color: hsl(var(--primary));
 }
 
-.fc .fc-timegrid-slot,
-.fc .fc-col-header-cell,
-.fc .fc-daygrid-day,
-.fc .fc-daygrid-day-frame,
-.fc .fc-timegrid-axis,
-.fc .fc-timegrid-divider,
-.fc .fc-timegrid-lines,
-.fc .fc-timegrid-bg,
-.fc .fc-timegrid-slots,
-.fc .fc-scrollgrid,
-.fc .fc-scrollgrid-sync-inner,
-.fc .fc-scrollgrid-liquid,
-.fc .fc-scrollgrid-section,
-.fc .fc-scrollgrid-section table,
-.fc .fc-scrollgrid-section td,
-.fc .fc-scrollgrid-section th {
-  border-color: var(--calendar-grid-color-light);
+#Calendar .fc .fc-scrollgrid {
+  border: 1px solid hsl(var(--border) / 0.72);
+  border-radius: calc(var(--radius) + 2px);
+  overflow: hidden;
+  background: hsl(var(--background));
+  box-shadow:
+    inset 0 1px 0 hsl(var(--background) / 0.6),
+    0 1px 3px hsl(var(--foreground) / 0.04);
 }
 
-.dark .fc .fc-timegrid-slot,
-.dark .fc .fc-col-header-cell,
-.dark .fc .fc-daygrid-day,
-.dark .fc .fc-daygrid-day-frame,
-.dark .fc .fc-timegrid-axis,
-.dark .fc .fc-timegrid-divider,
-.dark .fc .fc-timegrid-lines,
-.dark .fc .fc-timegrid-bg,
-.dark .fc .fc-timegrid-slots,
-.dark .fc .fc-scrollgrid,
-.dark .fc .fc-scrollgrid-sync-inner,
-.dark .fc .fc-scrollgrid-liquid,
-.dark .fc .fc-scrollgrid-section,
-.dark .fc .fc-scrollgrid-section table,
-.dark .fc .fc-scrollgrid-section td,
-.dark .fc .fc-scrollgrid-section th {
-  border-color: var(--calendar-grid-color-dark);
+#Calendar .fc .fc-timegrid-slot,
+#Calendar .fc .fc-col-header-cell,
+#Calendar .fc .fc-daygrid-day,
+#Calendar .fc .fc-daygrid-day-frame,
+#Calendar .fc .fc-timegrid-axis,
+#Calendar .fc .fc-timegrid-divider,
+#Calendar .fc .fc-timegrid-lines,
+#Calendar .fc .fc-timegrid-bg,
+#Calendar .fc .fc-timegrid-slots,
+#Calendar .fc .fc-scrollgrid-sync-inner,
+#Calendar .fc .fc-scrollgrid-liquid,
+#Calendar .fc .fc-scrollgrid-section,
+#Calendar .fc .fc-scrollgrid-section table,
+#Calendar .fc .fc-scrollgrid-section td,
+#Calendar .fc .fc-scrollgrid-section th {
+  border-color: hsl(var(--border) / 0.58);
 }
 
-.fc-event {
-  border: none;
-  border-radius: 3px;
-  box-shadow: 0 0 1px var(--calendar-grid-color-light);
+#Calendar .fc .fc-col-header-cell {
+  background: hsl(var(--muted) / 0.45);
 }
 
-.dark .fc-event {
-  border: none;
-  border-radius: 3px;
-  box-shadow: 0 0 1px var(--calendar-grid-color-dark);
+#Calendar .fc .fc-timegrid-col-bg {
+  background: hsl(var(--background));
 }
 
-.fc-event,
-.fc-event-main,
-.fc-timegrid-event {
+#Calendar .fc .fc-timegrid-axis {
+  width: 74px !important;
+  background: hsl(var(--muted) / 0.45);
+}
+
+#Calendar .fc .fc-col-header-cell-cushion {
+  text-decoration: none;
+  color: hsl(var(--foreground) / 0.84);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.5rem 0;
+}
+
+#Calendar .fc .fc-timegrid-axis-cushion,
+#Calendar .fc .fc-timegrid-slot-label-cushion {
+  text-decoration: none;
+  color: hsl(var(--foreground) / 0.84);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0 0.25rem !important;
+  line-height: 1.2;
+  display: block;
+  text-align: center;
+  width: auto;
+  overflow: visible;
+}
+
+#Calendar .fc .fc-timegrid-axis-cushion {
+  padding: 0 0.25rem !important;
+}
+
+#Calendar .fc .fc-timegrid-slot-label {
+  background: hsl(var(--muted) / 0.45);
+}
+
+#Calendar .fc .fc-day-today {
+  background-color: hsl(var(--accent) / 0.28) !important;
+}
+
+#Calendar .fc .fc-timegrid-col.fc-day-today {
+  box-shadow: inset 0 0 0 1px hsl(var(--ring) / 0.32);
+}
+
+#Calendar .fc .fc-timegrid-event,
+#Calendar .fc .fc-event {
+  border: 1px solid hsl(var(--background) / 0.45);
+  border-radius: calc(var(--radius) - 1px);
+  box-shadow: 0 1px 2px hsl(var(--foreground) / 0.1);
   cursor: pointer;
 }
 
-.fc-timegrid-event.rename-mode,
-.fc-timegrid-event.rename-mode .fc-event-main,
-.fc-timegrid-event.rename-mode * {
+#Calendar .fc .fc-event-main {
+  cursor: pointer;
+}
+
+#Calendar .fc .fc-timegrid-event.rename-mode,
+#Calendar .fc .fc-timegrid-event.rename-mode .fc-event-main,
+#Calendar .fc .fc-timegrid-event.rename-mode * {
   cursor: text !important;
 }
 
-.fc-timegrid-event .fc-event-main {
+#Calendar .fc .fc-timegrid-event .fc-event-main {
   padding: 0;
+  line-height: 1.25;
 }
 
-.fc .fc-timegrid-axis-cushion {
-  font-size: 0.875rem !important;
+#Calendar .fc .fc-event-pinned {
+  border: 1px solid transparent !important;
+  box-shadow: none !important;
+  overflow: hidden;
+  outline: 0;
 }
 
-.fc .fc-timegrid-axis {
-  width: 70px !important;
+#Calendar .fc .fc-highlight {
+  background: transparent !important;
+}
+
+#Calendar .fc .fc-timegrid-now-indicator-line {
+  border-color: hsl(var(--primary) / 0.55);
+}
+
+#Calendar .fc .fc-bg-event.fc-block-selection-preview {
+  background: hsl(var(--primary) / 0.18);
+  border: 1px solid hsl(var(--primary) / 0.5);
+  border-radius: calc(var(--radius) - 2px);
+  opacity: 1;
+}
+
+.dark #Calendar .fc {
+  --fc-border-color: hsl(var(--border) / 0.8);
+  --fc-page-bg-color: hsl(var(--card));
+  --fc-neutral-bg-color: hsl(var(--muted) / 0.6);
+  --fc-neutral-text-color: hsl(var(--muted-foreground));
+  --fc-today-bg-color: hsl(var(--accent) / 0.28);
+}
+
+.dark #Calendar .fc .fc-col-header-cell-cushion,
+.dark #Calendar .fc .fc-timegrid-axis-cushion,
+.dark #Calendar .fc .fc-timegrid-slot-label-cushion {
+  color: hsl(var(--muted-foreground));
+}
+
+.dark #Calendar .fc .fc-scrollgrid {
+  box-shadow:
+    inset 0 1px 0 hsl(var(--background) / 0.3),
+    0 1px 2px hsl(var(--foreground) / 0.12);
+}
+
+.dark #Calendar .fc .fc-timegrid-slot,
+.dark #Calendar .fc .fc-col-header-cell,
+.dark #Calendar .fc .fc-daygrid-day,
+.dark #Calendar .fc .fc-daygrid-day-frame,
+.dark #Calendar .fc .fc-timegrid-axis,
+.dark #Calendar .fc .fc-timegrid-divider,
+.dark #Calendar .fc .fc-timegrid-lines,
+.dark #Calendar .fc .fc-timegrid-bg,
+.dark #Calendar .fc .fc-timegrid-slots,
+.dark #Calendar .fc .fc-scrollgrid-sync-inner,
+.dark #Calendar .fc .fc-scrollgrid-liquid,
+.dark #Calendar .fc .fc-scrollgrid-section,
+.dark #Calendar .fc .fc-scrollgrid-section table,
+.dark #Calendar .fc .fc-scrollgrid-section td,
+.dark #Calendar .fc .fc-scrollgrid-section th {
+  border-color: hsl(var(--border) / 0.78);
+}
+
+.dark #Calendar .fc .fc-timegrid-event,
+.dark #Calendar .fc .fc-event {
+  border-color: hsl(var(--background) / 0.2);
+  box-shadow: 0 1px 2px hsl(var(--foreground) / 0.16);
 }

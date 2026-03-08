@@ -1,5 +1,5 @@
-.fc .fc-day-today {
-  background-color: transparent !important;
+#Calendar .fc .fc-day-today {
+  background-color: hsl(var(--accent) / 0.28) !important;
 }
 
 #infoButtonBox {
@@ -43,7 +43,7 @@
 
 @media (max-width: 1325px) {
   .fc-event-main {
-    font-size: 10px;
+    font-size: 11px;
     text-wrap: wrap;
   }
 
@@ -96,7 +96,7 @@
 
 @media (max-width: 599px) {
   .fc-event-main {
-    font-size: 8px;
+    font-size: 9px;
     text-wrap: wrap;
   }
 

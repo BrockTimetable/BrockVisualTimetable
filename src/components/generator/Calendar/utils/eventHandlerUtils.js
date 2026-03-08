@@ -17,6 +17,11 @@ import {
   generateTimetables,
   getValidTimetables,
 } from "@/lib/generator/timetableGeneration/timetableGeneration";
+import {
+  getNormalizedSelectionWindow,
+  getSelectionDayCodes,
+  toSlotRange,
+} from "./selectionUtils.js";
 
 // Extract the complex logic for handling course component clicks
 export const handleCourseComponentClick = (
@@ -118,35 +123,19 @@ export const handleCalendarSelection = (
 ) => {
   const startDateTime = new Date(selectInfo.startStr);
   const endDateTime = new Date(selectInfo.endStr);
-  const startTime =
-    startDateTime.getHours() + ":" + (startDateTime.getMinutes() || "00");
-  const endTime =
-    endDateTime.getHours() + ":" + (endDateTime.getMinutes() || "00");
-  const slotStart =
-    (startDateTime.getHours() - 8) * 2 + startDateTime.getMinutes() / 30;
-  const slotEnd =
-    (endDateTime.getHours() - 8) * 2 + endDateTime.getMinutes() / 30;
+  const normalizedWindow = getNormalizedSelectionWindow(
+    startDateTime,
+    endDateTime,
+  );
+  if (!normalizedWindow) return;
 
-  const dayMapping = {
-    Mon: "M",
-    Tue: "T",
-    Wed: "W",
-    Thu: "R",
-    Fri: "F",
-    Sat: "S",
-    Sun: "U",
-  };
+  const { slotStart, slotEnd } = toSlotRange(
+    normalizedWindow.selectionStartMinutes,
+    normalizedWindow.selectionEndMinutes,
+  );
+  if (slotEnd <= slotStart) return;
 
-  // Get all days between start and end date
-  const days = [];
-  let currentDate = new Date(startDateTime);
-  while (currentDate <= endDateTime) {
-    const dayName = currentDate.toLocaleString("en-US", { weekday: "short" });
-    if (dayMapping[dayName]) {
-      days.push(dayMapping[dayName]);
-    }
-    currentDate.setDate(currentDate.getDate() + 1);
-  }
+  const days = getSelectionDayCodes(startDateTime, endDateTime);
 
   if (days.length > 0) {
     const slotsToBlock = [];
