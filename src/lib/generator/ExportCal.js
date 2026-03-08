@@ -1,6 +1,7 @@
 import ReactGA from "react-ga4";
 
 const isAnalyticsEnabled = import.meta.env.PROD;
+const ICS_TIMEZONE = "America/Toronto";
 let cachedTimetableData;
 export function exportCal() {
   if (isAnalyticsEnabled) {
@@ -25,7 +26,28 @@ export function exportCal() {
 
 function generateICSFileData() {
   let ICSData =
-    "BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//Brock Timetable//Brock Timetable//EN\n";
+    "BEGIN:VCALENDAR\n" +
+    "VERSION:2.0\n" +
+    "PRODID:-//Brock Timetable//Brock Timetable//EN\n" +
+    "CALSCALE:GREGORIAN\n" +
+    "BEGIN:VTIMEZONE\n" +
+    "TZID:America/Toronto\n" +
+    "X-LIC-LOCATION:America/Toronto\n" +
+    "BEGIN:DAYLIGHT\n" +
+    "TZOFFSETFROM:-0500\n" +
+    "TZOFFSETTO:-0400\n" +
+    "TZNAME:EDT\n" +
+    "DTSTART:19700308T020000\n" +
+    "RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=2SU\n" +
+    "END:DAYLIGHT\n" +
+    "BEGIN:STANDARD\n" +
+    "TZOFFSETFROM:-0400\n" +
+    "TZOFFSETTO:-0500\n" +
+    "TZNAME:EST\n" +
+    "DTSTART:19701101T020000\n" +
+    "RRULE:FREQ=YEARLY;BYMONTH=11;BYDAY=1SU\n" +
+    "END:STANDARD\n" +
+    "END:VTIMEZONE\n";
   const courses = cachedTimetableData.courses;
   for (let i = 0; i < courses.length; i++) {
     const courseCode = courses[i].courseCode;
@@ -128,22 +150,32 @@ function generateICSEvent(
   let EventData = "BEGIN:VEVENT\n";
   EventData = EventData + "UID:" + self.crypto.randomUUID() + "\n";
   EventData =
-    EventData + "DTSTAMP:" + generateICSTimeStampFromDate(new Date()) + "\n";
+    EventData + "DTSTAMP:" + generateICSUtcTimestampFromDate(new Date()) + "\n";
   EventData =
     EventData +
-    "DTSTART:" +
-    generateICSTimeStampFromDate(new Date(startTimestamp * 1000)) +
+    "DTSTART;TZID=" +
+    ICS_TIMEZONE +
+    ":" +
+    generateICSTimeStampFromDateInTimeZone(
+      new Date(startTimestamp * 1000),
+      ICS_TIMEZONE,
+    ) +
     "\n";
   EventData =
     EventData +
-    "DTEND:" +
-    generateICSTimeStampFromDate(new Date(endTimestamp * 1000)) +
+    "DTEND;TZID=" +
+    ICS_TIMEZONE +
+    ":" +
+    generateICSTimeStampFromDateInTimeZone(
+      new Date(endTimestamp * 1000),
+      ICS_TIMEZONE,
+    ) +
     "\n";
   EventData =
     EventData +
     "RRULE:FREQ=WEEKLY;" +
     "UNTIL=" +
-    generateICSTimeStampFromDate(new Date(endReoccurTimestamp * 1000)) +
+    generateICSUtcTimestampFromDate(new Date(endReoccurTimestamp * 1000)) +
     ";BYDAY=";
   const validDays = days
     .filter((day) => dayICSMap[day])
@@ -190,7 +222,33 @@ function addComponent(component, courseCode) {
   );
 }
 
-function generateICSTimeStampFromDate(date) {
+function generateICSTimeStampFromDateInTimeZone(date, timeZone) {
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hourCycle: "h23",
+  }).formatToParts(date);
+  const valueMap = Object.fromEntries(
+    parts.map((part) => [part.type, part.value]),
+  );
+
+  return (
+    valueMap.year +
+    valueMap.month +
+    valueMap.day +
+    "T" +
+    valueMap.hour +
+    valueMap.minute +
+    valueMap.second
+  );
+}
+
+function generateICSUtcTimestampFromDate(date) {
   const pad = (n) => String(n).padStart(2, "0");
 
   const year = date.getUTCFullYear();
