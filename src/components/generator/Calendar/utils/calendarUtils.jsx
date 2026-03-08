@@ -19,7 +19,12 @@ export const renderEventContent = (eventInfo, isMobile = false) => {
 
     return (
       <div
-        style={{ position: "relative", height: "100%", textAlign: "center" }}
+        style={{
+          position: "relative",
+          height: "100%",
+          textAlign: "center",
+          padding: "0.25rem 0.375rem",
+        }}
       >
         {eventDuration >= minDurationToShowTime && (
           <div
@@ -51,6 +56,9 @@ export const renderEventContent = (eventInfo, isMobile = false) => {
     );
   } else {
     const isPinned = isEventPinned(eventInfo.event);
+    const instructorText = eventInfo.event.extendedProps.description?.trim();
+    const shouldShowInstructor =
+      !!instructorText && instructorText.toLowerCase() !== "no instructor";
 
     return (
       <div
@@ -58,15 +66,10 @@ export const renderEventContent = (eventInfo, isMobile = false) => {
           position: "relative",
           backgroundColor: isPinned ? "rgba(0, 0, 0, 0.5)" : "transparent",
           height: "100%",
-          padding: "2px",
-          borderRadius: "4px",
+          padding: "0.25rem 0.375rem",
+          borderRadius: "inherit",
         }}
       >
-        {eventDuration >= minDurationToShowTime && (
-          <div style={{ position: "absolute", top: "2px", left: "2px" }}>
-            <b>{eventInfo.timeText}</b>
-          </div>
-        )}
         {isPinned && (
           <div
             style={{
@@ -89,27 +92,25 @@ export const renderEventContent = (eventInfo, isMobile = false) => {
           <b>{eventInfo.timeText}</b>
           <br />
           <span>{eventInfo.event.title}</span>
-          {(isMobile || eventDuration >= minDurationToShowTime) && (
-            <>
-              <br />
-              <span
-                style={{
-                  display: "block",
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                  whiteSpace: "nowrap",
-                  maxWidth: "100%",
-                  lineHeight: "1.2",
-                }}
-                title={
-                  eventInfo.event.extendedProps.description ||
-                  "Instructor information not available"
-                }
-              >
-                {eventInfo.event.extendedProps.description || "No instructor"}
-              </span>
-            </>
-          )}
+          {(isMobile || eventDuration >= minDurationToShowTime) &&
+            shouldShowInstructor && (
+              <>
+                <br />
+                <span
+                  style={{
+                    display: "block",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap",
+                    maxWidth: "100%",
+                    lineHeight: "1.2",
+                  }}
+                  title={instructorText}
+                >
+                  {instructorText}
+                </span>
+              </>
+            )}
         </div>
       </div>
     );

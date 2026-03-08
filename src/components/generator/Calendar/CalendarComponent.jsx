@@ -39,6 +39,7 @@ import {
   getCalendarViewNotificationMessage,
   getVisibleTimetables,
 } from "./utils/calendarViewUtils.js";
+import { buildSelectionPreviewEvents } from "./utils/selectionUtils.js";
 import { getFullCalendarConfig } from "./utils/calendarConfigUtils.js";
 import MultiLineSnackbar from "@/components/sitewide/MultiLineSnackbar";
 import { useIsMobile } from "@/lib/utils/screenSizeUtils";
@@ -71,11 +72,19 @@ export default function CalendarComponent({
   const [renameAnchorEl, setRenameAnchorEl] = useState(null);
   const [renameAnchorPosition, setRenameAnchorPosition] = useState(null);
   const [coursesForTimeline, setCoursesForTimeline] = useState([]);
+  const [selectionPreviewEvents, setSelectionPreviewEvents] = useState([]);
+  const selectionPreviewKeyRef = React.useRef("");
 
   const visibleTimetables = useMemo(
     () => getVisibleTimetables(timetables, viewRange),
     [timetables, viewRange],
   );
+  const calendarEvents = useMemo(() => {
+    if (selectionPreviewEvents.length === 0) {
+      return events;
+    }
+    return [...events, ...selectionPreviewEvents];
+  }, [events, selectionPreviewEvents]);
 
   // Screen size detection
   const isMobile = useIsMobile();
@@ -417,6 +426,7 @@ export default function CalendarComponent({
   };
 
   const handleSelect = (selectInfo) => {
+    clearSelectionPreview();
     handleCalendarSelection(
       selectInfo,
       setCurrentTimetableIndex,
@@ -429,9 +439,51 @@ export default function CalendarComponent({
     );
   };
 
-  const handleSelectAllow = (selectionInfo) => {
-    return true;
-  };
+  const clearSelectionPreview = useCallback(() => {
+    if (
+      selectionPreviewKeyRef.current !== "" ||
+      selectionPreviewEvents.length
+    ) {
+      selectionPreviewKeyRef.current = "";
+      setSelectionPreviewEvents([]);
+    }
+  }, [selectionPreviewEvents.length]);
+
+  const handleSelectAllow = useCallback(
+    (selectionInfo) => {
+      const start = selectionInfo?.start;
+      const end = selectionInfo?.end;
+
+      if (!start || !end) {
+        clearSelectionPreview();
+        return true;
+      }
+
+      const previewEvents = buildSelectionPreviewEvents(start, end);
+      if (previewEvents.length === 0) {
+        clearSelectionPreview();
+        return true;
+      }
+
+      const previewKey = previewEvents
+        .map(
+          (event) => `${event.start.toISOString()}-${event.end.toISOString()}`,
+        )
+        .join("|");
+
+      if (previewKey !== selectionPreviewKeyRef.current) {
+        selectionPreviewKeyRef.current = previewKey;
+        setSelectionPreviewEvents(previewEvents);
+      }
+
+      return true;
+    },
+    [clearSelectionPreview],
+  );
+
+  const handleUnselect = useCallback(() => {
+    clearSelectionPreview();
+  }, [clearSelectionPreview]);
 
   // Function to navigate the calendar to a specific date
   const navigateToDate = useCallback(
@@ -492,11 +544,12 @@ export default function CalendarComponent({
           {...getFullCalendarConfig({
             calendarRef,
             showWeekends,
-            events,
+            events: calendarEvents,
             handleDatesSet,
             handleEventClick,
             handleSelect,
             handleSelectAllow,
+            handleUnselect,
             handleEventMouseEnter,
             handleEventMouseLeave,
             isMobile,
