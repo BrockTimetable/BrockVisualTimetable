@@ -23,8 +23,6 @@ export const getFullCalendarConfig = ({
   height: 835,
   dayHeaderFormat: { weekday: "short" },
   dayHeaderContent: (arg) => arg.text.toUpperCase(),
-  dayCellClassNames: (arg) =>
-    arg.date.getDay() === new Date().getDay() ? "fc-day-today" : "",
   slotMinTime: "08:00:00",
   slotMaxTime: "23:00:00",
   slotDuration: "00:30:00",

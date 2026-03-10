@@ -3,7 +3,7 @@
   --fc-page-bg-color: hsl(var(--background));
   --fc-neutral-bg-color: hsl(var(--muted) / 0.55);
   --fc-neutral-text-color: hsl(var(--muted-foreground));
-  --fc-today-bg-color: hsl(var(--accent) / 0.38);
+  --fc-today-bg-color: transparent;
   --fc-now-indicator-color: hsl(var(--primary));
 }
 
@@ -82,14 +82,6 @@
   background: hsl(var(--muted) / 0.45);
 }
 
-#Calendar .fc .fc-day-today {
-  background-color: hsl(var(--accent) / 0.28) !important;
-}
-
-#Calendar .fc .fc-timegrid-col.fc-day-today {
-  box-shadow: inset 0 0 0 1px hsl(var(--ring) / 0.32);
-}
-
 #Calendar .fc .fc-timegrid-event,
 #Calendar .fc .fc-event {
   border: 1px solid hsl(var(--background) / 0.45);
@@ -140,7 +132,7 @@
   --fc-page-bg-color: hsl(var(--card));
   --fc-neutral-bg-color: hsl(var(--muted) / 0.6);
   --fc-neutral-text-color: hsl(var(--muted-foreground));
-  --fc-today-bg-color: hsl(var(--accent) / 0.28);
+  --fc-today-bg-color: transparent;
 }
 
 .dark #Calendar .fc .fc-col-header-cell-cushion,
