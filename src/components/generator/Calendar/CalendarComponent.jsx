@@ -524,37 +524,40 @@ export default function CalendarComponent({
           selectedDuration={selectedDuration}
         />
 
-        <CalendarNavBar
-          isTruncated={isTruncated}
-          noTimetablesGenerated={noTimetablesGenerated}
-          timeslotsOverridden={timeslotsOverridden}
-          handleFirst={handleFirst}
-          handlePrevious={handlePrevious}
-          handleNext={handleNext}
-          handleLast={handleLast}
-          currentTimetableIndex={currentTimetableIndex}
-          timetables={visibleTimetables}
-          selectedDuration={selectedDuration}
-          setSelectedDuration={setSelectedDuration}
-          durations={durations}
-          sortByBracketContent={sortByBracketContent}
-        />
+        <div className="calendar-shell">
+          <CalendarNavBar
+            isTruncated={isTruncated}
+            noTimetablesGenerated={noTimetablesGenerated}
+            timeslotsOverridden={timeslotsOverridden}
+            handleFirst={handleFirst}
+            handlePrevious={handlePrevious}
+            handleNext={handleNext}
+            handleLast={handleLast}
+            currentTimetableIndex={currentTimetableIndex}
+            timetables={visibleTimetables}
+            selectedDuration={selectedDuration}
+            setSelectedDuration={setSelectedDuration}
+            durations={durations}
+            sortByBracketContent={sortByBracketContent}
+          />
+          <div className="calendar-shell-divider" aria-hidden="true" />
 
-        <FullCalendar
-          {...getFullCalendarConfig({
-            calendarRef,
-            showWeekends,
-            events: calendarEvents,
-            handleDatesSet,
-            handleEventClick,
-            handleSelect,
-            handleSelectAllow,
-            handleUnselect,
-            handleEventMouseEnter,
-            handleEventMouseLeave,
-            isMobile,
-          })}
-        />
+          <FullCalendar
+            {...getFullCalendarConfig({
+              calendarRef,
+              showWeekends,
+              events: calendarEvents,
+              handleDatesSet,
+              handleEventClick,
+              handleSelect,
+              handleSelectAllow,
+              handleUnselect,
+              handleEventMouseEnter,
+              handleEventMouseLeave,
+              isMobile,
+            })}
+          />
+        </div>
 
         <RenameBlockedSlotDialog
           open={renameDialogOpen}
