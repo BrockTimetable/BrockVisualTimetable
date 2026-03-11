@@ -55,7 +55,7 @@ export default function CalendarNavBar({
   return (
     <div
       id="calendarNavBar"
-      className="mb-4 flex h-auto items-center rounded-lg border border-border bg-card p-2"
+      className="flex h-auto items-center px-3 py-3 sm:px-4"
     >
       <div
         id="infoButtonBox"
