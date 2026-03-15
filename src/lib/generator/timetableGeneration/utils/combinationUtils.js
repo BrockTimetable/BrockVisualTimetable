@@ -167,10 +167,18 @@ export const generateSingleCourseCombinations = (course, timeSlots) => {
     ]);
 
     combinations.forEach(([lab, tutorial, seminar]) => {
-      singleCourseCombinations.push({
+      const courseCombination = {
         courseCode: course.courseCode,
         mainComponents: mainComponentGroup,
         secondaryComponents: { lab, tutorial, seminar },
+      };
+
+      if (course.courseName) {
+        courseCombination.courseName = course.courseName;
+      }
+
+      singleCourseCombinations.push({
+        ...courseCombination,
       });
     });
   });

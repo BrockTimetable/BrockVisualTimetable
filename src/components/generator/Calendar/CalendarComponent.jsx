@@ -179,18 +179,25 @@ export default function CalendarComponent({
         currentColors,
       );
 
-      const courseDetails = newEvents
-        .filter((event) => event.description)
-        .map((event) => {
-          let titleArray = event.title.trim().split(" ");
-          return {
-            name: titleArray[0],
-            instructor: event.description,
-            section: titleArray.pop(),
-            startDate: event.startRecur,
-            endDate: event.endRecur,
-          };
-        });
+      const courseDetails = Array.from(
+        new Map(
+          newEvents
+            .filter((event) => !event.extendedProps.isBlocked)
+            .map((event) => {
+              let titleArray = event.title.trim().split(" ");
+              const detail = {
+                name: titleArray[0],
+                courseName: event.extendedProps.courseName || "",
+                instructor: event.description,
+                section: titleArray.pop(),
+                startDate: event.startRecur,
+                endDate: event.endRecur,
+              };
+
+              return [detail.name, detail];
+            }),
+        ).values(),
+      );
 
       setCourseDetails(courseDetails);
       setEvents(newEvents);

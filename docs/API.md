@@ -30,8 +30,15 @@ curl "https://api.brocktimetable.com/api/getNameList?timetableType=UG&session=FW
 
 #### Example Response
 
-```
-[ABED 4F84 D2", "ABED 4F85 D3", "ABTE 8P85 D3", "ABTE 8P90 D3", ...]
+```json
+[
+  {
+    "label": "COSC 1P02 D2",
+    "courseCode": "COSC1P02",
+    "duration": "2",
+    "courseName": "Introduction to Computer Science"
+  }
+]
 ```
 
 ### 2. Get Course Data

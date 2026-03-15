@@ -56,7 +56,9 @@ export const renderEventContent = (eventInfo, isMobile = false) => {
     );
   } else {
     const isPinned = isEventPinned(eventInfo.event);
+    const courseNameText = eventInfo.event.extendedProps.courseName?.trim();
     const instructorText = eventInfo.event.extendedProps.description?.trim();
+    const shouldShowCourseName = Boolean(courseNameText);
     const shouldShowInstructor =
       !!instructorText && instructorText.toLowerCase() !== "no instructor";
 
@@ -89,27 +91,39 @@ export const renderEventContent = (eventInfo, isMobile = false) => {
           </div>
         )}
         <div style={{ position: "relative", zIndex: 1 }}>
-          <b>{eventInfo.timeText}</b>
-          <br />
-          <span>{eventInfo.event.title}</span>
+          <b style={{ display: "block" }}>{eventInfo.timeText}</b>
+          <span style={{ display: "block" }}>{eventInfo.event.title}</span>
+          {(isMobile || eventDuration >= minDurationToShowTime) &&
+            shouldShowCourseName && (
+              <span
+                style={{
+                  display: "block",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  whiteSpace: "nowrap",
+                  maxWidth: "100%",
+                  lineHeight: "1.2",
+                }}
+                title={courseNameText}
+              >
+                {courseNameText}
+              </span>
+            )}
           {(isMobile || eventDuration >= minDurationToShowTime) &&
             shouldShowInstructor && (
-              <>
-                <br />
-                <span
-                  style={{
-                    display: "block",
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                    whiteSpace: "nowrap",
-                    maxWidth: "100%",
-                    lineHeight: "1.2",
-                  }}
-                  title={instructorText}
-                >
-                  {instructorText}
-                </span>
-              </>
+              <span
+                style={{
+                  display: "block",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  whiteSpace: "nowrap",
+                  maxWidth: "100%",
+                  lineHeight: "1.2",
+                }}
+                title={instructorText}
+              >
+                {instructorText}
+              </span>
             )}
         </div>
       </div>
