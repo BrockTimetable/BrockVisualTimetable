@@ -88,25 +88,47 @@ export default function CourseSearchComponent({
 
   const filteredOptions = React.useMemo(() => {
     const query = (value || "").trim().toUpperCase();
+    const compactQuery = query.replace(/\s+/g, "");
     const results = [];
     for (let i = 0; i < normalizedOptions.length; i += 1) {
       const option = normalizedOptions[i];
       const label = option.label.toUpperCase();
+      const compactLabel = label.replace(/\s+/g, "");
       const courseName = option.courseName.toUpperCase();
-      const matchesQuery =
-        !query ||
-        label.startsWith(query) ||
-        label.includes(query) ||
-        courseName.includes(query);
+      const courseNameWords = courseName.split(/\s+/).filter(Boolean);
 
-      if (matchesQuery) {
-        results.push(option);
-        if (results.length >= displayLimit) {
-          break;
-        }
+      let rank = -1;
+      if (!query) {
+        rank = 0;
+      } else if (compactLabel.startsWith(compactQuery)) {
+        rank = 1;
+      } else if (label.startsWith(query)) {
+        rank = 2;
+      } else if (compactLabel.includes(compactQuery)) {
+        rank = 3;
+      } else if (label.includes(query)) {
+        rank = 4;
+      } else if (courseName.startsWith(query)) {
+        rank = 5;
+      } else if (courseNameWords.some((word) => word.startsWith(query))) {
+        rank = 6;
+      } else if (courseName.includes(query)) {
+        rank = 7;
       }
+
+      if (rank === -1) continue;
+
+      results.push({ option, rank });
     }
-    return results;
+
+    results.sort((a, b) => {
+      if (a.rank !== b.rank) {
+        return a.rank - b.rank;
+      }
+      return a.option.label.localeCompare(b.option.label);
+    });
+
+    return results.slice(0, displayLimit).map((result) => result.option);
   }, [normalizedOptions, value, displayLimit]);
 
   const handleSelectOption = (option) => {
