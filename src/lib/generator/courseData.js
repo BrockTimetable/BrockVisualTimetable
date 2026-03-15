@@ -33,11 +33,13 @@ const initializeCourseData = (courseCode) => {
 };
 
 export const storeCourseData = (course) => {
-  const { courseCode, sections, labs, tutorials, seminars } = course;
+  const { courseCode, courseName, sections, labs, tutorials, seminars } =
+    course;
 
   initializeCourseData(courseCode);
 
   courseData[courseCode].courseCode = courseCode;
+  courseData[courseCode].courseName = courseName || "";
   courseData[courseCode].sections.push(...sections);
   replaceSectionId(courseData[courseCode].sections);
   courseData[courseCode].labs.push(...labs);

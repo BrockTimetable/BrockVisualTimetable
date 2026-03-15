@@ -78,9 +78,16 @@ export default function CourseListComponent({
       <Card className="transition-none hover:bg-muted/40">
         <CollapsibleTrigger asChild>
           <CardHeader className="cursor-pointer flex flex-row items-center justify-between space-y-0 py-3">
-            <CardTitle className="text-base font-normal uppercase">
-              {course}
-            </CardTitle>
+            <div className="min-w-0 pr-3">
+              <CardTitle className="text-base font-normal uppercase">
+                {course}
+              </CardTitle>
+              {courseDetail?.courseName && (
+                <p className="truncate text-sm text-muted-foreground">
+                  {courseDetail.courseName}
+                </p>
+              )}
+            </div>
             <div className="flex items-center gap-2">
               <div
                 className="relative flex h-9 w-9 cursor-pointer items-center justify-center rounded-full border border-border hover:opacity-80"
@@ -126,6 +133,12 @@ export default function CourseListComponent({
         <CollapsibleContent className="overflow-hidden data-[state=closed]:animate-collapsible-up data-[state=open]:animate-collapsible-down">
           <CardContent className="pt-0">
             <div className="grid gap-3 text-sm text-muted-foreground">
+              <div className="flex items-start justify-between gap-4">
+                <span>Course Name</span>
+                <span className="text-right text-foreground">
+                  {courseDetail?.courseName || "N/A"}
+                </span>
+              </div>
               <div className="flex items-start justify-between">
                 <span>Course Instructor</span>
                 <span className="text-foreground">
