@@ -142,7 +142,7 @@ export default function CourseListComponent({
               <div className="flex items-start justify-between">
                 <span>Course Instructor</span>
                 <span className="text-foreground">
-                  {courseDetail ? courseDetail.instructor : "N/A"}
+                  {courseDetail?.instructor || "N/A"}
                 </span>
               </div>
               <div className="flex items-start justify-between">
