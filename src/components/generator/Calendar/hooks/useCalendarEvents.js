@@ -3,6 +3,7 @@ import {
   createCalendarEvents,
   getDaysOfWeek,
 } from "@/lib/generator/createCalendarEvents";
+import { buildCourseDetails } from "@/lib/generator/buildCourseDetails";
 import { getCourseData } from "@/lib/generator/courseData";
 import { checkForWeekendClasses } from "../utils/calendarUtils.jsx";
 
@@ -71,25 +72,7 @@ export const useCalendarEvents = ({
         currentColors,
       );
 
-      const courseDetails = Array.from(
-        new Map(
-          newEvents
-            .filter((event) => !event.extendedProps.isBlocked)
-            .map((event) => {
-              let titleArray = event.title.trim().split(" ");
-              const detail = {
-                name: titleArray[0],
-                courseName: event.extendedProps.courseName || "",
-                instructor: event.description,
-                section: titleArray.pop(),
-                startDate: event.startRecur,
-                endDate: event.endRecur,
-              };
-
-              return [detail.name, detail];
-            }),
-        ).values(),
-      );
+      const courseDetails = buildCourseDetails(newEvents);
 
       setCourseDetails(courseDetails);
       setEvents(newEvents);
