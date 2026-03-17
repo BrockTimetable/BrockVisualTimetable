@@ -48,7 +48,6 @@ const NavbarComponent = () => {
       label: "Guide",
       to: "/guide",
       icon: BookOpen,
-      newTab: true,
       end: true,
     },
   ];
