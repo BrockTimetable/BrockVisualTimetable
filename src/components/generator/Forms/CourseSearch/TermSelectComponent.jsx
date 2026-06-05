@@ -1,4 +1,3 @@
-import React from "react";
 import {
   Select,
   SelectContent,
@@ -7,11 +6,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-export default function TermSelectComponent({ onTermChange }) {
-  const [term, setTerm] = React.useState("SP");
-
+export default function TermSelectComponent({ term, onTermChange }) {
   function handleTermChange(selectedTerm) {
-    setTerm(selectedTerm);
     onTermChange(selectedTerm);
   }
 
@@ -22,9 +18,7 @@ export default function TermSelectComponent({ onTermChange }) {
           <SelectValue placeholder="Select Term" />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem disabled value="FW">
-            Fall/Winter
-          </SelectItem>
+          <SelectItem value="FW">Fall/Winter 2026</SelectItem>
           <SelectItem value="SP">Spring 2026</SelectItem>
           <SelectItem value="SU">Summer 2026</SelectItem>
         </SelectContent>

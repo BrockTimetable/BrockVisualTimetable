@@ -18,7 +18,7 @@ export default function CourseOptions({
     <BorderBox title="Course Options">
       <div className="space-y-3">
         <TimeTableSelectComponent onTableChange={handleTableChange} />
-        <TermSelectComponent onTermChange={handleTermChange} />
+        <TermSelectComponent term={term} onTermChange={handleTermChange} />
         <CourseSearchComponent
           onCourseCodeChange={handleCourseCodeChange}
           courseOptions={courseOptions}
