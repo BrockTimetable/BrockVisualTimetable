@@ -120,7 +120,7 @@ function GuidePage() {
                 The first step to course registration is finding the courses you
                 want to take. Go to the{" "}
                 <a
-                  href="https://brocku.ca/webcal/"
+                  href="https://calendar.brocku.ca/content.php?catoid=10&navoid=245"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-primary underline underline-offset-4"
@@ -141,9 +141,9 @@ function GuidePage() {
               </div>
               <p className="text-sm text-muted-foreground">
                 This is a list of all the courses you will need to take for a
-                given term. Above, you can see the courses required for the
-                first term of a first-year computer science co-op student.
-                Let&apos;s break down everything you see here:
+                given year. Above, you can see the courses required for a
+                first-year computer science co-op student. Let&apos;s break down
+                everything you see here:
               </p>
 
               <div className="space-y-3">
@@ -181,13 +181,13 @@ function GuidePage() {
                     means you must take both courses. In the case of these
                     courses, COSC 1P02 is a prerequisite for COSC 1P03. Assuming
                     you are a first-year student, you will need to take COSC
-                    1P02 in your first term and COSC 1P03 in your second term.
+                    1P02 in the Fall term and COSC 1P03 in the Winter term.
                   </p>
                   <p>
                     On the other hand, <strong>COSC 1P50 OR COSC 1P71</strong>{" "}
                     are required. This means you only need to take one of the
                     two courses. You can choose to take COSC 1P50 or COSC 1P71
-                    in your first term. Both courses are not required.
+                    in first year. Both courses are not required.
                   </p>
                 </Disclosure>
                 <Disclosure
@@ -202,9 +202,10 @@ function GuidePage() {
                     schedule accordingly to ensure you can take this course.
                   </p>
                   <p>
-                    In the case of SCIE 0N90, this doesn&apos;t have much impact
-                    on your schedule, as this is a 0 credit course, that you
-                    normally take on top of your regular course load.
+                    SCIE 0N90 is also a 0-credit course that you take on top of
+                    your regular load, often something like co-op preparation or
+                    skills workshops. It doesn&apos;t count toward your degree
+                    credits, but many programs still require it.
                   </p>
                 </Disclosure>
                 <Disclosure
@@ -216,7 +217,10 @@ function GuidePage() {
                     Context credits are courses that are required to give you a
                     broader understanding of different fields. At Brock, you
                     need to complete 1.0 context credit in Humanities, Social
-                    Sciences, and Sciences. You can find the list of courses
+                    Sciences, and Sciences. In specific programs (such as
+                    Computer Science), you may not need to take one or more of
+                    these context credits, as they would be included in your
+                    required courses already. You can find the list of courses
                     that fulfill these requirements{" "}
                     <a
                       href="https://brocku.ca/webcal/2024/undergrad/areg.html#sec29"
@@ -238,7 +242,8 @@ function GuidePage() {
                     Elective credits are courses that you can choose freely from
                     any department. These allow you to explore other areas of
                     interest and can be used to fulfill additional requirements
-                    or personal interests.
+                    or personal interests. Be sure to verify that you meet the
+                    requirements for the elective credits you want to take.
                   </p>
                 </Disclosure>
               </div>
@@ -310,18 +315,32 @@ function GuidePage() {
               <p className="text-sm text-muted-foreground">
                 This is an example of a timetable generated using the Brock
                 Visual TimeTable. You can see I&apos;ve decided to take COSC
-                1P02, COSC 1P50, MATH 1P66, and ECON 1P92 in my first term, and
+                1P02, COSC 1P71, MATH 1P66, and ECON 1P92 in the Fall term, and
                 FILM 1F94 as an 8 month course. FILM 1F94 fills the context
                 credit for Humanities, and ECON 1P92 fills half of the context
                 credit for Social Sciences.
               </p>
               <p className="text-sm text-muted-foreground">
-                You can also see that I&apos;ve blocked out every day from 8:00
-                AM to 9:00 AM. This prevents the generator from scheduling any
+                You can also see that I&apos;ve blocked out every day from 7:00
+                PM to 11:00 PM. This prevents the generator from scheduling any
                 courses during this time. This is useful if you have other
                 commitments during this time (e.g. work, volunteering, or
                 sleeping in!).
               </p>
+              <p className="text-sm text-muted-foreground">
+                You can also pin specific course sections by clicking them in
+                the calendar. When a section is pinned, the generator will only
+                show timetables that include that section — useful if you want a
+                particular lecture time, tutorial, or lab slot. Click a pinned
+                section again to unpin it.
+              </p>
+              <div className="rounded-md border border-border p-2">
+                <img
+                  src="/guide/pinned-classes.png"
+                  alt="Pinned course sections in the timetable"
+                  className="h-auto w-full"
+                />
+              </div>
             </div>
 
             <Separator />
