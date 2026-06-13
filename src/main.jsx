@@ -5,15 +5,14 @@ import GeneratorPage from "@/pages/GeneratorPage";
 import GuidePage from "@/pages/GuidePage";
 import ColorModeContext from "@/lib/contexts/sitewide/ColorModeContext";
 import CustomSnackbarProvider from "@/components/sitewide/SnackbarProvider";
-import ReactGA from "react-ga4";
+import { initializeAnalytics } from "@/lib/analytics";
 import "@/styles/index.css";
 
 const THEME_STORAGE_KEY = "bt-theme-mode";
 
 const App = () => {
   useEffect(() => {
-    if (!import.meta.env.PROD) return;
-    ReactGA.initialize("G-M2NP1M6YSK");
+    initializeAnalytics();
   }, []);
   const [mode, setMode] = useState(() => {
     if (typeof window === "undefined") {

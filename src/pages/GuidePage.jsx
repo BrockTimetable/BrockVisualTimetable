@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import ReactGA from "react-ga4";
+import { trackPageView } from "@/lib/analytics";
 import { NavbarComponent } from "@/components/guide";
 import FooterComponent from "@/components/sitewide/FooterComponent";
 import {
@@ -13,9 +13,7 @@ import { ChevronDown, ChevronUp } from "lucide-react";
 
 function GuidePage() {
   useEffect(() => {
-    if (!import.meta.env.PROD) return;
-    ReactGA.send({
-      hitType: "pageview",
+    trackPageView({
       page: "Guide",
       title: "Brock Visual Guide",
     });

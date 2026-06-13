@@ -1,10 +1,10 @@
 import { useState, useEffect, useRef } from "react";
 import { useSnackbar } from "notistack";
-import ReactGA from "react-ga4";
 
 import MultiLineSnackbar from "@/components/sitewide/MultiLineSnackbar";
 
-import { storeCourseData, removeCourseData } from "@/lib/generator/courseData";
+import { storeCourseData } from "@/lib/generator/courseData";
+import { trackCourseAddResult, trackScheduleGenerated } from "@/lib/analytics";
 import { getCourse, getNameList } from "@/lib/generator/fetchData";
 import {
   generateTimetables,
@@ -14,8 +14,6 @@ import { addPinnedComponent } from "@/lib/generator/pinnedComponents";
 
 import CourseOptions from "./Settings/CourseOptions";
 import SortOptions from "./Settings/SortOptions";
-
-const isAnalyticsEnabled = import.meta.env.PROD;
 
 export default function InputFormTop({
   setTimetables,
@@ -64,11 +62,28 @@ export default function InputFormTop({
     const upperCode = ((overrideValue ?? courseValue) || "")
       .trim()
       .toUpperCase();
-    if (!validateInputs(upperCode)) return;
+    const validationFailureReason = getValidationFailureReason(upperCode);
+    if (validationFailureReason) {
+      trackCourseAddFailure({
+        failureReason: validationFailureReason,
+        courseCount: addedCourses.length,
+      });
+      showValidationMessage(validationFailureReason);
+      return;
+    }
 
     const { cleanCourseCode, duration } = parseCourseCode(upperCode);
+    const courseMetadata = getCourseAnalyticsMetadata(
+      cleanCourseCode,
+      duration,
+    );
 
     if (isCourseAlreadyAdded(cleanCourseCode)) {
+      trackCourseAddFailure({
+        failureReason: "duplicate_course",
+        courseCount: addedCourses.length,
+        ...courseMetadata,
+      });
       enqueueSnackbar(<MultiLineSnackbar message="Course already added" />, {
         variant: "info",
       });
@@ -88,10 +103,21 @@ export default function InputFormTop({
     requestBlock.current = true;
     try {
       const courseData = await getCourse(cleanCourseCode, timetableType, term);
-      handleCourseData(courseData, cleanCourseCode, duration, upperCode);
+      handleCourseData(
+        courseData,
+        cleanCourseCode,
+        duration,
+        upperCode,
+        courseMetadata,
+      );
       // Clear input after a successful add
       setCourseValue("");
     } catch (error) {
+      trackCourseAddFailure({
+        failureReason: "fetch_error",
+        courseCount: addedCourses.length,
+        ...courseMetadata,
+      });
       enqueueSnackbar(
         <MultiLineSnackbar message="Error fetching course data." />,
         { variant: "error" },
@@ -101,33 +127,46 @@ export default function InputFormTop({
     }
   };
 
-  const validateInputs = (code) => {
+  const getValidationFailureReason = (code) => {
     if (!timetableType || timetableType === "NOVALUE") {
+      return "missing_timetable";
+    }
+
+    if (!term || term === "NOVALUE") {
+      return "missing_term";
+    }
+
+    if (!isValidCourseCode(code)) {
+      return "invalid_course_code";
+    }
+
+    return null;
+  };
+
+  const showValidationMessage = (failureReason) => {
+    if (failureReason === "missing_timetable") {
       enqueueSnackbar(
         <MultiLineSnackbar message="Please select a timetable." />,
         { variant: "warning" },
       );
-      return false;
+      return;
     }
 
-    if (!term || term === "NOVALUE") {
+    if (failureReason === "missing_term") {
       enqueueSnackbar(<MultiLineSnackbar message="Please select a term." />, {
         variant: "warning",
       });
-      return false;
+      return;
     }
 
-    if (!isValidCourseCode(code)) {
+    if (failureReason === "invalid_course_code") {
       enqueueSnackbar(
         <MultiLineSnackbar message='Invalid course code! Example: "COSC 1P02 D2"' />,
         {
           variant: "warning",
         },
       );
-      return false;
     }
-
-    return true;
   };
 
   const isValidCourseCode = (code) => {
@@ -140,6 +179,31 @@ export default function InputFormTop({
     const cleanCourseCode = split[0] + split[1];
     const duration = split[2].substring(1);
     return { cleanCourseCode, duration };
+  };
+
+  const getCourseAnalyticsMetadata = (cleanCourseCode, duration) => ({
+    subjectCode: cleanCourseCode.substring(0, 4),
+    courseLevel: cleanCourseCode.substring(4, 5),
+    duration: `D${duration}`,
+  });
+
+  const trackCourseAddFailure = ({
+    failureReason,
+    courseCount,
+    subjectCode,
+    courseLevel,
+    duration,
+  }) => {
+    trackCourseAddResult({
+      result: "failure",
+      failureReason,
+      subjectCode,
+      courseLevel,
+      duration,
+      term,
+      timetableType,
+      courseCount,
+    });
   };
 
   const isCourseAlreadyAdded = (cleanCourseCode) => {
@@ -155,12 +219,15 @@ export default function InputFormTop({
     cleanCourseCode,
     duration,
     courseCodeLabel,
+    courseMetadata,
   ) => {
     storeCourseData(courseData);
+    const updatedCourseCount = addedCourses.length + 1;
     setAddedCourses([...addedCourses, courseCodeLabel]);
     addPinnedComponent(`${cleanCourseCode} DURATION ${duration}`);
     generateTimetables(sortChoice);
-    setTimetables(getValidTimetables());
+    const validTimetables = getValidTimetables();
+    setTimetables(validTimetables);
 
     const { durationStartDate, durationEndDate } = getDurationDates(
       courseData,
@@ -171,13 +238,20 @@ export default function InputFormTop({
       updateDurations(durationLabel);
     }
 
-    if (isAnalyticsEnabled) {
-      ReactGA.event({
-        category: "Generator Event",
-        action: "Added Course",
-        label: `${cleanCourseCode} D${duration}`,
-      });
-    }
+    trackCourseAddResult({
+      result: "success",
+      ...courseMetadata,
+      term,
+      timetableType,
+      courseCount: updatedCourseCount,
+    });
+    trackScheduleGenerated({
+      trigger: "course_added",
+      courseCount: updatedCourseCount,
+      resultCount: validTimetables.length,
+      sortOption: sortChoice,
+      hasResults: validTimetables.length > 0,
+    });
   };
 
   const getDurationDates = (courseData, duration) => {
