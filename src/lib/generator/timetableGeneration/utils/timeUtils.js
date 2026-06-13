@@ -31,7 +31,7 @@ export const timeToSlot = (time) => {
     2130: 27,
   };
 
-  if (timeCache.hasOwnProperty(time)) {
+  if (Object.prototype.hasOwnProperty.call(timeCache, time)) {
     return timeCache[time];
   }
 

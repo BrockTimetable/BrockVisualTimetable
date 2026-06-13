@@ -1,4 +1,5 @@
 import React, { useContext, useEffect } from "react";
+import PropTypes from "prop-types";
 import { ChevronDown, ChevronUp, Palette, Trash2 } from "lucide-react";
 import { CourseColorsContext } from "@/lib/contexts/generator/CourseColorsContext";
 import { clearCoursePins } from "@/lib/generator/pinnedComponents";
@@ -54,7 +55,7 @@ export default function CourseListComponent({
     if (!courseColors[courseCode]) {
       initializeCourseColor(courseCode);
     }
-  }, [courseCode]);
+  }, [courseCode, courseColors, initializeCourseColor]);
 
   const handleRemoveClick = () => {
     setOpen(false);
@@ -172,3 +173,15 @@ export default function CourseListComponent({
     </Collapsible>
   );
 }
+
+CourseListComponent.propTypes = {
+  course: PropTypes.string.isRequired,
+  courseDetail: PropTypes.shape({
+    courseName: PropTypes.string,
+    instructor: PropTypes.string,
+    section: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    startDate: PropTypes.string,
+    endDate: PropTypes.string,
+  }),
+  removeCourse: PropTypes.func.isRequired,
+};

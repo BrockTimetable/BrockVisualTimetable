@@ -1,3 +1,4 @@
+import PropTypes from "prop-types";
 import TimeTableSelectComponent from "../CourseSearch/TimeTableSelectComponent";
 import TermSelectComponent from "../CourseSearch/TermSelectComponent";
 import CourseSearchComponent from "../CourseSearch/CourseSearchComponent";
@@ -5,7 +6,6 @@ import BorderBox from "../../UI/BorderBox";
 
 export default function CourseOptions({
   term,
-  timetableType,
   courseOptions,
   courseValue,
   handleTableChange,
@@ -22,8 +22,6 @@ export default function CourseOptions({
         <CourseSearchComponent
           onCourseCodeChange={handleCourseCodeChange}
           courseOptions={courseOptions}
-          timetableType={timetableType}
-          term={term}
           onEnterPress={addCourse}
           value={courseValue}
           setValue={setCourseValue}
@@ -32,3 +30,14 @@ export default function CourseOptions({
     </BorderBox>
   );
 }
+
+CourseOptions.propTypes = {
+  term: PropTypes.string.isRequired,
+  courseOptions: PropTypes.array.isRequired,
+  courseValue: PropTypes.string.isRequired,
+  handleTableChange: PropTypes.func.isRequired,
+  handleTermChange: PropTypes.func.isRequired,
+  handleCourseCodeChange: PropTypes.func.isRequired,
+  setCourseValue: PropTypes.func.isRequired,
+  addCourse: PropTypes.func.isRequired,
+};

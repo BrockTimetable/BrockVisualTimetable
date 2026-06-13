@@ -1,4 +1,5 @@
 import React from "react";
+import PropTypes from "prop-types";
 import {
   Select,
   SelectContent,
@@ -31,3 +32,7 @@ export default function TimetableSelectComponent({ onTableChange }) {
     </div>
   );
 }
+
+TimetableSelectComponent.propTypes = {
+  onTableChange: PropTypes.func.isRequired,
+};

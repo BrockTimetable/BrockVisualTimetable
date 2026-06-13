@@ -3,10 +3,7 @@ import {
   addTimeBlockEvent,
   removeTimeBlockEvent,
 } from "@/lib/generator/createCalendarEvents";
-import {
-  setBlockedTimeSlots,
-  setOpenTimeSlots,
-} from "@/lib/generator/timeSlots";
+import { setBlockedTimeSlots } from "@/lib/generator/timeSlots";
 import {
   generateTimetables,
   getValidTimetables,

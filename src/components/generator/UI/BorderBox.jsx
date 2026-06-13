@@ -1,4 +1,5 @@
 import { useRef, useState } from "react";
+import PropTypes from "prop-types";
 import { ChevronDown } from "lucide-react";
 
 export default function BorderBox({ title, children }) {
@@ -79,3 +80,8 @@ export default function BorderBox({ title, children }) {
     </div>
   );
 }
+
+BorderBox.propTypes = {
+  title: PropTypes.string.isRequired,
+  children: PropTypes.node.isRequired,
+};

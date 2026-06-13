@@ -1,3 +1,4 @@
+import PropTypes from "prop-types";
 import {
   Select,
   SelectContent,
@@ -20,3 +21,8 @@ export default function SortDropdown({ value, onValueChange }) {
     </Select>
   );
 }
+
+SortDropdown.propTypes = {
+  value: PropTypes.string.isRequired,
+  onValueChange: PropTypes.func.isRequired,
+};

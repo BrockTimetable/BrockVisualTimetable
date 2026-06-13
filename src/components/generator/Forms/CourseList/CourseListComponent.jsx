@@ -1,4 +1,5 @@
 import { useContext } from "react";
+import PropTypes from "prop-types";
 import CourseListItemComponent from "./CourseListItemComponent";
 import { CourseDetailsContext } from "@/lib/contexts/generator/CourseDetailsContext";
 
@@ -35,3 +36,10 @@ export default function CourseListComponent({
     </div>
   );
 }
+
+CourseListComponent.propTypes = {
+  courses: PropTypes.arrayOf(PropTypes.string),
+  onRemoveCourse: PropTypes.func.isRequired,
+  setTimetables: PropTypes.func.isRequired,
+  sortOption: PropTypes.string.isRequired,
+};

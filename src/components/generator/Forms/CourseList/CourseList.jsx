@@ -1,3 +1,4 @@
+import PropTypes from "prop-types";
 import CourseListComponent from "./CourseListComponent";
 import BorderBox from "../../UI/BorderBox";
 
@@ -18,3 +19,10 @@ export default function CourseList({
     </BorderBox>
   );
 }
+
+CourseList.propTypes = {
+  addedCourses: PropTypes.arrayOf(PropTypes.string).isRequired,
+  removeCourse: PropTypes.func.isRequired,
+  setTimetables: PropTypes.func.isRequired,
+  sortOption: PropTypes.string.isRequired,
+};

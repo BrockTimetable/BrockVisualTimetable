@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
 import { trackPageView } from "@/lib/analytics";
 import { NavbarComponent } from "@/components/guide";
@@ -49,6 +50,13 @@ function GuidePage() {
       </div>
     </Collapsible>
   );
+
+  Disclosure.propTypes = {
+    title: PropTypes.string.isRequired,
+    open: PropTypes.bool.isRequired,
+    onOpenChange: PropTypes.func.isRequired,
+    children: PropTypes.node.isRequired,
+  };
 
   return (
     <div className="flex min-w-[350px] flex-col items-center">
@@ -375,10 +383,10 @@ function GuidePage() {
                 each course.
               </p>
               <p className="text-sm text-muted-foreground">
-                Once you add a course, it will show up in the "List Of
-                Registered Courses for Current Registration Period" list at the
-                bottom of the page. The course will be automatically saved, so
-                once it&apos;s added, you&apos;re good to go!
+                Once you add a course, it will show up in the &quot;List Of
+                Registered Courses for Current Registration Period&quot; list at
+                the bottom of the page. The course will be automatically saved,
+                so once it&apos;s added, you&apos;re good to go!
               </p>
             </div>
           </div>

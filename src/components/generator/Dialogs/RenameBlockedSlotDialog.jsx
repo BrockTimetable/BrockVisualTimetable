@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import PropTypes from "prop-types";
 import { cn } from "@/lib/utils";
 import {
   Popover,
@@ -200,3 +201,23 @@ export default function RenameBlockedSlotDialog({
     </Popover>
   );
 }
+
+RenameBlockedSlotDialog.propTypes = {
+  open: PropTypes.bool.isRequired,
+  onClose: PropTypes.func.isRequired,
+  onSave: PropTypes.func.isRequired,
+  currentTitle: PropTypes.string,
+  isCreating: PropTypes.bool,
+  isMultipleBlocks: PropTypes.bool,
+  anchorEl: PropTypes.shape({
+    getBoundingClientRect: PropTypes.func,
+  }),
+  anchorPosition: PropTypes.shape({
+    left: PropTypes.number,
+    top: PropTypes.number,
+  }),
+  forceAnchorPosition: PropTypes.shape({
+    left: PropTypes.number,
+    top: PropTypes.number,
+  }),
+};

@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import PropTypes from "prop-types";
 import { useSnackbar } from "notistack";
 
 import MultiLineSnackbar from "@/components/sitewide/MultiLineSnackbar";
@@ -304,3 +305,12 @@ export default function InputFormTop({
     </div>
   );
 }
+
+InputFormTop.propTypes = {
+  setTimetables: PropTypes.func.isRequired,
+  setSelectedDuration: PropTypes.func.isRequired,
+  setDurations: PropTypes.func.isRequired,
+  setSortOption: PropTypes.func.isRequired,
+  addedCourses: PropTypes.arrayOf(PropTypes.string).isRequired,
+  setAddedCourses: PropTypes.func.isRequired,
+};

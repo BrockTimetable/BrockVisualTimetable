@@ -3,7 +3,7 @@ import { getGenerationPerformance } from "@/lib/generator/timetableGeneration/ti
 
 export default function PerformanceMetrics() {
   // Only show in development mode
-  if (process.env.NODE_ENV !== "development") {
+  if (!import.meta.env.DEV) {
     return null;
   }
 

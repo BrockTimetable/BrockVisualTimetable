@@ -1,4 +1,5 @@
 import { createContext, useState, useRef, useCallback, useEffect } from "react";
+import PropTypes from "prop-types";
 
 // Visually distinguishable colors that work well for both light and dark themes
 // Colors are ordered to maximize contrast between consecutive colors
@@ -26,28 +27,10 @@ export const CourseColorsProvider = ({ children }) => {
   const [courseColors, setCourseColors] = useState({});
   const [usedColors, setUsedColors] = useState([]);
   const usedColorsRef = useRef([]);
-  const [timetableHandlers, setTimetableHandlers] = useState(null);
   const [calendarHandler, setCalendarHandler] = useState(null);
-
-  const setTimetableUpdateHandlers = (handlers) => {
-    setTimetableHandlers(handlers);
-  };
 
   const setCalendarUpdateHandler = (handler) => {
     setCalendarHandler(handler);
-  };
-
-  const updateTimetables = () => {
-    if (timetableHandlers) {
-      const {
-        generateTimetables,
-        getValidTimetables,
-        setTimetables,
-        sortOption,
-      } = timetableHandlers;
-      generateTimetables(sortOption);
-      setTimetables(getValidTimetables());
-    }
   };
 
   const updateCalendarColors = () => {
@@ -137,11 +120,14 @@ export const CourseColorsProvider = ({ children }) => {
         updateCourseColor,
         getDefaultColorForCourse,
         initializeCourseColor,
-        setTimetableUpdateHandlers,
         setCalendarUpdateHandler,
       }}
     >
       {children}
     </CourseColorsContext.Provider>
   );
+};
+
+CourseColorsProvider.propTypes = {
+  children: PropTypes.node.isRequired,
 };

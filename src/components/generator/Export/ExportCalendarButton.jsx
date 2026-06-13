@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import PropTypes from "prop-types";
 import { Button } from "@/components/ui/button";
 import { exportCal } from "@/lib/generator/ExportCal.js";
 import { getVisibleTimetables } from "@/components/generator/Calendar/utils/calendarViewUtils.js";
@@ -116,3 +117,8 @@ export default function ExportCalendarButton({ timetables, durations }) {
     </>
   );
 }
+
+ExportCalendarButton.propTypes = {
+  timetables: PropTypes.array.isRequired,
+  durations: PropTypes.arrayOf(PropTypes.string).isRequired,
+};

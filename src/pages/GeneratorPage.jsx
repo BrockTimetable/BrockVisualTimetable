@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import {
   NavbarComponent,
   CalendarComponent,
@@ -7,10 +7,7 @@ import {
 } from "@/components/generator";
 import { useIsBelowMedium } from "@/lib/utils/screenSizeUtils";
 import { CourseDetailsProvider } from "@/lib/contexts/generator/CourseDetailsContext";
-import {
-  CourseColorsProvider,
-  CourseColorsContext,
-} from "@/lib/contexts/generator/CourseColorsContext";
+import { CourseColorsProvider } from "@/lib/contexts/generator/CourseColorsContext";
 import IntroGuideWidget from "@/components/generator/Dialogs/IntroGuideWidget";
 import { trackPageView } from "@/lib/analytics";
 import {
@@ -51,12 +48,6 @@ function GeneratorPage() {
   return (
     <CourseDetailsProvider>
       <CourseColorsProvider>
-        <CourseColorsSetup
-          generateTimetables={generateTimetables}
-          getValidTimetables={getValidTimetables}
-          setTimetables={setTimetables}
-          sortOption={sortOption}
-        />
         <div className="flex min-w-[350px] flex-col items-center">
           <div className="w-full max-w-[1280px]">
             <NavbarComponent />
@@ -123,27 +114,6 @@ function GeneratorPage() {
       </CourseColorsProvider>
     </CourseDetailsProvider>
   );
-}
-
-// Helper component to set up the CourseColorsContext with timetable handlers
-function CourseColorsSetup({
-  generateTimetables,
-  getValidTimetables,
-  setTimetables,
-  sortOption,
-}) {
-  const { setTimetableUpdateHandlers } = React.useContext(CourseColorsContext);
-
-  React.useEffect(() => {
-    setTimetableUpdateHandlers({
-      generateTimetables,
-      getValidTimetables,
-      setTimetables,
-      sortOption,
-    });
-  }, [generateTimetables, getValidTimetables, setTimetables, sortOption]);
-
-  return null;
 }
 
 export default GeneratorPage;
