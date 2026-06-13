@@ -6,9 +6,10 @@ import {
   useState,
 } from "react";
 import ColorModeContext from "@/lib/contexts/sitewide/ColorModeContext";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useIsMobile } from "@/lib/utils/screenSizeUtils";
 import {
+  AlertTriangle,
   BookOpen,
   Github,
   Home,
@@ -25,14 +26,26 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
+import { getCourseData } from "@/lib/generator/courseData";
 
 const NavbarComponent = () => {
   const colorMode = useContext(ColorModeContext);
   const isMobile = useIsMobile();
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [guideWarningOpen, setGuideWarningOpen] = useState(false);
+  const [pendingGuidePath, setPendingGuidePath] = useState(null);
   const location = useLocation();
+  const navigate = useNavigate();
   const desktopNavRef = useRef(null);
   const desktopItemRefs = useRef([]);
   const [indicatorStyle, setIndicatorStyle] = useState(null);
@@ -60,6 +73,29 @@ const NavbarComponent = () => {
   };
 
   const activeIndex = navItems.findIndex((item) => isActiveRoute(item));
+  const hasAddedCourses = () => Object.keys(getCourseData()).length > 0;
+  const shouldWarnBeforeGuide = (item) =>
+    location.pathname === "/" && item.to === "/guide" && hasAddedCourses();
+
+  const handleNavItemClick = (event, item) => {
+    if (!shouldWarnBeforeGuide(item)) {
+      setDrawerOpen(false);
+      return;
+    }
+
+    event.preventDefault();
+    setPendingGuidePath(item.to);
+    setGuideWarningOpen(true);
+  };
+
+  const handleConfirmGuideNavigation = () => {
+    if (pendingGuidePath) {
+      navigate(pendingGuidePath);
+    }
+    setGuideWarningOpen(false);
+    setPendingGuidePath(null);
+    setDrawerOpen(false);
+  };
 
   const updateIndicatorFromIndex = (index) => {
     if (index < 0) {
@@ -122,13 +158,13 @@ const NavbarComponent = () => {
                 isActive && "bg-accent text-accent-foreground",
               )}
               asChild
-              onClick={() => setDrawerOpen(false)}
             >
               <Link
                 to={item.to}
                 target={item.newTab ? "_blank" : undefined}
                 rel={item.newTab ? "noopener noreferrer" : undefined}
                 aria-current={isActive ? "page" : undefined}
+                onClick={(event) => handleNavItemClick(event, item)}
               >
                 <Icon className="mr-2 h-4 w-4" />
                 {item.label}
@@ -251,6 +287,7 @@ const NavbarComponent = () => {
                     }}
                     onMouseEnter={() => updateIndicatorFromIndex(index)}
                     onFocus={() => updateIndicatorFromIndex(index)}
+                    onClick={(event) => handleNavItemClick(event, item)}
                   >
                     {item.label}
                   </Link>
@@ -274,6 +311,31 @@ const NavbarComponent = () => {
           </div>
         )}
       </div>
+      <Dialog open={guideWarningOpen} onOpenChange={setGuideWarningOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <div className="flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5 text-amber-600" />
+              <DialogTitle>Leave the timetable?</DialogTitle>
+            </div>
+            <DialogDescription>
+              Your current timetable will be lost if you open the guide.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setGuideWarningOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button type="button" onClick={handleConfirmGuideNavigation}>
+              Continue to guide
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
