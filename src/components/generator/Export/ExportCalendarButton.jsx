@@ -65,7 +65,7 @@ export default function ExportCalendarButton({ timetables, durations }) {
       return;
     }
 
-    exportCal();
+    exportCal({ durationCount: durations.length });
   };
 
   return (
@@ -105,7 +105,7 @@ export default function ExportCalendarButton({ timetables, durations }) {
             <Button
               onClick={() => {
                 setConfirmOpen(false);
-                exportCal();
+                exportCal({ durationCount: durations.length });
               }}
             >
               Export anyway
