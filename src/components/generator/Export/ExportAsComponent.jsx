@@ -8,8 +8,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 import { ExportAsPNG } from "@/lib/generator/Export/ExportAsPNG";
-import { ExportAsPDF } from "@/lib/generator/Export/ExportAsPDF";
-import { ExportAsExcel } from "@/lib/generator/Export/ExportAsExcel";
 
 export default function ExportAsComponent() {
   const handlePNG = () => {

@@ -1,5 +1,6 @@
 import {
   useContext,
+  useCallback,
   useEffect,
   useLayoutEffect,
   useRef,
@@ -61,7 +62,7 @@ const NavbarComponent = () => {
 
   const activeIndex = navItems.findIndex((item) => isActiveRoute(item));
 
-  const updateIndicatorFromIndex = (index) => {
+  const updateIndicatorFromIndex = useCallback((index) => {
     if (index < 0) {
       setIndicatorStyle(null);
       return;
@@ -79,18 +80,18 @@ const NavbarComponent = () => {
       width: itemRect.width,
       height: itemRect.height,
     });
-  };
+  }, []);
 
-  const resetIndicator = () => {
+  const resetIndicator = useCallback(() => {
     updateIndicatorFromIndex(activeIndex);
-  };
+  }, [activeIndex, updateIndicatorFromIndex]);
 
   useLayoutEffect(() => {
     if (isMobile) {
       return;
     }
     resetIndicator();
-  }, [isMobile, location.pathname]);
+  }, [isMobile, location.pathname, resetIndicator]);
 
   useEffect(() => {
     if (isMobile) {
@@ -99,7 +100,7 @@ const NavbarComponent = () => {
     const handleResize = () => resetIndicator();
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
-  }, [isMobile, location.pathname]);
+  }, [isMobile, location.pathname, resetIndicator]);
 
   const drawerContent = (
     <div className="flex h-full flex-col">

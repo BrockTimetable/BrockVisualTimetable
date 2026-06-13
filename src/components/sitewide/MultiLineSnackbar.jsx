@@ -1,4 +1,5 @@
 import { SnackbarContent } from "notistack";
+import PropTypes from "prop-types";
 
 const MultiLineSnackbar = ({ message }) => {
   return (
@@ -16,3 +17,7 @@ const MultiLineSnackbar = ({ message }) => {
 };
 
 export default MultiLineSnackbar;
+
+MultiLineSnackbar.propTypes = {
+  message: PropTypes.string.isRequired,
+};

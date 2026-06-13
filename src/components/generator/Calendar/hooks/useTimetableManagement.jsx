@@ -1,4 +1,4 @@
-import { useCallback, useRef } from "react";
+import { useCallback } from "react";
 import { useSnackbar } from "notistack";
 import MultiLineSnackbar from "@/components/sitewide/MultiLineSnackbar";
 
@@ -6,12 +6,9 @@ let previousDuration = null;
 
 export const useTimetableManagement = ({
   timetables,
-  setTimetables,
   currentTimetableIndex,
   setCurrentTimetableIndex,
-  selectedDuration,
   setSelectedDuration,
-  sortOption,
   calendarRef,
 }) => {
   const { enqueueSnackbar } = useSnackbar();
@@ -37,9 +34,9 @@ export const useTimetableManagement = ({
   const handleCalendarViewClick = useCallback(
     (durationLabel) => {
       const calendarApi = calendarRef.current.getApi();
-      const [startUnix, endUnix, duration] = durationLabel.split("-");
+      const [startUnix, , duration] = durationLabel.split("-");
 
-      const startDate = new Date(parseInt(startUnix) * 1000);
+      const startDate = new Date(parseInt(startUnix, 10) * 1000);
       const dayOfWeek = startDate.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
 
       let navigationDate = new Date(startDate);
@@ -87,10 +84,8 @@ export const useTimetableManagement = ({
     [
       calendarRef,
       setCurrentTimetableIndex,
-      setTimetables,
       setSelectedDuration,
       enqueueSnackbar,
-      sortOption,
     ],
   );
 

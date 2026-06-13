@@ -1,4 +1,5 @@
 import * as React from "react";
+import PropTypes from "prop-types";
 import * as SheetPrimitive from "@radix-ui/react-dialog";
 import { cva } from "class-variance-authority";
 import { X } from "lucide-react";
@@ -103,6 +104,21 @@ const SheetDescription = React.forwardRef(({ className, ...props }, ref) => (
   />
 ));
 SheetDescription.displayName = SheetPrimitive.Description.displayName;
+
+const classNamePropTypes = {
+  className: PropTypes.string,
+};
+
+SheetOverlay.propTypes = classNamePropTypes;
+SheetContent.propTypes = {
+  side: PropTypes.oneOf(["top", "bottom", "left", "right"]),
+  className: PropTypes.string,
+  children: PropTypes.node,
+};
+SheetHeader.propTypes = classNamePropTypes;
+SheetFooter.propTypes = classNamePropTypes;
+SheetTitle.propTypes = classNamePropTypes;
+SheetDescription.propTypes = classNamePropTypes;
 
 export {
   Sheet,

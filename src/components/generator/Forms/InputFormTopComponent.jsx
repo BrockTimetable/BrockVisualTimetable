@@ -1,10 +1,11 @@
 import { useState, useEffect, useRef } from "react";
+import PropTypes from "prop-types";
 import { useSnackbar } from "notistack";
 import ReactGA from "react-ga4";
 
 import MultiLineSnackbar from "@/components/sitewide/MultiLineSnackbar";
 
-import { storeCourseData, removeCourseData } from "@/lib/generator/courseData";
+import { storeCourseData } from "@/lib/generator/courseData";
 import { getCourse, getNameList } from "@/lib/generator/fetchData";
 import {
   generateTimetables,
@@ -230,3 +231,12 @@ export default function InputFormTop({
     </div>
   );
 }
+
+InputFormTop.propTypes = {
+  setTimetables: PropTypes.func.isRequired,
+  setSelectedDuration: PropTypes.func.isRequired,
+  setDurations: PropTypes.func.isRequired,
+  setSortOption: PropTypes.func.isRequired,
+  addedCourses: PropTypes.arrayOf(PropTypes.string).isRequired,
+  setAddedCourses: PropTypes.func.isRequired,
+};

@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import PropTypes from "prop-types";
 import { SnackbarProvider, useSnackbar } from "notistack";
 import eventBus from "@/lib/eventBus";
 
@@ -29,5 +30,9 @@ const CustomSnackbarProvider = ({ children }) => (
     <SnackbarListener />
   </SnackbarProvider>
 );
+
+CustomSnackbarProvider.propTypes = {
+  children: PropTypes.node.isRequired,
+};
 
 export default CustomSnackbarProvider;

@@ -1,4 +1,5 @@
 import React, { useContext, useState } from "react";
+import PropTypes from "prop-types";
 import { CourseDetailsContext } from "@/lib/contexts/generator/CourseDetailsContext";
 import { CourseColorsContext } from "@/lib/contexts/generator/CourseColorsContext";
 
@@ -479,3 +480,29 @@ export default function CourseTimelineComponent({
     </div>
   );
 }
+
+CourseTimelineComponent.propTypes = {
+  addedCourses: PropTypes.arrayOf(
+    PropTypes.oneOfType([
+      PropTypes.string,
+      PropTypes.shape({
+        code: PropTypes.string,
+        string: PropTypes.string,
+        section: PropTypes.string,
+        duration: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+        startDate: PropTypes.oneOfType([
+          PropTypes.string,
+          PropTypes.instanceOf(Date),
+        ]),
+        endDate: PropTypes.oneOfType([
+          PropTypes.string,
+          PropTypes.instanceOf(Date),
+        ]),
+      }),
+    ]),
+  ),
+  setSelectedDuration: PropTypes.func,
+  durations: PropTypes.arrayOf(PropTypes.string),
+  navigateToDate: PropTypes.func,
+  selectedDuration: PropTypes.string,
+};

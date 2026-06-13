@@ -1,4 +1,5 @@
 import { useState } from "react";
+import PropTypes from "prop-types";
 import BorderBox from "../../UI/BorderBox";
 import ExportCalendarButton from "../../Export/ExportCalendarButton";
 import { Info, ChevronDown, ChevronUp } from "lucide-react";
@@ -75,8 +76,8 @@ export default function ExportOptions({ timetables, durations }) {
                   </div>
                   <div className="mt-1 text-xs">
                     Your courses will be added to your calendar. You can choose
-                    which calendar to add them to (e.g., 'Work', 'Personal',
-                    etc.)
+                    which calendar to add them to (e.g., &apos;Work&apos;,
+                    &apos;Personal&apos;, etc.)
                   </div>
                 </li>
               </ol>
@@ -87,3 +88,8 @@ export default function ExportOptions({ timetables, durations }) {
     </BorderBox>
   );
 }
+
+ExportOptions.propTypes = {
+  timetables: PropTypes.array.isRequired,
+  durations: PropTypes.arrayOf(PropTypes.string).isRequired,
+};

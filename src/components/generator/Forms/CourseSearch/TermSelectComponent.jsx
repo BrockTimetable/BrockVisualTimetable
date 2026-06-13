@@ -1,3 +1,4 @@
+import PropTypes from "prop-types";
 import {
   Select,
   SelectContent,
@@ -26,3 +27,8 @@ export default function TermSelectComponent({ term, onTermChange }) {
     </div>
   );
 }
+
+TermSelectComponent.propTypes = {
+  term: PropTypes.string.isRequired,
+  onTermChange: PropTypes.func.isRequired,
+};

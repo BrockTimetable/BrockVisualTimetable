@@ -1,3 +1,4 @@
+import PropTypes from "prop-types";
 import {
   ChevronLeft,
   ChevronRight,
@@ -221,3 +222,19 @@ export default function CalendarNavBar({
     </div>
   );
 }
+
+CalendarNavBar.propTypes = {
+  isTruncated: PropTypes.bool.isRequired,
+  noTimetablesGenerated: PropTypes.bool.isRequired,
+  timeslotsOverridden: PropTypes.bool.isRequired,
+  handleFirst: PropTypes.func.isRequired,
+  handlePrevious: PropTypes.func.isRequired,
+  handleNext: PropTypes.func.isRequired,
+  handleLast: PropTypes.func.isRequired,
+  currentTimetableIndex: PropTypes.number.isRequired,
+  timetables: PropTypes.array.isRequired,
+  selectedDuration: PropTypes.string.isRequired,
+  setSelectedDuration: PropTypes.func.isRequired,
+  durations: PropTypes.arrayOf(PropTypes.string).isRequired,
+  sortByBracketContent: PropTypes.func.isRequired,
+};

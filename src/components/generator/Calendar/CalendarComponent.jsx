@@ -5,6 +5,7 @@ import React, {
   useCallback,
   useMemo,
 } from "react";
+import PropTypes from "prop-types";
 import FullCalendar from "@fullcalendar/react";
 import { useSnackbar } from "notistack";
 import CalendarNavBar from "./CalendarNavBar";
@@ -44,6 +45,7 @@ import { buildSelectionPreviewEvents } from "./utils/selectionUtils.js";
 import { getFullCalendarConfig } from "./utils/calendarConfigUtils.js";
 import MultiLineSnackbar from "@/components/sitewide/MultiLineSnackbar";
 import { useIsMobile } from "@/lib/utils/screenSizeUtils";
+
 export default function CalendarComponent({
   timetables,
   setTimetables,
@@ -115,25 +117,6 @@ export default function CalendarComponent({
     }
   }, [currentTimetableIndex, visibleTimetables.length]);
 
-  useEffect(() => {
-    courseColorsRef.current = courseColors;
-    updateCalendarEvents();
-  }, [courseColors]);
-
-  useEffect(() => {
-    updateCalendarEvents();
-  }, [currentTimetableIndex, visibleTimetables]);
-
-  useEffect(() => {
-    if (selectedDuration) {
-      handleCalendarViewClick(selectedDuration);
-    }
-  }, [selectedDuration]);
-
-  useEffect(() => {
-    setCalendarUpdateHandler(() => updateCalendarEvents);
-  }, []);
-
   const handleLast = useCallback(() => {
     if (visibleTimetables.length === 0) return;
     setCurrentTimetableIndex(visibleTimetables.length - 1);
@@ -200,7 +183,6 @@ export default function CalendarComponent({
     }
   }, [
     getDefaultColorForCourse,
-    enqueueSnackbar,
     setCourseDetails,
     setEvents,
     setNoCourses,
@@ -208,30 +190,52 @@ export default function CalendarComponent({
     handleLast,
   ]);
 
-  const handleCalendarViewClick = (durationLabel) => {
-    const calendarApi = calendarRef.current?.getApi();
-    if (!calendarApi) return;
+  const handleCalendarViewClick = useCallback(
+    (durationLabel) => {
+      const calendarApi = calendarRef.current?.getApi();
+      if (!calendarApi) return;
 
-    const [startUnix] = durationLabel.split("-");
+      const [startUnix] = durationLabel.split("-");
 
-    const startDate = new Date(parseInt(startUnix) * 1000);
-    const navigationDate = calculateNavigationDate(startDate);
+      const startDate = new Date(parseInt(startUnix, 10) * 1000);
+      const navigationDate = calculateNavigationDate(startDate);
 
-    // Defer gotoDate to avoid flushSync warning during React render
-    queueMicrotask(() => {
-      calendarApi.gotoDate(navigationDate);
-    });
+      // Defer gotoDate to avoid flushSync warning during React render
+      queueMicrotask(() => {
+        calendarApi.gotoDate(navigationDate);
+      });
 
-    setCurrentTimetableIndex(0);
+      setCurrentTimetableIndex(0);
 
-    setSelectedDuration(durationLabel);
+      setSelectedDuration(durationLabel);
 
-    // Show calendar view notification
-    const message = getCalendarViewNotificationMessage(startDate);
-    enqueueSnackbar(<MultiLineSnackbar message={message} />, {
-      variant: "info",
-    });
-  };
+      // Show calendar view notification
+      const message = getCalendarViewNotificationMessage(startDate);
+      enqueueSnackbar(<MultiLineSnackbar message={message} />, {
+        variant: "info",
+      });
+    },
+    [enqueueSnackbar, setSelectedDuration],
+  );
+
+  useEffect(() => {
+    courseColorsRef.current = courseColors;
+    updateCalendarEvents();
+  }, [courseColors, updateCalendarEvents]);
+
+  useEffect(() => {
+    updateCalendarEvents();
+  }, [currentTimetableIndex, visibleTimetables, updateCalendarEvents]);
+
+  useEffect(() => {
+    if (selectedDuration) {
+      handleCalendarViewClick(selectedDuration);
+    }
+  }, [selectedDuration, handleCalendarViewClick]);
+
+  useEffect(() => {
+    setCalendarUpdateHandler(() => updateCalendarEvents);
+  }, [setCalendarUpdateHandler, updateCalendarEvents]);
 
   const handleDatesSet = useCallback((dateInfo) => {
     setViewRange({
@@ -563,3 +567,12 @@ export default function CalendarComponent({
     </div>
   );
 }
+
+CalendarComponent.propTypes = {
+  timetables: PropTypes.array.isRequired,
+  setTimetables: PropTypes.func.isRequired,
+  selectedDuration: PropTypes.string.isRequired,
+  setSelectedDuration: PropTypes.func.isRequired,
+  durations: PropTypes.arrayOf(PropTypes.string).isRequired,
+  sortOption: PropTypes.string.isRequired,
+};

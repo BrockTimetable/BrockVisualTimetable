@@ -1,3 +1,4 @@
+import PropTypes from "prop-types";
 import CourseList from "./CourseList/CourseList";
 import PerformanceMetrics from "./Settings/PerformanceMetrics";
 import ExportOptions from "./Settings/ExportOptions";
@@ -34,8 +35,19 @@ export default function InputFormBottomComponent({
         sortOption={sortOption}
       />
       {/* <Tips /> */}
-      {process.env.NODE_ENV === "development" && <PerformanceMetrics />}
+      {import.meta.env.DEV && <PerformanceMetrics />}
       <ExportOptions timetables={timetables} durations={durations} />
     </div>
   );
 }
+
+InputFormBottomComponent.propTypes = {
+  addedCourses: PropTypes.arrayOf(PropTypes.string).isRequired,
+  setAddedCourses: PropTypes.func.isRequired,
+  setTimetables: PropTypes.func.isRequired,
+  timetables: PropTypes.array.isRequired,
+  durations: PropTypes.arrayOf(PropTypes.string).isRequired,
+  sortOption: PropTypes.string.isRequired,
+  generateTimetables: PropTypes.func.isRequired,
+  getValidTimetables: PropTypes.func.isRequired,
+};

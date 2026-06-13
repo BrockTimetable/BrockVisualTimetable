@@ -1,4 +1,5 @@
 import React from "react";
+import PropTypes from "prop-types";
 import { Check, ChevronsUpDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -20,8 +21,6 @@ export default function CourseSearchComponent({
   onCourseCodeChange,
   courseOptions,
   onEnterPress,
-  timetableType,
-  term,
   value,
   setValue,
 }) {
@@ -221,3 +220,22 @@ export default function CourseSearchComponent({
     </Popover>
   );
 }
+
+CourseSearchComponent.propTypes = {
+  onCourseCodeChange: PropTypes.func.isRequired,
+  courseOptions: PropTypes.arrayOf(
+    PropTypes.oneOfType([
+      PropTypes.string,
+      PropTypes.shape({
+        label: PropTypes.string,
+        value: PropTypes.string,
+        courseCode: PropTypes.string,
+        duration: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+        courseName: PropTypes.string,
+      }),
+    ]),
+  ).isRequired,
+  onEnterPress: PropTypes.func.isRequired,
+  value: PropTypes.string.isRequired,
+  setValue: PropTypes.func.isRequired,
+};
