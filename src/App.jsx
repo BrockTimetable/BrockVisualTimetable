@@ -1,16 +1,15 @@
 import { useEffect, useMemo, useState } from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-import ReactGA from "react-ga4";
 import GeneratorPage from "@/pages/GeneratorPage";
 import GuidePage from "@/pages/GuidePage";
 import ColorModeContext from "@/lib/contexts/sitewide/ColorModeContext";
+import { initializeAnalytics } from "@/lib/analytics";
 
 const THEME_STORAGE_KEY = "bt-theme-mode";
 
 export default function App() {
   useEffect(() => {
-    if (!import.meta.env.PROD) return;
-    ReactGA.initialize("G-M2NP1M6YSK");
+    initializeAnalytics();
   }, []);
 
   const [mode, setMode] = useState(() => {

@@ -9,7 +9,7 @@ import { useIsBelowMedium } from "@/lib/utils/screenSizeUtils";
 import { CourseDetailsProvider } from "@/lib/contexts/generator/CourseDetailsContext";
 import { CourseColorsProvider } from "@/lib/contexts/generator/CourseColorsContext";
 import IntroGuideWidget from "@/components/generator/Dialogs/IntroGuideWidget";
-import ReactGA from "react-ga4";
+import { trackPageView } from "@/lib/analytics";
 import {
   generateTimetables,
   getValidTimetables,
@@ -20,9 +20,7 @@ import FooterComponent from "@/components/sitewide/FooterComponent";
 
 function GeneratorPage() {
   useEffect(() => {
-    if (!import.meta.env.PROD) return;
-    ReactGA.send({
-      hitType: "pageview",
+    trackPageView({
       page: "Generator",
       title: "Brock Visual TimeTable",
     });

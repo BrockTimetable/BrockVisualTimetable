@@ -1,15 +1,8 @@
-import ReactGA from "react-ga4";
+import { trackCalendarExportCompleted } from "@/lib/analytics";
 
-const isAnalyticsEnabled = import.meta.env.PROD;
 const ICS_TIMEZONE = "America/Toronto";
 let cachedTimetableData;
-export function exportCal() {
-  if (isAnalyticsEnabled) {
-    ReactGA.event({
-      category: "Generator Event",
-      action: "Export Timetable",
-    });
-  }
+export function exportCal({ durationCount } = {}) {
   const blob = new Blob([generateICSFileData()], { type: "text/calendar" });
   const url = URL.createObjectURL(blob);
 
@@ -22,6 +15,11 @@ export function exportCal() {
 
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
+
+  trackCalendarExportCompleted({
+    courseCount: cachedTimetableData?.courses?.length,
+    durationCount,
+  });
 }
 
 function generateICSFileData() {
