@@ -21,3 +21,8 @@ export const getCourse = async (courseCode, timetableType, session) => {
 export const getNameList = (timetableType, session) => {
   return fetchData("getNameList", { timetableType, session });
 };
+
+export const submitFeedback = async (feedback) => {
+  const response = await axios.post(`${API_BASE_URL}/feedback`, feedback);
+  return response.data;
+};

@@ -1,5 +1,5 @@
 import eventBus from "@/lib/eventBus";
-import { trackTruncationWarning } from "@/lib/analytics";
+import { trackTruncationWarning } from "@/lib/metrics";
 
 export const emitNoValidTimetablesFound = () => {
   eventBus.emit("snackbar", {

@@ -1,4 +1,4 @@
-import { trackCalendarExportCompleted } from "@/lib/analytics";
+import { trackCalendarExportCompleted } from "@/lib/metrics";
 
 const ICS_TIMEZONE = "America/Toronto";
 let cachedTimetableData;

@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import GeneratorPage from "@/pages/GeneratorPage";
 import GuidePage from "@/pages/GuidePage";
 import ColorModeContext from "@/lib/contexts/sitewide/ColorModeContext";
-import { initializeAnalytics } from "@/lib/analytics";
+import { initializeAnalytics } from "@/lib/metrics";
 
 const THEME_STORAGE_KEY = "bt-theme-mode";
 

@@ -38,12 +38,14 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 import { getCourseData } from "@/lib/generator/courseData";
+import FeedbackDialog from "@/components/sitewide/FeedbackDialog";
 
 const NavbarComponent = () => {
   const colorMode = useContext(ColorModeContext);
   const isMobile = useIsMobile();
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [guideWarningOpen, setGuideWarningOpen] = useState(false);
+  const [feedbackOpen, setFeedbackOpen] = useState(false);
   const [pendingGuidePath, setPendingGuidePath] = useState(null);
   const location = useLocation();
   const navigate = useNavigate();
@@ -179,17 +181,13 @@ const NavbarComponent = () => {
         <Button
           variant="ghost"
           className="justify-start"
-          asChild
-          onClick={() => setDrawerOpen(false)}
+          onClick={() => {
+            setDrawerOpen(false);
+            setFeedbackOpen(true);
+          }}
         >
-          <a
-            href="https://github.com/BrockTimetable/BrockVisualTimetable/issues"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <MessageSquare className="mr-2 h-4 w-4" />
-            Feedback
-          </a>
+          <MessageSquare className="mr-2 h-4 w-4" />
+          Feedback
         </Button>
       </nav>
       <div className="mt-auto flex justify-center p-4">
@@ -297,6 +295,15 @@ const NavbarComponent = () => {
             })}
             <Button
               variant="ghost"
+              className="relative z-10 hover:bg-transparent"
+              onClick={() => setFeedbackOpen(true)}
+              onMouseEnter={resetIndicator}
+              onFocus={resetIndicator}
+            >
+              Feedback
+            </Button>
+            <Button
+              variant="ghost"
               size="icon"
               onClick={colorMode.toggleColorMode}
               onMouseEnter={resetIndicator}
@@ -337,6 +344,7 @@ const NavbarComponent = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      <FeedbackDialog open={feedbackOpen} onOpenChange={setFeedbackOpen} />
     </div>
   );
 };

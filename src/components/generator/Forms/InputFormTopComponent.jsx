@@ -5,7 +5,7 @@ import { useSnackbar } from "notistack";
 import MultiLineSnackbar from "@/components/sitewide/MultiLineSnackbar";
 
 import { storeCourseData } from "@/lib/generator/courseData";
-import { trackCourseAddResult, trackScheduleGenerated } from "@/lib/analytics";
+import { trackCourseAddResult, trackScheduleGenerated } from "@/lib/metrics";
 import { getCourse, getNameList } from "@/lib/generator/fetchData";
 import {
   generateTimetables,

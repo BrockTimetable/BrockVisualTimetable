@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
-import { trackPageView } from "@/lib/analytics";
+import { trackPageView } from "@/lib/metrics";
 import { NavbarComponent } from "@/components/guide";
 import FooterComponent from "@/components/sitewide/FooterComponent";
 import {
