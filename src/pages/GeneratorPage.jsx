@@ -9,7 +9,7 @@ import { useIsBelowMedium } from "@/lib/utils/screenSizeUtils";
 import { CourseDetailsProvider } from "@/lib/contexts/generator/CourseDetailsContext";
 import { CourseColorsProvider } from "@/lib/contexts/generator/CourseColorsContext";
 import IntroGuideWidget from "@/components/generator/Dialogs/IntroGuideWidget";
-import { trackPageView } from "@/lib/analytics";
+import { trackPageView } from "@/lib/metrics";
 import {
   generateTimetables,
   getValidTimetables,
