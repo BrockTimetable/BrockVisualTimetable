@@ -1,5 +1,6 @@
 /* @vitest-environment jsdom */
 import React from "react";
+import PropTypes from "prop-types";
 import { cleanup, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import {
@@ -44,56 +45,65 @@ vi.mock("@/lib/generator/timetableGeneration/timetableGeneration", () => ({
 vi.mock("@fullcalendar/react", async () => {
   const React = await import("react");
 
-  return {
-    default: React.forwardRef(function MockFullCalendar(
-      { events = [], eventClick, datesSet, select },
-      ref,
-    ) {
-      React.useImperativeHandle(ref, () => ({
-        getApi: () => ({
-          gotoDate: vi.fn(),
-        }),
-      }));
+  const MockFullCalendar = React.forwardRef(function MockFullCalendar(
+    { events = [], eventClick, datesSet, select },
+    ref,
+  ) {
+    React.useImperativeHandle(ref, () => ({
+      getApi: () => ({
+        gotoDate: vi.fn(),
+      }),
+    }));
 
-      React.useEffect(() => {
-        datesSet?.({
-          start: new Date("2024-09-01T00:00:00"),
-          end: new Date("2024-12-31T23:59:59"),
-        });
-      }, [datesSet]);
+    React.useEffect(() => {
+      datesSet?.({
+        start: new Date("2024-09-01T00:00:00"),
+        end: new Date("2024-12-31T23:59:59"),
+      });
+    }, [datesSet]);
 
-      return (
-        <div aria-label="Calendar events">
+    return (
+      <div aria-label="Calendar events">
+        <button
+          type="button"
+          onClick={() =>
+            select?.({
+              startStr: "2024-09-06T14:00:00",
+              endStr: "2024-09-06T16:00:00",
+              jsEvent: { clientX: 120, clientY: 160 },
+            })
+          }
+        >
+          Block Friday afternoon
+        </button>
+        {events.map((event) => (
           <button
+            key={event.id}
             type="button"
-            onClick={() =>
-              select?.({
-                startStr: "2024-09-06T14:00:00",
-                endStr: "2024-09-06T16:00:00",
-                jsEvent: { clientX: 120, clientY: 160 },
+            onClick={(jsEvent) =>
+              eventClick?.({
+                event,
+                jsEvent,
+                el: jsEvent.currentTarget,
               })
             }
           >
-            Block Friday afternoon
+            {event.title.trim()}
           </button>
-          {events.map((event) => (
-            <button
-              key={event.id}
-              type="button"
-              onClick={(jsEvent) =>
-                eventClick?.({
-                  event,
-                  jsEvent,
-                  el: jsEvent.currentTarget,
-                })
-              }
-            >
-              {event.title.trim()}
-            </button>
-          ))}
-        </div>
-      );
-    }),
+        ))}
+      </div>
+    );
+  });
+
+  MockFullCalendar.propTypes = {
+    events: PropTypes.array,
+    eventClick: PropTypes.func,
+    datesSet: PropTypes.func,
+    select: PropTypes.func,
+  };
+
+  return {
+    default: MockFullCalendar,
   };
 });
 
