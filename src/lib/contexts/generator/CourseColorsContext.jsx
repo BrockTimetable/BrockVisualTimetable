@@ -1,4 +1,11 @@
-import { createContext, useState, useRef, useCallback, useEffect } from "react";
+import {
+  createContext,
+  useState,
+  useRef,
+  useCallback,
+  useEffect,
+  useMemo,
+} from "react";
 import PropTypes from "prop-types";
 
 // Visually distinguishable colors that work well for both light and dark themes
@@ -27,19 +34,19 @@ export const CourseColorsProvider = ({ children }) => {
   const [courseColors, setCourseColors] = useState({});
   const [usedColors, setUsedColors] = useState([]);
   const usedColorsRef = useRef([]);
-  const [calendarHandler, setCalendarHandler] = useState(null);
+  const calendarHandlerRef = useRef(null);
 
-  const setCalendarUpdateHandler = (handler) => {
-    setCalendarHandler(handler);
-  };
+  const setCalendarUpdateHandler = useCallback((handler) => {
+    calendarHandlerRef.current = handler;
+  }, []);
 
-  const updateCalendarColors = () => {
-    if (calendarHandler) {
-      calendarHandler();
+  const updateCalendarColors = useCallback(() => {
+    if (calendarHandlerRef.current) {
+      calendarHandlerRef.current();
     }
-  };
+  }, []);
 
-  const getNextColor = () => {
+  const getNextColor = useCallback(() => {
     const currentUsedColors = usedColorsRef.current;
     const availableColors = defaultColors.filter(
       (color) => !currentUsedColors.includes(color),
@@ -50,43 +57,49 @@ export const CourseColorsProvider = ({ children }) => {
       return defaultColors[colorIndex];
     }
     return availableColors[0];
-  };
+  }, []);
 
   useEffect(() => {
     usedColorsRef.current = usedColors;
   }, [usedColors]);
 
   const colourTimeoutRef = useRef(false);
-  const updateCourseColor = (courseCode, color) => {
-    if (!colourTimeoutRef.current) {
-      colourTimeoutRef.current = true;
+  const updateCourseColor = useCallback(
+    (courseCode, color) => {
+      if (!colourTimeoutRef.current) {
+        colourTimeoutRef.current = true;
 
-      setCourseColors((prev) => {
-        const oldColor = prev[courseCode];
-        if (oldColor) {
-          setUsedColors((current) => current.filter((c) => c !== oldColor));
-        }
-        setUsedColors((current) => [...current, color]);
-        return {
-          ...prev,
-          [courseCode]: color,
-        };
-      });
+        setCourseColors((prev) => {
+          const oldColor = prev[courseCode];
+          if (oldColor) {
+            setUsedColors((current) => current.filter((c) => c !== oldColor));
+          }
+          setUsedColors((current) => [...current, color]);
+          return {
+            ...prev,
+            [courseCode]: color,
+          };
+        });
 
-      updateCalendarColors();
+        updateCalendarColors();
 
-      setTimeout(() => {
-        colourTimeoutRef.current = false;
-      }, 50);
-    }
-  };
+        setTimeout(() => {
+          colourTimeoutRef.current = false;
+        }, 50);
+      }
+    },
+    [updateCalendarColors],
+  );
 
-  const getDefaultColorForCourse = (courseCode) => {
-    if (courseColors[courseCode]) {
-      return courseColors[courseCode];
-    }
-    return getNextColor();
-  };
+  const getDefaultColorForCourse = useCallback(
+    (courseCode) => {
+      if (courseColors[courseCode]) {
+        return courseColors[courseCode];
+      }
+      return getNextColor();
+    },
+    [courseColors, getNextColor],
+  );
 
   const initializeCourseColor = useCallback((courseCode) => {
     setCourseColors((prev) => {
@@ -113,16 +126,25 @@ export const CourseColorsProvider = ({ children }) => {
     });
   }, []);
 
+  const contextValue = useMemo(
+    () => ({
+      courseColors,
+      updateCourseColor,
+      getDefaultColorForCourse,
+      initializeCourseColor,
+      setCalendarUpdateHandler,
+    }),
+    [
+      courseColors,
+      updateCourseColor,
+      getDefaultColorForCourse,
+      initializeCourseColor,
+      setCalendarUpdateHandler,
+    ],
+  );
+
   return (
-    <CourseColorsContext.Provider
-      value={{
-        courseColors,
-        updateCourseColor,
-        getDefaultColorForCourse,
-        initializeCourseColor,
-        setCalendarUpdateHandler,
-      }}
-    >
+    <CourseColorsContext.Provider value={contextValue}>
       {children}
     </CourseColorsContext.Provider>
   );

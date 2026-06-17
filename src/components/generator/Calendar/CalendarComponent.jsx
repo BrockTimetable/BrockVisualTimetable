@@ -234,7 +234,7 @@ export default function CalendarComponent({
   }, [selectedDuration, handleCalendarViewClick]);
 
   useEffect(() => {
-    setCalendarUpdateHandler(() => updateCalendarEvents);
+    setCalendarUpdateHandler(updateCalendarEvents);
   }, [setCalendarUpdateHandler, updateCalendarEvents]);
 
   const handleDatesSet = useCallback((dateInfo) => {
