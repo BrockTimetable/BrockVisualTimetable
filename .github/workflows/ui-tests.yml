@@ -1,0 +1,31 @@
+name: UI Interaction Tests
+
+on:
+  pull_request:
+    branches:
+      - master
+  workflow_dispatch:
+
+jobs:
+  ui-interaction-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run UI interaction tests
+        run: |
+          echo "Running UI Interaction Tests..."
+          npx vitest run src/components/generator/Calendar/__tests__/CalendarComponent.test.jsx src/components/generator/Forms/__tests__/GeneratorFeatureInteractions.test.jsx --testTimeout=3000 --reporter verbose || {
+            echo "❌ UI interaction tests failed!";
+            exit 1;
+          }
