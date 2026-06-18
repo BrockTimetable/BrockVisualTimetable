@@ -2,6 +2,7 @@ import PropTypes from "prop-types";
 import CourseList from "./CourseList/CourseList";
 import PerformanceMetrics from "./Settings/PerformanceMetrics";
 import ExportOptions from "./Settings/ExportOptions";
+import Tips from "./Settings/Tips";
 import { removeCourseData } from "@/lib/generator/courseData";
 import { removePinnedComponent } from "@/lib/generator/pinnedComponents";
 
@@ -34,7 +35,7 @@ export default function InputFormBottomComponent({
         setTimetables={setTimetables}
         sortOption={sortOption}
       />
-      {/* <Tips /> */}
+      <Tips />
       {import.meta.env.DEV && <PerformanceMetrics />}
       <ExportOptions timetables={timetables} durations={durations} />
     </div>
