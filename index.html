@@ -2,10 +2,53 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Brock Visual TimeTable helps Brock University students generate conflict-free course schedules, block off unavailable times, pin classes, and export calendars."
+    />
+    <link rel="canonical" href="https://brocktimetable.com/" />
     <link rel="icon" href="/favicon.ico" />
+    <meta name="theme-color" content="#0f172a" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://brocktimetable.com/" />
+    <meta property="og:title" content="Brock Visual TimeTable" />
+    <meta
+      property="og:description"
+      content="Generate conflict-free Brock University timetables, compare schedule options, block unavailable times, pin classes, and export your calendar."
+    />
+    <meta
+      property="og:image"
+      content="https://brocktimetable.com/og-image.png"
+    />
+    <meta property="og:site_name" content="Brock Visual TimeTable" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Brock Visual TimeTable" />
+    <meta
+      name="twitter:description"
+      content="A visual timetable generator for Brock University students."
+    />
+    <meta
+      name="twitter:image"
+      content="https://brocktimetable.com/og-image.png"
+    />
     <title>Brock Visual TimeTable</title>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "Brock Visual TimeTable",
+        "url": "https://brocktimetable.com/",
+        "description": "A visual timetable generator for Brock University students to create conflict-free course schedules.",
+        "applicationCategory": "EducationalApplication",
+        "operatingSystem": "Web",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "CAD"
+        }
+      }
+    </script>
     <script>
       // Set theme before React loads to prevent flash.
       (function () {
@@ -28,7 +71,15 @@
   </head>
 
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <h1>Brock Visual TimeTable</h1>
+      <p>
+        Generate conflict-free Brock University course schedules, block off
+        unavailable times, pin required classes, and export your timetable to a
+        calendar.
+      </p>
+      <p><a href="/guide">Read the Brock course registration guide</a>.</p>
+    </div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

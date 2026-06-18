@@ -17,8 +17,16 @@ import {
 import { clearAllCourseData } from "@/lib/generator/courseData";
 import { clearAllPins } from "@/lib/generator/pinnedComponents";
 import FooterComponent from "@/components/sitewide/FooterComponent";
+import { usePageMeta } from "@/lib/usePageMeta";
 
 function GeneratorPage() {
+  usePageMeta({
+    title: "Brock Visual TimeTable",
+    description:
+      "Generate conflict-free Brock University timetables, compare schedule options, block unavailable times, pin classes, and export your calendar.",
+    url: "https://brocktimetable.com/",
+  });
+
   useEffect(() => {
     trackPageView({
       page: "Generator",

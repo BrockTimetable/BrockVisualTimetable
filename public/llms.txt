@@ -1,0 +1,46 @@
+# Brock Visual TimeTable
+
+> A free visual timetable generator for Brock University students.
+
+Brock Visual TimeTable helps students generate conflict-free course schedules,
+compare timetable options, block off unavailable times, pin required classes,
+and export selected schedules to a calendar.
+
+Primary audience:
+- Brock University students planning undergraduate or graduate course schedules
+- First-year students learning Brock course registration
+- Contributors working on the timetable generator
+
+Core capabilities:
+- Search Brock course offerings by timetable type and session
+- Generate timetable options from lectures, labs, tutorials, and seminars
+- Filter out schedules with class time conflicts
+- Block unavailable times and regenerate around them when possible
+- Pin preferred class components across generated options
+- Sort timetable options by class days or waiting time
+- Export selected schedules to calendar files
+
+Routes:
+- https://brocktimetable.com/ - Timetable generator
+- https://brocktimetable.com/guide - Brock course registration guide
+
+Important terms:
+- Timetable type: UG for undergraduate, plus other timetable categories supported by the app
+- Session: FW for fall/winter, plus other sessions supported by the app
+- Duration: Brock term duration code, such as D1, D2, or D3
+- Component: a lecture, lab, tutorial, seminar, or other scheduled course part
+
+Repository docs:
+- https://github.com/BrockTimetable/BrockVisualTimetable - source repository
+- https://github.com/BrockTimetable/BrockVisualTimetable/blob/master/README.md - project overview and setup
+- https://github.com/BrockTimetable/BrockVisualTimetable/blob/master/docs/TimetableGeneration.md - timetable generation notes
+
+Trust signals:
+- Open source and publicly auditable on GitHub.
+- Used by about 3.8k students in 2025
+- Designed for planning; students should verify final schedules in official Brock systems.
+
+Data and affiliation:
+- Course data is provided by the project backend and is not a public unauthenticated API.
+- Students should verify schedules in official Brock systems before registering.
+- This project is student-built and is not affiliated with Brock University.
