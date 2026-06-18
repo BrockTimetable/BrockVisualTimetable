@@ -11,8 +11,16 @@ import {
 } from "@/components/ui/collapsible";
 import { Separator } from "@/components/ui/separator";
 import { ChevronDown, ChevronUp } from "lucide-react";
+import { usePageMeta } from "@/lib/usePageMeta";
 
 function GuidePage() {
+  usePageMeta({
+    title: "Brock Course Registration Guide | Brock Visual TimeTable",
+    description:
+      "A student-written guide to finding Brock University courses, understanding course codes, planning a timetable, and preparing for registration.",
+    url: "https://brocktimetable.com/guide",
+  });
+
   useEffect(() => {
     trackPageView({
       page: "Guide",
