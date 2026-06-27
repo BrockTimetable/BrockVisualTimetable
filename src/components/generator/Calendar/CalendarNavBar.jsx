@@ -1,5 +1,6 @@
 import PropTypes from "prop-types";
 import {
+  AlertTriangle,
   ChevronLeft,
   ChevronRight,
   ChevronsLeft,
@@ -13,6 +14,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import eventBus from "@/lib/eventBus";
 import {
   Select,
   SelectContent,
@@ -37,6 +39,7 @@ export default function CalendarNavBar({
   isTruncated,
   noTimetablesGenerated,
   timeslotsOverridden,
+  conflictPresent,
   handleFirst,
   handlePrevious,
   handleNext,
@@ -117,6 +120,18 @@ export default function CalendarNavBar({
               </div>
             </PopoverContent>
           </Popover>
+        )}
+        {conflictPresent && (
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            className={`${infoButtonBaseClassName} text-red-600 hover:text-red-600`}
+            aria-label="View schedule conflict details"
+            onClick={() => eventBus.emit("openConflictDialog")}
+          >
+            <AlertTriangle className="h-4 w-4" />
+          </Button>
         )}
         {timeslotsOverridden && (
           <Popover>
@@ -227,6 +242,7 @@ CalendarNavBar.propTypes = {
   isTruncated: PropTypes.bool.isRequired,
   noTimetablesGenerated: PropTypes.bool.isRequired,
   timeslotsOverridden: PropTypes.bool.isRequired,
+  conflictPresent: PropTypes.bool.isRequired,
   handleFirst: PropTypes.func.isRequired,
   handlePrevious: PropTypes.func.isRequired,
   handleNext: PropTypes.func.isRequired,

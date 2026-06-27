@@ -9,6 +9,14 @@ export const emitNoValidTimetablesFound = () => {
   });
 };
 
+export const emitTimetableConflict = (conflictInfo) => {
+  eventBus.emit("conflict", conflictInfo);
+};
+
+export const clearConflictFlag = () => {
+  eventBus.emit("conflict", null);
+};
+
 let emitTimetableOverriddenCooldown = 0;
 
 export const emitTimetableOverridden = () => {

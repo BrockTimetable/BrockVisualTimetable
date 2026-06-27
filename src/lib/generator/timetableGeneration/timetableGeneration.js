@@ -5,12 +5,18 @@ import {
 
 import {
   emitNoValidTimetablesFound,
+  emitTimetableConflict,
+  clearConflictFlag,
   clearOverriddenFlag,
   clearTruncationFlag,
   sortTimetableIndexReset,
 } from "./utils/UIEventsUtils";
 
-import { isTimetableValid } from "./utils/validateUtils";
+import {
+  isTimetableValid,
+  findTimetableConflicts,
+} from "./utils/validateUtils";
+import { buildConflictFallback } from "./utils/conflictUtils";
 import { calculateWaitingTime, calculateClassDays } from "./utils/sortUtils";
 import { getCourseData } from "../courseData";
 import { getTimeSlots } from "../timeSlots";
@@ -52,6 +58,7 @@ export const generateTimetables = (sortOption) => {
       allCourseCombinations.some((combinations) => combinations.length === 0)
     ) {
       validTimetables.push({ courses: [] });
+      clearConflictFlag();
       return;
     }
 
@@ -81,7 +88,33 @@ export const generateTimetables = (sortOption) => {
     }
 
     if (validTimetables.length === 0) {
-      emitNoValidTimetablesFound();
+      // Last resort: every course has at least one valid section combination
+      // (the "course not offered" case returned earlier), yet no combination
+      // across courses is conflict-free. Rather than wiping the calendar, show
+      // the least-conflicting timetable and surface the clash to the user.
+      const fallback = buildConflictFallback(
+        allPossibleTimetables,
+        findTimetableConflicts,
+      );
+
+      if (fallback) {
+        // Surface every timetable tied for the fewest conflicts so the user can
+        // still browse variations (e.g. different seminars) that don't change
+        // the unavoidable clash.
+        fallback.timetables.forEach(({ timetable, conflictKeys }) => {
+          validTimetables.push({
+            courses: timetable,
+            hasConflicts: true,
+            conflictKeys,
+          });
+        });
+        emitTimetableConflict(fallback.conflictInfo);
+      } else {
+        emitNoValidTimetablesFound();
+        clearConflictFlag();
+      }
+    } else {
+      clearConflictFlag();
     }
   } finally {
     performanceMetrics.generationEndTime = performance.now();

@@ -29,8 +29,13 @@ export const getFullCalendarConfig = ({
   allDaySlot: true,
   allDayText: "ONLINE",
   eventContent: (eventInfo) => renderEventContent(eventInfo, isMobile),
-  eventClassNames: (arg) =>
-    arg.event.extendedProps?.isPinned ? ["fc-event-pinned"] : [],
+  eventClassNames: (arg) => {
+    const classes = [];
+    if (arg.event.extendedProps?.isPinned) classes.push("fc-event-pinned");
+    if (arg.event.extendedProps?.isConflicting)
+      classes.push("fc-event-conflict");
+    return classes;
+  },
   eventDidMount: (arg) => {
     if (arg.event.extendedProps?.isPinned) {
       arg.el.style.borderColor = "transparent";

@@ -8,6 +8,10 @@ export const createCalendarEvents = (
 ) => {
   const newEvents = [];
 
+  // Set of "courseCode|componentId" keys for components that are part of an
+  // unavoidable conflict, so their calendar events can be highlighted.
+  const conflictKeys = timetable?.conflictKeys;
+
   /*
     Note: In cases where we have multiple main course components, (such as two LECs)
     the components will have the same ID and as such we have to append an index counter
@@ -31,6 +35,8 @@ export const createCalendarEvents = (
   ) => {
     const uniqueId = getUniqueId(component.id);
     const customColor = courseColors[course.courseCode] || defaultColor;
+    const isConflicting =
+      conflictKeys?.has(`${course.courseCode}|${component.id}`) ?? false;
     const event = {
       id: uniqueId,
       title: `${course.courseCode} ${component.type} ${
@@ -47,6 +53,7 @@ export const createCalendarEvents = (
         courseName: course.courseName || "",
         isPinned: component.pinned,
         isMain: component.isMain ?? false,
+        isConflicting,
       },
     };
 

@@ -5,6 +5,7 @@ export const useEventBusHandlers = ({
   setCurrentTimetableIndex,
   setIsTruncated,
   setTimeslotsOverridden,
+  setConflictPresent,
 }) => {
   useEffect(() => {
     eventBus.on("requestSetTimetableIndex", () => {
@@ -35,4 +36,14 @@ export const useEventBusHandlers = ({
       eventBus.off("overridden", handleTimeslotsOverridden);
     };
   }, [setTimeslotsOverridden]);
+
+  useEffect(() => {
+    const handleConflict = (info) => {
+      setConflictPresent(Boolean(info));
+    };
+    eventBus.on("conflict", handleConflict);
+    return () => {
+      eventBus.off("conflict", handleConflict);
+    };
+  }, [setConflictPresent]);
 };

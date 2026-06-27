@@ -109,6 +109,20 @@
   outline: 0;
 }
 
+#Calendar .fc .fc-event-conflict {
+  border: 2px solid #dc2626 !important;
+  box-shadow: 0 0 0 1px #dc2626;
+  outline: none;
+  background-image: repeating-linear-gradient(
+    45deg,
+    rgba(220, 38, 38, 0.28),
+    rgba(220, 38, 38, 0.28) 6px,
+    rgba(220, 38, 38, 0) 6px,
+    rgba(220, 38, 38, 0) 12px
+  );
+  z-index: 5;
+}
+
 #Calendar .fc .fc-highlight {
   background: transparent !important;
 }
