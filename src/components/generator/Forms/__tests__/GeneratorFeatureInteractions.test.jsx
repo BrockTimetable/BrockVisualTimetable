@@ -27,6 +27,7 @@ const mocks = vi.hoisted(() => ({
   getGenerationPerformance: vi.fn(),
   addPinnedComponent: vi.fn(),
   removePinnedComponent: vi.fn(),
+  clearCoursePins: vi.fn(),
   exportCal: vi.fn(),
   trackCourseAddResult: vi.fn(),
   trackScheduleGenerated: vi.fn(),
@@ -57,6 +58,7 @@ vi.mock("@/lib/generator/timetableGeneration/timetableGeneration", () => ({
 vi.mock("@/lib/generator/pinnedComponents", () => ({
   addPinnedComponent: mocks.addPinnedComponent,
   removePinnedComponent: mocks.removePinnedComponent,
+  clearCoursePins: mocks.clearCoursePins,
 }));
 
 vi.mock("@/lib/generator/ExportCal.js", () => ({
@@ -231,8 +233,6 @@ describe("generator feature interactions", () => {
   it("removes a course and regenerates the timetable results", async () => {
     const setAddedCourses = vi.fn();
     const setTimetables = vi.fn();
-    const generateTimetables = vi.fn();
-    const getValidTimetables = vi.fn(() => generatedTimetables);
 
     render(
       <InputFormBottom
@@ -242,8 +242,6 @@ describe("generator feature interactions", () => {
         timetables={generatedTimetables}
         durations={[duration]}
         sortOption="default"
-        generateTimetables={generateTimetables}
-        getValidTimetables={getValidTimetables}
       />,
     );
 
@@ -253,10 +251,8 @@ describe("generator feature interactions", () => {
 
     expect(setAddedCourses).toHaveBeenCalledWith([]);
     expect(mocks.removeCourseData).toHaveBeenCalledWith("COSC1P02");
-    expect(mocks.removePinnedComponent).toHaveBeenCalledWith(
-      "COSC1P02 DURATION 2",
-    );
-    expect(generateTimetables).toHaveBeenCalledWith("default");
+    expect(mocks.clearCoursePins).toHaveBeenCalledWith("COSC1P02");
+    expect(mocks.generateTimetables).toHaveBeenCalledWith("default");
     expect(setTimetables).toHaveBeenCalledWith(generatedTimetables);
   });
 

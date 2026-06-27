@@ -67,6 +67,7 @@ export default function CalendarComponent({
     useContext(CourseColorsContext);
   const [isTruncated, setIsTruncated] = useState(false);
   const [noTimetablesGenerated, setNoTimetablesGenerated] = useState(false);
+  const [conflictPresent, setConflictPresent] = useState(false);
   const [, setNoCourses] = useState(true);
   const [timeslotsOverridden, setTimeslotsOverridden] = useState(false);
   const [showWeekends, setShowWeekends] = useState(false);
@@ -100,6 +101,7 @@ export default function CalendarComponent({
     setCurrentTimetableIndex,
     setIsTruncated,
     setTimeslotsOverridden,
+    setConflictPresent,
   });
 
   useEffect(() => {
@@ -523,6 +525,7 @@ export default function CalendarComponent({
             isTruncated={isTruncated}
             noTimetablesGenerated={noTimetablesGenerated}
             timeslotsOverridden={timeslotsOverridden}
+            conflictPresent={conflictPresent}
             handleFirst={handleFirst}
             handlePrevious={handlePrevious}
             handleNext={handleNext}

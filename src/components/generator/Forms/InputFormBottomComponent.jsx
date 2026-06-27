@@ -3,8 +3,7 @@ import CourseList from "./CourseList/CourseList";
 import PerformanceMetrics from "./Settings/PerformanceMetrics";
 import ExportOptions from "./Settings/ExportOptions";
 import Tips from "./Settings/Tips";
-import { removeCourseData } from "@/lib/generator/courseData";
-import { removePinnedComponent } from "@/lib/generator/pinnedComponents";
+import { removeAddedCourse } from "@/lib/generator/courseActions";
 
 export default function InputFormBottomComponent({
   addedCourses,
@@ -13,18 +12,14 @@ export default function InputFormBottomComponent({
   timetables,
   durations,
   sortOption,
-  generateTimetables,
-  getValidTimetables,
 }) {
   const handleRemoveCourse = (course) => {
-    const cleanCourseCode = course.split(" ").slice(0, 2).join("");
-    setAddedCourses(addedCourses.filter((c) => c !== course));
-    removeCourseData(cleanCourseCode);
-    removePinnedComponent(
-      `${cleanCourseCode} DURATION ${course.split(" ")[2].substring(1)}`,
-    );
-    generateTimetables(sortOption);
-    setTimetables(getValidTimetables());
+    removeAddedCourse(course, {
+      addedCourses,
+      setAddedCourses,
+      setTimetables,
+      sortOption,
+    });
   };
 
   return (
@@ -49,6 +44,4 @@ InputFormBottomComponent.propTypes = {
   timetables: PropTypes.array.isRequired,
   durations: PropTypes.arrayOf(PropTypes.string).isRequired,
   sortOption: PropTypes.string.isRequired,
-  generateTimetables: PropTypes.func.isRequired,
-  getValidTimetables: PropTypes.func.isRequired,
 };
