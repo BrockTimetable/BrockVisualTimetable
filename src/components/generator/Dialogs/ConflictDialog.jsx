@@ -1,4 +1,10 @@
-import { useState, useEffect, useLayoutEffect, useRef, useCallback } from "react";
+import {
+  useState,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useCallback,
+} from "react";
 import { createPortal } from "react-dom";
 import PropTypes from "prop-types";
 import { AlertTriangle, Trash2 } from "lucide-react";
@@ -46,7 +52,14 @@ const computeConflictAnchor = () => {
     bottom = Math.max(bottom, rect.bottom);
   });
 
-  return { left, top, right, bottom, width: right - left, height: bottom - top };
+  return {
+    left,
+    top,
+    right,
+    bottom,
+    width: right - left,
+    height: bottom - top,
+  };
 };
 
 // Brings the conflict into view, then (when bottomReserved is set, e.g. the

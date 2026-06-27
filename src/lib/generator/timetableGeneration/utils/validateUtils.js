@@ -15,7 +15,10 @@ const flattenTimetableComponents = (timetable) => {
 
   for (const course of timetable) {
     const taggedComponents = [
-      ...course.mainComponents.map((component) => ({ component, pinType: "MAIN" })),
+      ...course.mainComponents.map((component) => ({
+        component,
+        pinType: "MAIN",
+      })),
       { component: course.secondaryComponents.lab, pinType: "LAB" },
       { component: course.secondaryComponents.tutorial, pinType: "TUT" },
       { component: course.secondaryComponents.seminar, pinType: "SEM" },

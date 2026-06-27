@@ -2,7 +2,6 @@ import React, { useContext, useEffect } from "react";
 import PropTypes from "prop-types";
 import { ChevronDown, ChevronUp, Palette, Trash2 } from "lucide-react";
 import { CourseColorsContext } from "@/lib/contexts/generator/CourseColorsContext";
-import { clearCoursePins } from "@/lib/generator/pinnedComponents";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -60,7 +59,6 @@ export default function CourseListComponent({
   const handleRemoveClick = () => {
     setOpen(false);
     removeCourse(course);
-    clearCoursePins(course.split(" ")[0] + course.split(" ")[1]);
   };
 
   const handleColorChange = (event) => {
