@@ -6,6 +6,7 @@ import BorderBox from "../../UI/BorderBox";
 
 export default function CourseOptions({
   term,
+  timetableType,
   courseOptions,
   courseValue,
   handleTableChange,
@@ -17,7 +18,10 @@ export default function CourseOptions({
   return (
     <BorderBox title="Course Options">
       <div className="space-y-3">
-        <TimeTableSelectComponent onTableChange={handleTableChange} />
+        <TimeTableSelectComponent
+          timetable={timetableType}
+          onTableChange={handleTableChange}
+        />
         <TermSelectComponent term={term} onTermChange={handleTermChange} />
         <CourseSearchComponent
           onCourseCodeChange={handleCourseCodeChange}
@@ -33,6 +37,7 @@ export default function CourseOptions({
 
 CourseOptions.propTypes = {
   term: PropTypes.string.isRequired,
+  timetableType: PropTypes.string.isRequired,
   courseOptions: PropTypes.array.isRequired,
   courseValue: PropTypes.string.isRequired,
   handleTableChange: PropTypes.func.isRequired,

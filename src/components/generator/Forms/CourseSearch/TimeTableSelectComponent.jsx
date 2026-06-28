@@ -1,4 +1,3 @@
-import React from "react";
 import PropTypes from "prop-types";
 import {
   Select,
@@ -8,11 +7,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-export default function TimetableSelectComponent({ onTableChange }) {
-  const [timetable, setTimetable] = React.useState("UG");
-
+export default function TimetableSelectComponent({ timetable, onTableChange }) {
   function handleTimetableChange(selectedTimetable) {
-    setTimetable(selectedTimetable);
     onTableChange(selectedTimetable);
   }
 
@@ -34,5 +30,6 @@ export default function TimetableSelectComponent({ onTableChange }) {
 }
 
 TimetableSelectComponent.propTypes = {
+  timetable: PropTypes.string.isRequired,
   onTableChange: PropTypes.func.isRequired,
 };

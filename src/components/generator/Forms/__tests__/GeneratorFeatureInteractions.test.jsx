@@ -211,6 +211,10 @@ describe("generator feature interactions", () => {
         setSortOption={setSortOption}
         addedCourses={[]}
         setAddedCourses={setAddedCourses}
+        timetableType="UG"
+        setTimetableType={vi.fn()}
+        term="FW"
+        setTerm={vi.fn()}
       />,
     );
 
@@ -268,6 +272,10 @@ describe("generator feature interactions", () => {
         setSortOption={setSortOption}
         addedCourses={[]}
         setAddedCourses={vi.fn()}
+        timetableType="UG"
+        setTimetableType={vi.fn()}
+        term="FW"
+        setTerm={vi.fn()}
       />,
     );
 

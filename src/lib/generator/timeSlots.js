@@ -37,4 +37,9 @@ export const setOpenTimeSlots = (blockedSlots) => {
   updateSlots(blockedSlots, false);
 };
 
+export const reinitializeTimeSlots = () => {
+  timeSlots = {};
+  initializeTimeSlots();
+};
+
 initializeTimeSlots();

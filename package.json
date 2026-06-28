@@ -29,6 +29,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
+    "fflate": "^0.8.3",
     "lucide-react": "^0.562.0",
     "notistack": "^3.0.1",
     "prop-types": "^15.8.1",
