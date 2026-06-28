@@ -54,6 +54,7 @@ import {
 } from "@/lib/urlState/urlStateUtils";
 import eventBus from "@/lib/eventBus";
 import FooterComponent from "@/components/sitewide/FooterComponent";
+import ShareFeatureBanner from "@/components/sitewide/ShareFeatureBanner";
 import { usePageMeta } from "@/lib/usePageMeta";
 
 const conflictSignature = (info) =>
@@ -388,6 +389,7 @@ function GeneratorPageContent() {
     <div className="flex min-w-[350px] flex-col items-center">
       <div className="w-full max-w-[1280px]">
         <NavbarComponent />
+        <ShareFeatureBanner />
         <div className="grid grid-cols-1 justify-center md:grid-cols-12">
           <div className="md:col-span-4">
             <div className="mx-2 mt-2 md:mx-1">
