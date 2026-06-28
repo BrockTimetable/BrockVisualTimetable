@@ -23,8 +23,10 @@ export default function TermSelectComponent({
           <SelectValue placeholder="Select Term" />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="FW">Fall/Winter 2026</SelectItem>
-          <SelectItem value="SP">Spring 2026</SelectItem>
+          <SelectItem value="FW">Fall/Winter 2026-27</SelectItem>
+          <SelectItem value="SP" disabled>
+            Spring 2026
+          </SelectItem>
           <SelectItem value="SU">Summer 2026</SelectItem>
         </SelectContent>
       </Select>
