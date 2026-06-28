@@ -7,15 +7,19 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-export default function TermSelectComponent({ term, onTermChange }) {
+export default function TermSelectComponent({
+  term,
+  onTermChange,
+  disabled = false,
+}) {
   function handleTermChange(selectedTerm) {
     onTermChange(selectedTerm);
   }
 
   return (
     <div id="termSelectComponent">
-      <Select value={term} onValueChange={handleTermChange}>
-        <SelectTrigger className="w-full" aria-label="Term">
+      <Select value={term} onValueChange={handleTermChange} disabled={disabled}>
+        <SelectTrigger className="w-full" aria-label="Term" disabled={disabled}>
           <SelectValue placeholder="Select Term" />
         </SelectTrigger>
         <SelectContent>
@@ -31,4 +35,5 @@ export default function TermSelectComponent({ term, onTermChange }) {
 TermSelectComponent.propTypes = {
   term: PropTypes.string.isRequired,
   onTermChange: PropTypes.func.isRequired,
+  disabled: PropTypes.bool,
 };

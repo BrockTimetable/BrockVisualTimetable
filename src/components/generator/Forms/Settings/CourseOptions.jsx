@@ -14,6 +14,7 @@ export default function CourseOptions({
   handleCourseCodeChange,
   setCourseValue,
   addCourse,
+  selectsDisabled,
 }) {
   return (
     <BorderBox title="Course Options">
@@ -21,8 +22,13 @@ export default function CourseOptions({
         <TimeTableSelectComponent
           timetable={timetableType}
           onTableChange={handleTableChange}
+          disabled={selectsDisabled}
         />
-        <TermSelectComponent term={term} onTermChange={handleTermChange} />
+        <TermSelectComponent
+          term={term}
+          onTermChange={handleTermChange}
+          disabled={selectsDisabled}
+        />
         <CourseSearchComponent
           onCourseCodeChange={handleCourseCodeChange}
           courseOptions={courseOptions}
@@ -45,4 +51,5 @@ CourseOptions.propTypes = {
   handleCourseCodeChange: PropTypes.func.isRequired,
   setCourseValue: PropTypes.func.isRequired,
   addCourse: PropTypes.func.isRequired,
+  selectsDisabled: PropTypes.bool,
 };

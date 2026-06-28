@@ -7,15 +7,23 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-export default function TimetableSelectComponent({ timetable, onTableChange }) {
+export default function TimetableSelectComponent({
+  timetable,
+  onTableChange,
+  disabled = false,
+}) {
   function handleTimetableChange(selectedTimetable) {
     onTableChange(selectedTimetable);
   }
 
   return (
     <div>
-      <Select value={timetable} onValueChange={handleTimetableChange}>
-        <SelectTrigger className="w-full" aria-label="Timetable">
+      <Select
+        value={timetable}
+        onValueChange={handleTimetableChange}
+        disabled={disabled}
+      >
+        <SelectTrigger className="w-full" aria-label="Timetable" disabled={disabled}>
           <SelectValue placeholder="Select Timetable" />
         </SelectTrigger>
         <SelectContent>
@@ -32,4 +40,5 @@ export default function TimetableSelectComponent({ timetable, onTableChange }) {
 TimetableSelectComponent.propTypes = {
   timetable: PropTypes.string.isRequired,
   onTableChange: PropTypes.func.isRequired,
+  disabled: PropTypes.bool,
 };

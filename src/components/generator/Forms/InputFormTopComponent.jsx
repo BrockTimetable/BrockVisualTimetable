@@ -299,6 +299,7 @@ export default function InputFormTop({
         handleCourseCodeChange={handleCourseCodeChange}
         setCourseValue={handleSetCourseValue}
         addCourse={addCourse}
+        selectsDisabled={addedCourses.length > 0}
       />
       <SortOptions
         sortChoice={sortChoice}
