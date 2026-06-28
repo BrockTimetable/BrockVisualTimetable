@@ -66,6 +66,7 @@ export const handleTimeBlockRemoval = (
   setCurrentTimetableIndex,
   setTimetables,
   sortOption,
+  onTimeBlockChange,
 ) => {
   const blockId = clickInfo.event.id.replace("block-", "");
   const blockEvent = getTimeBlockEvents().find((block) => block.id === blockId);
@@ -94,6 +95,7 @@ export const handleTimeBlockRemoval = (
   setCurrentTimetableIndex(0);
   generateTimetables(sortOption);
   setTimetables(getValidTimetables());
+  onTimeBlockChange?.();
 };
 
 export const handleBlockedSlotRename = (
@@ -102,12 +104,14 @@ export const handleBlockedSlotRename = (
   setCurrentTimetableIndex,
   setTimetables,
   sortOption,
+  onTimeBlockChange,
 ) => {
   updateTimeBlockEventTitle(blockId, newTitle);
 
   setCurrentTimetableIndex(0);
   generateTimetables(sortOption);
   setTimetables(getValidTimetables());
+  onTimeBlockChange?.();
 };
 
 // Extract the complex logic for handling calendar selection
@@ -120,6 +124,7 @@ export const handleCalendarSelection = (
   setBlockToRename,
   setRenameAnchorEl,
   setRenameAnchorPosition,
+  onTimeBlockChange,
 ) => {
   const startDateTime = new Date(selectInfo.startStr);
   const endDateTime = new Date(selectInfo.endStr);
@@ -230,5 +235,6 @@ export const handleCalendarSelection = (
     setCurrentTimetableIndex(0);
     generateTimetables(sortOption);
     setTimetables(getValidTimetables());
+    onTimeBlockChange?.();
   }
 };

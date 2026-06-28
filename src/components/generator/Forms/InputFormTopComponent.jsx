@@ -23,11 +23,13 @@ export default function InputFormTop({
   setSortOption,
   addedCourses,
   setAddedCourses,
+  timetableType,
+  setTimetableType,
+  term,
+  setTerm,
 }) {
   const { enqueueSnackbar } = useSnackbar();
-  const [term, setTerm] = useState("FW");
   const [courseValue, setCourseValue] = useState("");
-  const [timetableType, setTimetableType] = useState("UG");
   const [courseOptions, setCourseOptions] = useState([]);
   const [sortChoice, setSortChoice] = useState("default");
   const requestBlock = useRef(false);
@@ -297,6 +299,7 @@ export default function InputFormTop({
         handleCourseCodeChange={handleCourseCodeChange}
         setCourseValue={handleSetCourseValue}
         addCourse={addCourse}
+        selectsDisabled={addedCourses.length > 0}
       />
       <SortOptions
         sortChoice={sortChoice}
@@ -313,4 +316,8 @@ InputFormTop.propTypes = {
   setSortOption: PropTypes.func.isRequired,
   addedCourses: PropTypes.arrayOf(PropTypes.string).isRequired,
   setAddedCourses: PropTypes.func.isRequired,
+  timetableType: PropTypes.string.isRequired,
+  setTimetableType: PropTypes.func.isRequired,
+  term: PropTypes.string.isRequired,
+  setTerm: PropTypes.func.isRequired,
 };

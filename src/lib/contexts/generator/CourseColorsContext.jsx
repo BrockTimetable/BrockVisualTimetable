@@ -7,26 +7,7 @@ import {
   useMemo,
 } from "react";
 import PropTypes from "prop-types";
-
-// Visually distinguishable colors that work well for both light and dark themes
-// Colors are ordered to maximize contrast between consecutive colors
-const defaultColors = [
-  "#E74C3C", // Bright Red
-  "#3498DB", // Bright Blue
-  "#F1C40F", // Bright Yellow
-  "#9B59B6", // Purple
-  "#2ECC71", // Bright Green
-  "#E67E22", // Orange
-  "#34495E", // Navy Blue
-  "#FF6B6B", // Coral Red
-  "#1ABC9C", // Emerald
-  "#8E44AD", // Deep Purple
-  "#D35400", // Burnt Orange
-  "#16A085", // Dark Teal
-  "#C0392B", // Dark Red
-  "#2980B9", // Dark Blue
-  "#27AE60", // Dark Green
-];
+import { defaultColors } from "./courseColorPalette";
 
 export const CourseColorsContext = createContext();
 
@@ -91,6 +72,14 @@ export const CourseColorsProvider = ({ children }) => {
     [updateCalendarColors],
   );
 
+  // Bulk-apply a saved { courseCode: hex } map (used when restoring a shared URL).
+  // Bypasses updateCourseColor's debounce so every color lands in one pass.
+  const restoreCourseColors = useCallback((colorMap) => {
+    const map = colorMap || {};
+    setCourseColors(map);
+    setUsedColors(Object.values(map));
+  }, []);
+
   const getDefaultColorForCourse = useCallback(
     (courseCode) => {
       if (courseColors[courseCode]) {
@@ -132,6 +121,7 @@ export const CourseColorsProvider = ({ children }) => {
       updateCourseColor,
       getDefaultColorForCourse,
       initializeCourseColor,
+      restoreCourseColors,
       setCalendarUpdateHandler,
     }),
     [
@@ -139,6 +129,7 @@ export const CourseColorsProvider = ({ children }) => {
       updateCourseColor,
       getDefaultColorForCourse,
       initializeCourseColor,
+      restoreCourseColors,
       setCalendarUpdateHandler,
     ],
   );

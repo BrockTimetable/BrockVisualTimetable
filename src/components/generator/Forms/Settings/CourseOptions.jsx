@@ -6,6 +6,7 @@ import BorderBox from "../../UI/BorderBox";
 
 export default function CourseOptions({
   term,
+  timetableType,
   courseOptions,
   courseValue,
   handleTableChange,
@@ -13,12 +14,21 @@ export default function CourseOptions({
   handleCourseCodeChange,
   setCourseValue,
   addCourse,
+  selectsDisabled,
 }) {
   return (
     <BorderBox title="Course Options">
       <div className="space-y-3">
-        <TimeTableSelectComponent onTableChange={handleTableChange} />
-        <TermSelectComponent term={term} onTermChange={handleTermChange} />
+        <TimeTableSelectComponent
+          timetable={timetableType}
+          onTableChange={handleTableChange}
+          disabled={selectsDisabled}
+        />
+        <TermSelectComponent
+          term={term}
+          onTermChange={handleTermChange}
+          disabled={selectsDisabled}
+        />
         <CourseSearchComponent
           onCourseCodeChange={handleCourseCodeChange}
           courseOptions={courseOptions}
@@ -33,6 +43,7 @@ export default function CourseOptions({
 
 CourseOptions.propTypes = {
   term: PropTypes.string.isRequired,
+  timetableType: PropTypes.string.isRequired,
   courseOptions: PropTypes.array.isRequired,
   courseValue: PropTypes.string.isRequired,
   handleTableChange: PropTypes.func.isRequired,
@@ -40,4 +51,5 @@ CourseOptions.propTypes = {
   handleCourseCodeChange: PropTypes.func.isRequired,
   setCourseValue: PropTypes.func.isRequired,
   addCourse: PropTypes.func.isRequired,
+  selectsDisabled: PropTypes.bool,
 };

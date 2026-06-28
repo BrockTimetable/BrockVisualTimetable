@@ -300,6 +300,10 @@ export const removeTimeBlockEvent = (blockId) => {
   timeBlockEvents = timeBlockEvents.filter((block) => block.id !== blockId);
 };
 
+export const clearAllTimeBlockEvents = () => {
+  timeBlockEvents = [];
+};
+
 export const updateTimeBlockEventTitle = (blockId, newTitle) => {
   const blockIndex = timeBlockEvents.findIndex((block) => block.id === blockId);
   if (blockIndex !== -1) {

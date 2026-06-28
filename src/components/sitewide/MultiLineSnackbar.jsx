@@ -1,10 +1,11 @@
 import { SnackbarContent } from "notistack";
 import PropTypes from "prop-types";
+import { cn } from "@/lib/utils";
 
-const MultiLineSnackbar = ({ message }) => {
+const MultiLineSnackbar = ({ message, className }) => {
   return (
     <SnackbarContent>
-      <div className="text-sm">
+      <div className={cn("text-sm", className)}>
         {message.split("\n").map((line, index) => (
           <span key={index}>
             {line}
@@ -20,4 +21,5 @@ export default MultiLineSnackbar;
 
 MultiLineSnackbar.propTypes = {
   message: PropTypes.string.isRequired,
+  className: PropTypes.string,
 };

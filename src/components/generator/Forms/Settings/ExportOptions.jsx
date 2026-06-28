@@ -2,6 +2,7 @@ import { useState } from "react";
 import PropTypes from "prop-types";
 import BorderBox from "../../UI/BorderBox";
 import ExportCalendarButton from "../../Export/ExportCalendarButton";
+import ShareTimetableButton from "../../Export/ShareTimetableButton";
 import { Info, ChevronDown, ChevronUp } from "lucide-react";
 import {
   Collapsible,
@@ -14,8 +15,13 @@ export default function ExportOptions({ timetables, durations }) {
   const [showHelp, setShowHelp] = useState(false);
 
   return (
-    <BorderBox title="Export Options">
+    <BorderBox title="Share & Save Options">
       <div className="flex flex-col gap-2">
+        {/* Share / save section — copies a link to this exact timetable */}
+        <div className="flex flex-col">
+          <ShareTimetableButton timetables={timetables} />
+        </div>
+
         {/* Main export section */}
         <div className="flex justify-center">
           <ExportCalendarButton timetables={timetables} durations={durations} />
@@ -27,7 +33,9 @@ export default function ExportOptions({ timetables, durations }) {
           <Collapsible open={showHelp} onOpenChange={setShowHelp}>
             <CollapsibleTrigger className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground">
               <Info className="h-4 w-4" />
-              <span className="flex-1 text-left">How to use the .ics file</span>
+              <span className="flex-1 text-left">
+                How to use the .ics file (Export)
+              </span>
               {showHelp ? (
                 <ChevronUp className="h-4 w-4" />
               ) : (

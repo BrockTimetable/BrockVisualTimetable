@@ -53,6 +53,9 @@ export default function CalendarComponent({
   setSelectedDuration,
   durations,
   sortOption,
+  currentTimetableIndex,
+  setCurrentTimetableIndex,
+  onTimeBlockChange,
 }) {
   const { enqueueSnackbar } = useSnackbar();
   const calendarRef = React.useRef(null);
@@ -60,7 +63,6 @@ export default function CalendarComponent({
   const currentTimetableIndexRef = React.useRef(0);
   const courseColorsRef = React.useRef({});
   const [events, setEvents] = useState([]);
-  const [currentTimetableIndex, setCurrentTimetableIndex] = useState(0);
   const [viewRange, setViewRange] = useState(null);
   const { setCourseDetails } = useContext(CourseDetailsContext);
   const { courseColors, setCalendarUpdateHandler, getDefaultColorForCourse } =
@@ -117,12 +119,16 @@ export default function CalendarComponent({
     if (currentTimetableIndex >= visibleTimetables.length) {
       setCurrentTimetableIndex(0);
     }
-  }, [currentTimetableIndex, visibleTimetables.length]);
+  }, [
+    currentTimetableIndex,
+    visibleTimetables.length,
+    setCurrentTimetableIndex,
+  ]);
 
   const handleLast = useCallback(() => {
     if (visibleTimetables.length === 0) return;
     setCurrentTimetableIndex(visibleTimetables.length - 1);
-  }, [visibleTimetables.length]);
+  }, [visibleTimetables.length, setCurrentTimetableIndex]);
 
   const updateCalendarEvents = useCallback(() => {
     const currentTimetables = timetablesRef.current;
@@ -217,7 +223,7 @@ export default function CalendarComponent({
         variant: "info",
       });
     },
-    [enqueueSnackbar, setSelectedDuration],
+    [enqueueSnackbar, setSelectedDuration, setCurrentTimetableIndex],
   );
 
   useEffect(() => {
@@ -366,6 +372,7 @@ export default function CalendarComponent({
         setCurrentTimetableIndex,
         setTimetables,
         sortOption,
+        onTimeBlockChange,
       );
     }
   };
@@ -394,6 +401,7 @@ export default function CalendarComponent({
             setCurrentTimetableIndex,
             setTimetables,
             sortOption,
+            onTimeBlockChange,
           );
         });
       } else if (blockToRename.id) {
@@ -403,6 +411,7 @@ export default function CalendarComponent({
           setCurrentTimetableIndex,
           setTimetables,
           sortOption,
+          onTimeBlockChange,
         );
       }
       setBlockToRename(null);
@@ -432,6 +441,7 @@ export default function CalendarComponent({
       setBlockToRename,
       setRenameAnchorEl,
       setRenameAnchorPosition,
+      onTimeBlockChange,
     );
   };
 
@@ -578,4 +588,7 @@ CalendarComponent.propTypes = {
   setSelectedDuration: PropTypes.func.isRequired,
   durations: PropTypes.arrayOf(PropTypes.string).isRequired,
   sortOption: PropTypes.string.isRequired,
+  currentTimetableIndex: PropTypes.number.isRequired,
+  setCurrentTimetableIndex: PropTypes.func.isRequired,
+  onTimeBlockChange: PropTypes.func.isRequired,
 };

@@ -182,6 +182,32 @@ function renderCalendar(props = {}) {
   const setSelectedDuration = vi.fn();
   const setCourseDetails = vi.fn();
   const setCalendarUpdateHandler = vi.fn();
+  const onTimeBlockChange = vi.fn();
+
+  // currentTimetableIndex is owned by the parent (GeneratorPage) now, so the
+  // test hosts it in a small stateful harness to drive the navigation buttons.
+  function CalendarHarness({ timetables = [timetable], ...rest }) {
+    const [currentTimetableIndex, setCurrentTimetableIndex] = React.useState(0);
+
+    return (
+      <CalendarComponent
+        timetables={timetables}
+        setTimetables={setTimetables}
+        selectedDuration={duration}
+        setSelectedDuration={setSelectedDuration}
+        durations={[duration]}
+        sortOption="default"
+        currentTimetableIndex={currentTimetableIndex}
+        setCurrentTimetableIndex={setCurrentTimetableIndex}
+        onTimeBlockChange={onTimeBlockChange}
+        {...rest}
+      />
+    );
+  }
+
+  CalendarHarness.propTypes = {
+    timetables: PropTypes.array,
+  };
 
   render(
     <CourseDetailsContext.Provider
@@ -196,20 +222,17 @@ function renderCalendar(props = {}) {
           setCalendarUpdateHandler,
         }}
       >
-        <CalendarComponent
-          timetables={[timetable]}
-          setTimetables={setTimetables}
-          selectedDuration={duration}
-          setSelectedDuration={setSelectedDuration}
-          durations={[duration]}
-          sortOption="default"
-          {...props}
-        />
+        <CalendarHarness {...props} />
       </CourseColorsContext.Provider>
     </CourseDetailsContext.Provider>,
   );
 
-  return { setTimetables, setSelectedDuration, setCalendarUpdateHandler };
+  return {
+    setTimetables,
+    setSelectedDuration,
+    setCalendarUpdateHandler,
+    onTimeBlockChange,
+  };
 }
 
 function CalendarUpdateHandlerProbe() {

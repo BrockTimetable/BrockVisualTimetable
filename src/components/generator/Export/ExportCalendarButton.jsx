@@ -76,7 +76,7 @@ export default function ExportCalendarButton({ timetables, durations }) {
         onClick={handleExport}
         className="transition-none"
       >
-        Export Calendar
+        Export To Calendar App
       </Button>
       <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
         <DialogContent>
