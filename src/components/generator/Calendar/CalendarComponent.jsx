@@ -119,7 +119,11 @@ export default function CalendarComponent({
     if (currentTimetableIndex >= visibleTimetables.length) {
       setCurrentTimetableIndex(0);
     }
-  }, [currentTimetableIndex, visibleTimetables.length, setCurrentTimetableIndex]);
+  }, [
+    currentTimetableIndex,
+    visibleTimetables.length,
+    setCurrentTimetableIndex,
+  ]);
 
   const handleLast = useCallback(() => {
     if (visibleTimetables.length === 0) return;

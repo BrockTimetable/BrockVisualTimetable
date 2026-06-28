@@ -92,8 +92,7 @@ function GeneratorPageContent() {
     });
   }, []);
   const { enqueueSnackbar } = useSnackbar();
-  const { courseColors, restoreCourseColors } =
-    useContext(CourseColorsContext);
+  const { courseColors, restoreCourseColors } = useContext(CourseColorsContext);
   const [timetables, setTimetables] = useState([]);
   const [selectedDuration, setSelectedDuration] = useState("");
   const [durations, setDurations] = useState([]);
@@ -114,9 +113,9 @@ function GeneratorPageContent() {
   // strips ?s=, so we must read it before that happens.
   const initialEncodedRef = useRef(undefined);
   if (initialEncodedRef.current === undefined) {
-    initialEncodedRef.current = new URLSearchParams(
-      window.location.search,
-    ).get("s");
+    initialEncodedRef.current = new URLSearchParams(window.location.search).get(
+      "s",
+    );
   }
 
   // timeBlockEvents is a singleton, so mutations don't trigger React effects.

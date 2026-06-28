@@ -40,7 +40,7 @@ export default function ShareTimetableButton({ timetables }) {
         <MultiLineSnackbar
           className="text-center"
           message={
-            "Successfully copied link to clipboard!\nShare it with others or write it to open this timetable again at a later time."
+            "Successfully copied link to clipboard!\nShare it with others or write it down to open this timetable again at a later time."
           }
         />,
         { variant: "success" },

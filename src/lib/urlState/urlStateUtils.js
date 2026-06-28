@@ -117,7 +117,10 @@ export function syncUrlToState({
   addedCourses.forEach((label, i) => {
     const code = label.trim().split(/\s+/).slice(0, 2).join("");
     const actual = (courseColors || {})[code];
-    if (actual && actual.toUpperCase() !== defaultColorForIndex(i).toUpperCase()) {
+    if (
+      actual &&
+      actual.toUpperCase() !== defaultColorForIndex(i).toUpperCase()
+    ) {
       colorOverrides[code] = actual;
     }
   });

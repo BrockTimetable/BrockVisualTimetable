@@ -124,7 +124,9 @@ const writeBinary = (state) => {
   bytes.push(0x00);
 
   // pins: count, then sorted IDs as varint deltas (first is an absolute varint).
-  const pins = (state.p || []).map((id) => Number(id) >>> 0).sort((a, b) => a - b);
+  const pins = (state.p || [])
+    .map((id) => Number(id) >>> 0)
+    .sort((a, b) => a - b);
   bytes.push(pins.length & 0xff);
   let prev = 0;
   pins.forEach((id) => {
@@ -220,9 +222,7 @@ const readBinary = (bytes) => {
   while (offset < bytes.length && bytes[offset] !== 0x00) offset += 1;
   const courseString = textDecoder.decode(bytes.subarray(courseStart, offset));
   offset += 1; // skip terminator
-  const c = courseString
-    ? courseString.split(",").map(restoreCourseLabel)
-    : [];
+  const c = courseString ? courseString.split(",").map(restoreCourseLabel) : [];
 
   // pins (varint deltas of sorted IDs)
   const pinCount = readByte();
@@ -275,10 +275,7 @@ const bytesToBase64Url = (bytes) => {
   for (let i = 0; i < bytes.length; i++) {
     binary += String.fromCharCode(bytes[i]);
   }
-  return btoa(binary)
-    .replace(/\+/g, "-")
-    .replace(/\//g, "_")
-    .replace(/=/g, "");
+  return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, "");
 };
 
 const base64UrlToBytes = (str) => {

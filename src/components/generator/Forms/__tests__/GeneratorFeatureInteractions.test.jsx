@@ -335,7 +335,7 @@ describe("generator feature interactions", () => {
     );
 
     await userEvent.click(
-      screen.getByRole("button", { name: "Export Calendar" }),
+      screen.getByRole("button", { name: "Export To Calendar App" }),
     );
 
     expect(mocks.exportCal).toHaveBeenCalledWith({ durationCount: 1 });

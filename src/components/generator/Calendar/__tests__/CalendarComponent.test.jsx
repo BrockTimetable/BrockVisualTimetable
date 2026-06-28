@@ -187,8 +187,7 @@ function renderCalendar(props = {}) {
   // currentTimetableIndex is owned by the parent (GeneratorPage) now, so the
   // test hosts it in a small stateful harness to drive the navigation buttons.
   function CalendarHarness({ timetables = [timetable], ...rest }) {
-    const [currentTimetableIndex, setCurrentTimetableIndex] =
-      React.useState(0);
+    const [currentTimetableIndex, setCurrentTimetableIndex] = React.useState(0);
 
     return (
       <CalendarComponent

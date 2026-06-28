@@ -23,7 +23,11 @@ export default function TimetableSelectComponent({
         onValueChange={handleTimetableChange}
         disabled={disabled}
       >
-        <SelectTrigger className="w-full" aria-label="Timetable" disabled={disabled}>
+        <SelectTrigger
+          className="w-full"
+          aria-label="Timetable"
+          disabled={disabled}
+        >
           <SelectValue placeholder="Select Timetable" />
         </SelectTrigger>
         <SelectContent>
