@@ -27,8 +27,7 @@ export default function InputFormBottomComponent({
       <CourseList
         addedCourses={addedCourses}
         removeCourse={handleRemoveCourse}
-        setTimetables={setTimetables}
-        sortOption={sortOption}
+        setAddedCourses={setAddedCourses}
       />
       <Tips />
       {import.meta.env.DEV && <PerformanceMetrics />}

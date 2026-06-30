@@ -46,6 +46,8 @@ import { getFullCalendarConfig } from "./utils/calendarConfigUtils.js";
 import MultiLineSnackbar from "@/components/sitewide/MultiLineSnackbar";
 import { useIsMobile } from "@/lib/utils/screenSizeUtils";
 
+const EMPTY_ADDED_COURSES = [];
+
 export default function CalendarComponent({
   timetables,
   setTimetables,
@@ -56,6 +58,7 @@ export default function CalendarComponent({
   currentTimetableIndex,
   setCurrentTimetableIndex,
   onTimeBlockChange,
+  addedCourses = EMPTY_ADDED_COURSES,
 }) {
   const { enqueueSnackbar } = useSnackbar();
   const calendarRef = React.useRef(null);
@@ -514,9 +517,10 @@ export default function CalendarComponent({
     const courses = prepareCoursesForTimeline(
       visibleTimetables,
       currentTimetableIndex,
+      addedCourses,
     );
     setCoursesForTimeline(courses);
-  }, [visibleTimetables, currentTimetableIndex]);
+  }, [visibleTimetables, currentTimetableIndex, addedCourses]);
 
   return (
     <div id="Calendar">
@@ -591,4 +595,5 @@ CalendarComponent.propTypes = {
   currentTimetableIndex: PropTypes.number.isRequired,
   setCurrentTimetableIndex: PropTypes.func.isRequired,
   onTimeBlockChange: PropTypes.func.isRequired,
+  addedCourses: PropTypes.arrayOf(PropTypes.string),
 };

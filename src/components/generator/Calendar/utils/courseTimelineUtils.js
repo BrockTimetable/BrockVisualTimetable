@@ -1,9 +1,33 @@
 import { getCourseData } from "@/lib/generator/courseData";
 import { getPinnedComponents } from "@/lib/generator/pinnedComponents";
 
+const getCourseCodeFromLabel = (label) =>
+  label.trim().split(/\s+/).slice(0, 2).join("");
+
+export const sortCoursesByAddedOrder = (courses, addedCourseLabels = []) => {
+  if (!addedCourseLabels.length || !courses.length) {
+    return courses;
+  }
+
+  const orderByCode = new Map();
+  addedCourseLabels.forEach((label, index) => {
+    const code = getCourseCodeFromLabel(label);
+    if (!orderByCode.has(code)) {
+      orderByCode.set(code, index);
+    }
+  });
+
+  return [...courses].sort((a, b) => {
+    const orderA = orderByCode.get(a.code) ?? Number.MAX_SAFE_INTEGER;
+    const orderB = orderByCode.get(b.code) ?? Number.MAX_SAFE_INTEGER;
+    return orderA - orderB;
+  });
+};
+
 export const prepareCoursesForTimeline = (
   timetables,
   currentTimetableIndex,
+  addedCourseLabels = [],
 ) => {
   try {
     const currentTimetable =
@@ -114,7 +138,7 @@ export const prepareCoursesForTimeline = (
       });
     }
 
-    return courses.filter(Boolean);
+    return sortCoursesByAddedOrder(courses.filter(Boolean), addedCourseLabels);
   } catch (error) {
     return [];
   }

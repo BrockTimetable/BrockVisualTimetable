@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from "react";
+import { useContext, useEffect } from "react";
 import PropTypes from "prop-types";
 import { ChevronDown, ChevronUp, Palette, Trash2 } from "lucide-react";
 import { CourseColorsContext } from "@/lib/contexts/generator/CourseColorsContext";
@@ -9,6 +9,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
+import { cn } from "@/lib/utils";
 
 // Helper function to parse start dates (ISO format YYYY-MM-DD)
 const parseStartDate = (dateStr) => {
@@ -36,12 +37,15 @@ const parseEndDate = (dateStr) => {
   });
 };
 
-export default function CourseListComponent({
+export default function CourseListItemComponent({
   course,
   courseDetail,
   removeCourse,
+  dragHandle = null,
+  open = false,
+  onOpenChange,
+  isDragOverlay = false,
 }) {
-  const [open, setOpen] = React.useState(false);
   const {
     courseColors,
     updateCourseColor,
@@ -57,7 +61,7 @@ export default function CourseListComponent({
   }, [courseCode, courseColors, initializeCourseColor]);
 
   const handleRemoveClick = () => {
-    setOpen(false);
+    onOpenChange?.(false);
     removeCourse(course);
   };
 
@@ -73,106 +77,134 @@ export default function CourseListComponent({
     courseColors[courseCode] || getDefaultColorForCourse(courseCode);
 
   return (
-    <Collapsible open={open} onOpenChange={setOpen}>
-      <Card className="transition-none hover:bg-muted/40">
-        <CollapsibleTrigger asChild>
-          <CardHeader className="cursor-pointer flex flex-row items-center justify-between space-y-0 py-3">
-            <div className="min-w-0 pr-3">
-              <CardTitle className="text-base font-normal uppercase">
-                {course}
-              </CardTitle>
-              {courseDetail?.courseName && (
-                <p className="truncate text-sm text-muted-foreground">
-                  {courseDetail.courseName}
-                </p>
-              )}
-            </div>
-            <div className="flex items-center gap-2">
-              <div
-                className="relative flex h-9 w-9 cursor-pointer items-center justify-center rounded-full border border-border hover:opacity-80"
-                onClick={(e) => e.stopPropagation()}
-                style={{ backgroundColor: currentColor }}
-              >
-                <Palette className="h-4 w-4 text-background" />
-                <input
-                  type="color"
-                  value={currentColor}
-                  onChange={handleColorChange}
-                  onInput={handleColorChange}
-                  style={{
-                    position: "absolute",
-                    width: "100%",
-                    height: "100%",
-                    opacity: 0,
-                    cursor: "pointer",
-                  }}
-                  aria-label={`Pick color for ${course}`}
-                />
+    <Collapsible open={open} onOpenChange={onOpenChange}>
+      <Card
+        className={cn(
+          "flex flex-row items-stretch overflow-hidden transition-none hover:bg-muted/40",
+          isDragOverlay && "shadow-lg ring-1 ring-border",
+        )}
+      >
+        {dragHandle}
+        <div className="flex min-w-0 flex-1 flex-col">
+          <CollapsibleTrigger asChild disabled={isDragOverlay}>
+            <CardHeader className="flex min-w-0 flex-1 cursor-pointer flex-row items-center justify-between gap-2 space-y-0 px-2 py-2.5">
+              <div className="min-w-0 flex-1">
+                <CardTitle className="truncate text-base font-normal uppercase leading-snug">
+                  {course}
+                </CardTitle>
+                {courseDetail?.courseName && (
+                  <p className="truncate text-sm text-muted-foreground">
+                    {courseDetail.courseName}
+                  </p>
+                )}
               </div>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="transition-none"
-                onClick={(event) => {
-                  event.stopPropagation();
-                  handleRemoveClick();
-                }}
-                aria-label={`Remove ${course}`}
-              >
-                <Trash2 className="h-4 w-4" />
-              </Button>
-              {open ? (
-                <ChevronUp className="h-5 w-5 text-muted-foreground" />
-              ) : (
-                <ChevronDown className="h-5 w-5 text-muted-foreground" />
-              )}
-            </div>
-          </CardHeader>
-        </CollapsibleTrigger>
-        <CollapsibleContent className="overflow-hidden data-[state=closed]:animate-collapsible-up data-[state=open]:animate-collapsible-down">
-          <CardContent className="pt-0">
-            <div className="grid gap-3 text-sm text-muted-foreground">
-              <div className="flex items-start justify-between gap-4">
-                <span>Course Name</span>
-                <span className="text-right text-foreground">
-                  {courseDetail?.courseName || "N/A"}
-                </span>
+              <div className="flex shrink-0 items-center gap-0.5">
+                <div
+                  className={cn(
+                    "relative flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-border hover:opacity-80",
+                    isDragOverlay ? "pointer-events-none" : "cursor-pointer",
+                  )}
+                  onClick={(e) => e.stopPropagation()}
+                  style={{ backgroundColor: currentColor }}
+                >
+                  <Palette className="h-3.5 w-3.5 text-background" />
+                  {!isDragOverlay && (
+                    <input
+                      type="color"
+                      value={currentColor}
+                      onChange={handleColorChange}
+                      onInput={handleColorChange}
+                      style={{
+                        position: "absolute",
+                        width: "100%",
+                        height: "100%",
+                        opacity: 0,
+                        cursor: "pointer",
+                      }}
+                      aria-label={`Pick color for ${course}`}
+                    />
+                  )}
+                </div>
+                {isDragOverlay ? (
+                  <span
+                    className="inline-flex h-8 w-8 shrink-0 items-center justify-center text-muted-foreground"
+                    aria-hidden="true"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </span>
+                ) : (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 shrink-0 transition-none"
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      handleRemoveClick();
+                    }}
+                    aria-label={`Remove ${course}`}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                )}
+                {open ? (
+                  <ChevronUp className="h-4 w-4 shrink-0 text-muted-foreground" />
+                ) : (
+                  <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground" />
+                )}
               </div>
-              <div className="flex items-start justify-between">
-                <span>Course Instructor</span>
-                <span className="text-foreground">
-                  {courseDetail?.instructor || "N/A"}
-                </span>
+            </CardHeader>
+          </CollapsibleTrigger>
+          <CollapsibleContent
+            className={cn(
+              "overflow-hidden",
+              !isDragOverlay &&
+                "data-[state=closed]:animate-collapsible-up data-[state=open]:animate-collapsible-down",
+            )}
+          >
+            <CardContent className="px-3 pb-3 pt-0">
+              <div className="grid gap-3 text-sm text-muted-foreground">
+                <div className="flex items-start justify-between gap-4">
+                  <span>Course Name</span>
+                  <span className="text-right text-foreground">
+                    {courseDetail?.courseName || "N/A"}
+                  </span>
+                </div>
+                <div className="flex items-start justify-between">
+                  <span>Course Instructor</span>
+                  <span className="text-foreground">
+                    {courseDetail?.instructor || "N/A"}
+                  </span>
+                </div>
+                <div className="flex items-start justify-between">
+                  <span>Section Number</span>
+                  <span className="text-foreground">
+                    {courseDetail ? courseDetail.section : "N/A"}
+                  </span>
+                </div>
+                <div className="flex items-start justify-between">
+                  <span>Start Date</span>
+                  <span className="text-foreground">
+                    {courseDetail
+                      ? parseStartDate(courseDetail.startDate)
+                      : "N/A"}
+                  </span>
+                </div>
+                <div className="flex items-start justify-between">
+                  <span>End Date</span>
+                  <span className="text-foreground">
+                    {courseDetail ? parseEndDate(courseDetail.endDate) : "N/A"}
+                  </span>
+                </div>
               </div>
-              <div className="flex items-start justify-between">
-                <span>Section Number</span>
-                <span className="text-foreground">
-                  {courseDetail ? courseDetail.section : "N/A"}
-                </span>
-              </div>
-              <div className="flex items-start justify-between">
-                <span>Start Date</span>
-                <span className="text-foreground">
-                  {courseDetail
-                    ? parseStartDate(courseDetail.startDate)
-                    : "N/A"}
-                </span>
-              </div>
-              <div className="flex items-start justify-between">
-                <span>End Date</span>
-                <span className="text-foreground">
-                  {courseDetail ? parseEndDate(courseDetail.endDate) : "N/A"}
-                </span>
-              </div>
-            </div>
-          </CardContent>
-        </CollapsibleContent>
+            </CardContent>
+          </CollapsibleContent>
+        </div>
       </Card>
     </Collapsible>
   );
 }
 
-CourseListComponent.propTypes = {
+CourseListItemComponent.propTypes = {
   course: PropTypes.string.isRequired,
   courseDetail: PropTypes.shape({
     courseName: PropTypes.string,
@@ -182,4 +214,8 @@ CourseListComponent.propTypes = {
     endDate: PropTypes.string,
   }),
   removeCourse: PropTypes.func.isRequired,
+  dragHandle: PropTypes.node,
+  open: PropTypes.bool,
+  onOpenChange: PropTypes.func,
+  isDragOverlay: PropTypes.bool,
 };
