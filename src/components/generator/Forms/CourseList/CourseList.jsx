@@ -5,16 +5,14 @@ import BorderBox from "../../UI/BorderBox";
 export default function CourseList({
   addedCourses,
   removeCourse,
-  setTimetables,
-  sortOption,
+  setAddedCourses,
 }) {
   return (
     <BorderBox title="Course List">
       <CourseListComponent
         courses={addedCourses}
         onRemoveCourse={removeCourse}
-        setTimetables={setTimetables}
-        sortOption={sortOption}
+        setAddedCourses={setAddedCourses}
       />
     </BorderBox>
   );
@@ -23,6 +21,5 @@ export default function CourseList({
 CourseList.propTypes = {
   addedCourses: PropTypes.arrayOf(PropTypes.string).isRequired,
   removeCourse: PropTypes.func.isRequired,
-  setTimetables: PropTypes.func.isRequired,
-  sortOption: PropTypes.string.isRequired,
+  setAddedCourses: PropTypes.func.isRequired,
 };

@@ -431,6 +431,7 @@ function GeneratorPageContent() {
                 currentTimetableIndex={currentTimetableIndex}
                 setCurrentTimetableIndex={setCurrentTimetableIndex}
                 onTimeBlockChange={onTimeBlockChange}
+                addedCourses={addedCourses}
               />
             </div>
           </div>

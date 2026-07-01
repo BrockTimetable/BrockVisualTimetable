@@ -31,3 +31,8 @@ export const findCourseLabelByCode = (addedCourses, courseCode) =>
   addedCourses.find(
     (label) => label.split(" ").slice(0, 2).join("") === courseCode,
   );
+
+/** Reorders the course list without regenerating timetables. */
+export const reorderAddedCourses = (nextCourses, { setAddedCourses }) => {
+  setAddedCourses(nextCourses);
+};
