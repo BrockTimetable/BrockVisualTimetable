@@ -20,20 +20,20 @@ export const announcementBanner = {
 
   // Dismissal is remembered in localStorage under this key. Bump the version
   // suffix whenever you want a changed message to re-appear for returning users.
-  storageKey: "announcementBanner.shareFeature.v1",
+  storageKey: "announcementBanner.maintenance.98909877778",
 
   // Bold lead-in (e.g. "New:"). Leave as "" to omit.
   title: "New:",
 
   // Plain body text — apostrophes/ampersands are fine here (no HTML escaping).
   message:
-    "You can now share & save your timetable. Once you've built your schedule, use the Share / Save Timetable button to copy a link you can revisit later or send to others.",
+    "Our system is currently undergoing scheduled maintenance. Timetable access may be briefly interrupted. Thank you for your patience.",
 
   // Any lucide-react icon component, or null for no icon.
   icon: Share2,
 
   // Color scheme — must be a key of BANNER_VARIANTS below.
-  variant: "primary",
+  variant: "warning",
 };
 
 // Color schemes (Tailwind classes). Add your own or tweak these; they're scanned
