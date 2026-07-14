@@ -16,7 +16,7 @@ This is the ONLY file you need to edit for the banner:
                                    even for users who dismissed the old one.
 */
 export const announcementBanner = {
-  enabled: true,
+  enabled: false,
 
   // Dismissal is remembered in localStorage under this key. Bump the version
   // suffix whenever you want a changed message to re-appear for returning users.
