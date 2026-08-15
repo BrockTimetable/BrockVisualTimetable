@@ -3,6 +3,9 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "engines": {
+    "node": "24.x"
+  },
   "scripts": {
     "dev": "cross-env VITE_API_BASE_URL=https://brocktimetable.connorbernard.com/api vite",
     "dev:local": "cross-env VITE_API_BASE_URL=http://localhost:3001/api vite",
