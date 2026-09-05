@@ -4,6 +4,7 @@ const GA_MEASUREMENT_ID = "G-M2NP1M6YSK";
 const isAnalyticsEnabled = import.meta.env.PROD;
 
 let initialized = false;
+let webMcpAvailabilityTracked = false;
 
 const cleanParams = (params) =>
   Object.fromEntries(
@@ -113,5 +114,41 @@ export const trackTruncationWarning = () => {
     trigger: "truncation_warning",
     is_truncated: true,
     has_results: true,
+  });
+};
+
+export const trackWebMcpAvailable = () => {
+  if (!isAnalyticsEnabled || webMcpAvailabilityTracked) return;
+
+  initializeAnalytics();
+  webMcpAvailabilityTracked = true;
+  ReactGA.event("webmcp_available");
+};
+
+export const trackWebMcpToolCompleted = ({
+  toolName,
+  durationMs,
+  resultCount,
+}) => {
+  if (!isAnalyticsEnabled) return;
+
+  initializeAnalytics();
+  ReactGA.event(
+    "webmcp_tool_completed",
+    cleanParams({
+      tool_name: toolName,
+      duration_ms: durationMs,
+      result_count: resultCount,
+    }),
+  );
+};
+
+export const trackWebMcpToolFailed = ({ toolName, durationMs }) => {
+  if (!isAnalyticsEnabled) return;
+
+  initializeAnalytics();
+  ReactGA.event("webmcp_tool_failed", {
+    tool_name: toolName,
+    duration_ms: durationMs,
   });
 };
