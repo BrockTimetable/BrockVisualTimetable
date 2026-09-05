@@ -56,6 +56,7 @@ import eventBus from "@/lib/eventBus";
 import FooterComponent from "@/components/sitewide/FooterComponent";
 import ShareFeatureBanner from "@/components/sitewide/ShareFeatureBanner";
 import { usePageMeta } from "@/lib/usePageMeta";
+import { useScheduleWebMcp } from "@/lib/webmcp/useScheduleWebMcp";
 
 const conflictSignature = (info) =>
   info
@@ -127,6 +128,27 @@ function GeneratorPageContent() {
   );
 
   const currentTimetable = timetables[currentTimetableIndex] ?? null;
+
+  // WebMCP is a progressive enhancement: this hook is inert in browsers that
+  // do not expose document.modelContext, while WebMCP-aware agents get the
+  // same state mutations and generated options as the visible application.
+  useScheduleWebMcp({
+    timetables,
+    setTimetables,
+    addedCourses,
+    setAddedCourses,
+    timetableType,
+    setTimetableType,
+    term,
+    setTerm,
+    sortOption,
+    selectedDuration,
+    setSelectedDuration,
+    setDurations,
+    setCurrentTimetableIndex,
+    onTimeBlockChange,
+    courseColors,
+  });
 
   useEffect(() => {
     conflictInfoRef.current = conflictInfo;
