@@ -46,9 +46,18 @@ import {
   rankScheduleOptions,
   toTimeSlots,
 } from "./scheduleOptions";
+import {
+  trackWebMcpAvailable,
+  trackWebMcpToolCompleted,
+  trackWebMcpToolFailed,
+} from "@/lib/metrics";
 
 const json = (value) => JSON.stringify(value);
 const asArray = (value) => (Array.isArray(value) ? value : []);
+const resultCount = (result) =>
+  [result.totalOptions, result.totalMatches, result.conflictFreeOptions].find(
+    Number.isFinite,
+  );
 
 const tool = (name, description, inputSchema, execute, annotations = {}) => ({
   name,
@@ -56,9 +65,20 @@ const tool = (name, description, inputSchema, execute, annotations = {}) => ({
   inputSchema,
   annotations,
   execute: async (input, context) => {
+    const startedAt = performance.now();
     try {
-      return json({ ok: true, ...(await execute(input || {}, context || {})) });
+      const result = await execute(input || {}, context || {});
+      trackWebMcpToolCompleted({
+        toolName: name,
+        durationMs: Math.round(performance.now() - startedAt),
+        resultCount: resultCount(result),
+      });
+      return json({ ok: true, ...result });
     } catch (error) {
+      trackWebMcpToolFailed({
+        toolName: name,
+        durationMs: Math.round(performance.now() - startedAt),
+      });
       return json({
         ok: false,
         error:
@@ -380,6 +400,7 @@ export function useScheduleWebMcp({
   useEffect(() => {
     const modelContext = document.modelContext;
     if (!modelContext?.registerTool) return undefined;
+    trackWebMcpAvailable();
 
     const tools = [
       tool(

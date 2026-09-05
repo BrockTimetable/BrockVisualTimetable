@@ -2,6 +2,13 @@
 import { render, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { useScheduleWebMcp } from "../useScheduleWebMcp";
+import { trackWebMcpAvailable, trackWebMcpToolCompleted } from "@/lib/metrics";
+
+vi.mock("@/lib/metrics", () => ({
+  trackWebMcpAvailable: vi.fn(),
+  trackWebMcpToolCompleted: vi.fn(),
+  trackWebMcpToolFailed: vi.fn(),
+}));
 
 const setters = {
   setTimetables: vi.fn(),
@@ -42,6 +49,7 @@ describe("useScheduleWebMcp", () => {
 
     const { unmount } = render(<Harness />);
     await waitFor(() => expect(registerTool).toHaveBeenCalledTimes(15));
+    expect(trackWebMcpAvailable).toHaveBeenCalledTimes(1);
 
     expect(
       registerTool.mock.calls.map(([definition]) => definition.name),
@@ -62,6 +70,14 @@ describe("useScheduleWebMcp", () => {
       "getCurrentSchedule",
       "exportSchedule",
     ]);
+
+    const currentScheduleTool = registerTool.mock.calls
+      .map(([definition]) => definition)
+      .find(({ name }) => name === "getCurrentSchedule");
+    await currentScheduleTool.execute({});
+    expect(trackWebMcpToolCompleted).toHaveBeenCalledWith(
+      expect.objectContaining({ toolName: "getCurrentSchedule" }),
+    );
 
     unmount();
     expect(
