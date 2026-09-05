@@ -96,28 +96,37 @@ export const getVisibleTimetableSignature = (timetable, viewRange) => {
   return courseSignatures.join("||");
 };
 
-export const getVisibleTimetables = (timetables, viewRange) => {
-  if (!Array.isArray(timetables)) return [];
-  if (!viewRange) return timetables;
+export const getVisibleCandidates = (candidates, viewRange) => {
+  if (!Array.isArray(candidates)) return [];
+  if (!viewRange) return candidates;
 
   const uniqueSignatures = new Set();
-  const filteredTimetables = [];
+  const visibleCandidates = [];
 
-  timetables.forEach((timetable) => {
+  candidates.forEach((candidate) => {
+    const timetable = candidate.timetable || candidate;
     const signature = getVisibleTimetableSignature(timetable, viewRange);
     if (signature == null) {
-      filteredTimetables.push(timetable);
+      visibleCandidates.push(candidate);
       return;
     }
 
     if (!uniqueSignatures.has(signature)) {
       uniqueSignatures.add(signature);
-      filteredTimetables.push(timetable);
+      visibleCandidates.push(candidate);
     }
   });
 
-  return filteredTimetables;
+  return visibleCandidates;
 };
+
+export const getVisibleTimetables = (timetables, viewRange) =>
+  Array.isArray(timetables)
+    ? getVisibleCandidates(
+        timetables.map((timetable) => ({ timetable })),
+        viewRange,
+      ).map(({ timetable }) => timetable)
+    : [];
 
 // Get calendar view notification message
 export const getCalendarViewNotificationMessage = (startDate) => {

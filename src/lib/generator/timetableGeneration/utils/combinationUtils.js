@@ -40,9 +40,15 @@ export const cartesianProduct = (arrays) => {
   return result;
 };
 
-export const generateSingleCourseCombinations = (course, timeSlots) => {
-  const pinnedComponents = getPinnedComponents();
-
+export const generateSingleCourseCombinations = (
+  course,
+  timeSlots,
+  {
+    pinnedComponents = getPinnedComponents(),
+    emitOverride = true,
+    markPinned = true,
+  } = {},
+) => {
   const durationFilter = pinnedComponents.find((p) => {
     const [pinnedCourse, type] = p.split(" ");
     return pinnedCourse === course.courseCode && type === "DURATION";
@@ -57,9 +63,16 @@ export const generateSingleCourseCombinations = (course, timeSlots) => {
   const { availableGroups: mainAvailable } = filterComponentsAgainstTimeSlots(
     validMainComponents,
     timeSlots,
+    { emitOverride },
   );
 
-  validMainComponents = filterPinned(mainAvailable, course.courseCode, "MAIN");
+  validMainComponents = filterPinned(
+    mainAvailable,
+    course.courseCode,
+    "MAIN",
+    pinnedComponents,
+    markPinned,
+  );
 
   if (validMainComponents.length === 0) {
     return [];
@@ -78,9 +91,16 @@ export const generateSingleCourseCombinations = (course, timeSlots) => {
     const { availableGroups } = filterComponentsAgainstTimeSlots(
       items,
       timeSlots,
+      { emitOverride },
     );
 
-    const filtered = filterPinned(availableGroups, course.courseCode, type);
+    const filtered = filterPinned(
+      availableGroups,
+      course.courseCode,
+      type,
+      pinnedComponents,
+      markPinned,
+    );
     return filtered;
   };
 
@@ -189,6 +209,7 @@ export const generateSingleCourseCombinations = (course, timeSlots) => {
 export const generateTimetableCombinations = (
   courseCombinations,
   performanceMetrics,
+  { onTruncate = emitTruncationWarning } = {},
 ) => {
   let results = [];
   let count = 0;
@@ -199,7 +220,7 @@ export const generateTimetableCombinations = (
       count++;
       performanceMetrics.totalCombinationsProcessed++;
       if (count >= maxComboThreshold) {
-        emitTruncationWarning();
+        onTruncate();
         return false;
       }
       return true;

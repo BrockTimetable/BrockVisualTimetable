@@ -95,7 +95,10 @@ export const CourseColorsProvider = ({ children }) => {
       if (prev[courseCode]) {
         return prev;
       }
-      const currentUsedColors = usedColorsRef.current;
+      // Several courses can be added in one React commit (for example through
+      // WebMCP). Derive the palette from `prev`, not the asynchronously updated
+      // ref, so each queued initializer sees colors assigned by the earlier one.
+      const currentUsedColors = Object.values(prev);
       const availableColors = defaultColors.filter(
         (color) => !currentUsedColors.includes(color),
       );
@@ -106,12 +109,12 @@ export const CourseColorsProvider = ({ children }) => {
       } else {
         newColor = availableColors[0];
       }
-      // Update usedColors
-      setUsedColors((current) => [...current, newColor]);
-      return {
+      const nextColors = {
         ...prev,
         [courseCode]: newColor,
       };
+      setUsedColors(Object.values(nextColors));
+      return nextColors;
     });
   }, []);
 

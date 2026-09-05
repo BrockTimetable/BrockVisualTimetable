@@ -20,6 +20,7 @@ import { buildConflictFallback } from "./utils/conflictUtils";
 import { calculateWaitingTime, calculateClassDays } from "./utils/sortUtils";
 import { getCourseData } from "../courseData";
 import { getTimeSlots } from "../timeSlots";
+import { getPinnedComponents } from "../pinnedComponents";
 
 let validTimetables = [];
 let previousSortOption = "default";
@@ -122,6 +123,31 @@ export const generateTimetables = (sortOption) => {
 };
 
 export const getValidTimetables = () => validTimetables;
+
+// Generates a read-only what-if result for WebMCP. Unlike generateTimetables,
+// it neither changes the visible result list nor emits UI events.
+export const previewTimetables = (additionalCourses, additionalPins = []) => {
+  const courses = [...Object.values(getCourseData()), ...additionalCourses];
+  const performance = { totalCombinationsProcessed: 0 };
+  const options = {
+    pinnedComponents: [...getPinnedComponents(), ...additionalPins],
+    emitOverride: false,
+    markPinned: false,
+  };
+  const combinations = courses.map((course) =>
+    generateSingleCourseCombinations(course, getTimeSlots(), options),
+  );
+  if (
+    combinations.some((courseCombinations) => courseCombinations.length === 0)
+  )
+    return [];
+
+  return generateTimetableCombinations(combinations, performance, {
+    onTruncate: () => {},
+  })
+    .filter(isTimetableValid)
+    .map((courses) => ({ courses }));
+};
 
 export const getGenerationPerformance = () => {
   const {

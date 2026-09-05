@@ -7,7 +7,11 @@ import {
 import { getPinnedComponents } from "@/lib/generator/pinnedComponents";
 import { emitTimetableOverridden } from "./UIEventsUtils";
 
-export const filterComponentsAgainstTimeSlots = (components, timeSlots) => {
+export const filterComponentsAgainstTimeSlots = (
+  components,
+  timeSlots,
+  { emitOverride = true } = {},
+) => {
   const timeRegex = /[a-zA-Z]/;
   const groupedComponents = new Map();
   const blockedComponents = [];
@@ -53,7 +57,7 @@ export const filterComponentsAgainstTimeSlots = (components, timeSlots) => {
   }
 
   if (availableGroups.length === 0 && blockedComponents.length > 0) {
-    emitTimetableOverridden();
+    if (emitOverride) emitTimetableOverridden();
     blockedComponents.sort((a, b) => a.blockedPercentage - b.blockedPercentage);
     availableGroups.push(blockedComponents[0].group);
     return {
@@ -70,9 +74,14 @@ export const filterComponentsAgainstTimeSlots = (components, timeSlots) => {
   };
 };
 
-export const filterPinned = (components, courseCode, componentType) => {
-  components.forEach((component) => (component.pinned = false));
-  const pinnedComponents = getPinnedComponents();
+export const filterPinned = (
+  components,
+  courseCode,
+  componentType,
+  pinnedComponents = getPinnedComponents(),
+  markPinned = true,
+) => {
+  if (markPinned) components.forEach((component) => (component.pinned = false));
 
   const coursePinnedComponents = pinnedComponents.filter((p) => {
     const [course, type] = p.split(" ");
@@ -86,7 +95,7 @@ export const filterPinned = (components, courseCode, componentType) => {
       const [, , id] = pinned.split(" ");
       const baseComponentId = getBaseComponentId(component.id);
       if (baseComponentId === id) {
-        component.pinned = true;
+        if (markPinned) component.pinned = true;
         return true;
       }
       return false;
