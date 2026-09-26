@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import PropTypes from "prop-types";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { trackPageView } from "@/lib/metrics";
 import { NavbarComponent } from "@/components/guide";
 import FooterComponent from "@/components/sitewide/FooterComponent";
@@ -12,8 +12,52 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { usePageMeta } from "@/lib/usePageMeta";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+
+function GuideImage({ src, alt }) {
+  return (
+    <Dialog>
+      <DialogTrigger asChild>
+        <button
+          type="button"
+          aria-label={`Enlarge image: ${alt}`}
+          className="group block w-full rounded-md border border-border p-2 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        >
+          <img src={src} alt={alt} className="h-auto w-full" />
+          <span className="mt-2 block text-xs text-muted-foreground group-hover:text-foreground">
+            Tap to enlarge
+          </span>
+        </button>
+      </DialogTrigger>
+      <DialogContent className="w-[calc(100vw-1.5rem)] max-w-6xl p-3 sm:p-5">
+        <DialogHeader>
+          <DialogTitle>{alt}</DialogTitle>
+        </DialogHeader>
+        <div className="max-h-[78vh] overflow-auto">
+          <img
+            src={src}
+            alt={alt}
+            className="h-auto min-w-[640px] w-full object-contain sm:min-w-0 sm:max-w-full"
+          />
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+GuideImage.propTypes = {
+  src: PropTypes.string.isRequired,
+  alt: PropTypes.string.isRequired,
+};
 
 function GuidePage() {
+  const location = useLocation();
   usePageMeta({
     title: "Brock Course Registration Guide | Brock Visual TimeTable",
     description:
@@ -67,7 +111,7 @@ function GuidePage() {
   };
 
   return (
-    <div className="flex min-w-[350px] flex-col items-center">
+    <div className="flex min-h-screen flex-col items-center">
       <div className="w-full max-w-[1280px]">
         <NavbarComponent />
         <div className="mx-auto w-full max-w-[960px] px-2 py-4 sm:px-4">
@@ -77,32 +121,10 @@ function GuidePage() {
                 Guide to Course Registration
               </h1>
               <p className="mt-2 text-sm text-muted-foreground">
-                Welcome to the Brock Visual TimeTable! This guide will help you
-                learn everything you need to know about course planning &amp;
-                registration at Brock University. This guide is written by
-                students, for students. We understand the struggles of course
-                registration and have created this platform to help you make the
-                process easier.
-              </p>
-              <p className="mt-2 text-sm text-muted-foreground">
-                In this guide, you will learn how to find your courses, plan
-                your schedule, and register for courses. This guide is designed
-                to be simple and easy to follow. This guide is for all students
-                at Brock University, including first-year students, upper-year
-                students, and transfer students.
-              </p>
-              <p className="mt-2 text-sm text-muted-foreground">
-                This guide will be running through creating a first-year
-                computer science co-op student&apos;s timetable. The process is
-                the same for all students, but the courses you need to take will
-                be different.
-              </p>
-              <p className="mt-2 text-xs text-muted-foreground">
-                The Brock Visual TimeTable is not affiliated with Brock
-                University. We are students who have created this tool to help
-                other students. We are not responsible for any errors or issues
-                that may arise from using this tool. Please ensure you
-                double-check your timetable before registering for courses.
+                A student-written walkthrough for finding required courses,
+                building a timetable, and registering at Brock. We use a
+                first-year Computer Science co-op schedule as the example; the
+                same steps apply to other programs.
               </p>
             </div>
 
@@ -146,13 +168,10 @@ function GuidePage() {
                 need to take. You should see something similar to the image
                 below.
               </p>
-              <div className="rounded-md border border-border p-2">
-                <img
-                  src="/guide/course-calendar.png"
-                  alt="Course Calendar"
-                  className="h-auto w-full"
-                />
-              </div>
+              <GuideImage
+                src="/guide/course-calendar.png"
+                alt="Course Calendar"
+              />
               <p className="text-sm text-muted-foreground">
                 This is a list of all the courses you will need to take for a
                 given year. Above, you can see the courses required for a
@@ -274,7 +293,7 @@ function GuidePage() {
                 planning your timetable. You can use the{" "}
                 <Link
                   className="text-primary underline underline-offset-4"
-                  to="/"
+                  to={location.state?.generatorLocation || "/"}
                 >
                   Brock Visual TimeTable
                 </Link>{" "}
@@ -313,19 +332,14 @@ function GuidePage() {
                 .
               </p>
               <p className="text-xs text-muted-foreground">
-                <strong>Note:</strong> This tool is not affiliated with Brock
-                University. We are students who have created this tool to help
-                other students. We are not responsible for any errors or issues
-                that may arise from using this tool. Please ensure you
-                double-check your timetable before registering for courses.
+                <strong>Before registering:</strong> This student-built tool is
+                not affiliated with Brock University. Check your final timetable
+                against official Brock information.
               </p>
-              <div className="rounded-md border border-border p-2">
-                <img
-                  src="/guide/example-timetable.png"
-                  alt="Example timetable"
-                  className="h-auto w-full"
-                />
-              </div>
+              <GuideImage
+                src="/guide/example-timetable.png"
+                alt="Example timetable"
+              />
               <p className="text-sm text-muted-foreground">
                 This is an example of a timetable generated using the Brock
                 Visual TimeTable. You can see I&apos;ve decided to take COSC
@@ -348,13 +362,10 @@ function GuidePage() {
                 particular lecture time, tutorial, or lab slot. Click a pinned
                 section again to unpin it.
               </p>
-              <div className="rounded-md border border-border p-2">
-                <img
-                  src="/guide/pinned-classes.png"
-                  alt="Pinned course sections in the timetable"
-                  className="h-auto w-full"
-                />
-              </div>
+              <GuideImage
+                src="/guide/pinned-classes.png"
+                alt="Pinned course sections in the timetable"
+              />
             </div>
 
             <Separator />
@@ -377,13 +388,10 @@ function GuidePage() {
                 and navigate to the course registration page (left side, about
                 half way down the screen).
               </p>
-              <div className="rounded-md border border-border p-2">
-                <img
-                  src="/guide/student-dashboard.png"
-                  alt="Student portal dashboard"
-                  className="h-auto w-full"
-                />
-              </div>
+              <GuideImage
+                src="/guide/student-dashboard.png"
+                alt="Student portal dashboard"
+              />
               <p className="text-sm text-muted-foreground">
                 You can then select the term you want to register for and input
                 the course codes for the courses you want to take. Make sure you

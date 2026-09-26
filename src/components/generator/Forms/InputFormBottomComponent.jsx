@@ -1,8 +1,6 @@
 import PropTypes from "prop-types";
 import CourseList from "./CourseList/CourseList";
-import PerformanceMetrics from "./Settings/PerformanceMetrics";
 import ExportOptions from "./Settings/ExportOptions";
-import Tips from "./Settings/Tips";
 import { removeAddedCourse } from "@/lib/generator/courseActions";
 
 export default function InputFormBottomComponent({
@@ -12,6 +10,10 @@ export default function InputFormBottomComponent({
   timetables,
   durations,
   sortOption,
+  showCourses = true,
+  showExportOptions = true,
+  onShareComplete,
+  onExportComplete,
 }) {
   const handleRemoveCourse = (course) => {
     removeAddedCourse(course, {
@@ -24,14 +26,21 @@ export default function InputFormBottomComponent({
 
   return (
     <div className="space-y-4">
-      <CourseList
-        addedCourses={addedCourses}
-        removeCourse={handleRemoveCourse}
-        setAddedCourses={setAddedCourses}
-      />
-      <Tips />
-      {import.meta.env.DEV && <PerformanceMetrics />}
-      <ExportOptions timetables={timetables} durations={durations} />
+      {showCourses && addedCourses.length > 0 && (
+        <CourseList
+          addedCourses={addedCourses}
+          removeCourse={handleRemoveCourse}
+          setAddedCourses={setAddedCourses}
+        />
+      )}
+      {showExportOptions && addedCourses.length > 0 && (
+        <ExportOptions
+          timetables={timetables}
+          durations={durations}
+          onShareComplete={onShareComplete}
+          onExportComplete={onExportComplete}
+        />
+      )}
     </div>
   );
 }
@@ -43,4 +52,8 @@ InputFormBottomComponent.propTypes = {
   timetables: PropTypes.array.isRequired,
   durations: PropTypes.arrayOf(PropTypes.string).isRequired,
   sortOption: PropTypes.string.isRequired,
+  showCourses: PropTypes.bool,
+  showExportOptions: PropTypes.bool,
+  onShareComplete: PropTypes.func,
+  onExportComplete: PropTypes.func,
 };

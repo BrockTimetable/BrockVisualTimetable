@@ -33,7 +33,7 @@
 }
 
 #Calendar .fc .fc-col-header-cell {
-  background: hsl(var(--muted) / 0.45);
+  background: hsl(var(--muted) / 0.7);
 }
 
 #Calendar .fc .fc-timegrid-col-bg {
@@ -50,7 +50,7 @@
   color: hsl(var(--foreground) / 0.84);
   text-transform: uppercase;
   letter-spacing: 0.03em;
-  font-size: 0.75rem;
+  font-size: var(--type-meta);
   font-weight: 600;
   padding: 0.5rem 0;
 }
@@ -61,7 +61,7 @@
   color: hsl(var(--foreground) / 0.84);
   text-transform: uppercase;
   letter-spacing: 0.03em;
-  font-size: 0.75rem;
+  font-size: var(--type-meta);
   font-weight: 600;
   padding: 0 0.25rem !important;
   line-height: 1.2;
@@ -82,8 +82,8 @@
 #Calendar .fc .fc-timegrid-event,
 #Calendar .fc .fc-event {
   border: 1px solid hsl(var(--background) / 0.45);
-  border-radius: calc(var(--radius) - 1px);
-  box-shadow: 0 1px 2px hsl(var(--foreground) / 0.1);
+  border-radius: calc(var(--radius) - 2px);
+  box-shadow: 0 1px 2px hsl(var(--foreground) / 0.08);
   cursor: pointer;
 }
 
@@ -102,6 +102,155 @@
   line-height: 1.25;
 }
 
+#Calendar .fc .fc-list {
+  border: 0;
+  background: transparent;
+}
+
+#Calendar .fc .fc-list-table {
+  border-collapse: collapse;
+}
+
+#Calendar .fc .fc-list-table thead {
+  display: none;
+}
+
+#Calendar .fc .fc-list-day > th {
+  border: 0;
+}
+
+#Calendar .fc .fc-list-day-cushion {
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid hsl(var(--border) / 0.72);
+  background: transparent;
+  color: hsl(var(--foreground));
+  padding: 1rem 0 0.4rem;
+}
+
+#Calendar .fc .fc-list-day-text,
+#Calendar .fc .fc-list-day-side-text {
+  color: inherit;
+  font-size: var(--type-body);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  text-decoration: none;
+  text-transform: none;
+}
+
+#Calendar .fc .fc-list-event td {
+  border: 0;
+  background: transparent;
+  padding: 0;
+}
+
+#Calendar .fc .fc-list-event:hover td {
+  background: transparent;
+}
+
+#Calendar .fc .fc-list-event-time,
+#Calendar .fc .fc-list-event-graphic {
+  display: none;
+}
+
+#Calendar .fc .fc-list-event-title {
+  color: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+}
+
+#Calendar .fc .fc-list-event-mobile > td:last-child {
+  width: 100%;
+  padding: 0.4rem 0 0;
+  background: transparent;
+}
+
+#Calendar .fc .fc-list-event-mobile:hover .calendar-list-event-content {
+  filter: brightness(0.96);
+}
+
+.calendar-list-event-content {
+  position: relative;
+  display: flex;
+  min-width: 0;
+  min-height: 4.5rem;
+  flex-direction: column;
+  gap: 0.1rem;
+  justify-content: center;
+  border-radius: calc(var(--radius) - 2px);
+  background: var(--calendar-list-event-color, hsl(var(--primary)));
+  box-shadow: inset 0 0 0 1px hsl(0 0% 100% / 0.14);
+  padding: 0.7rem 0.875rem;
+  line-height: 1.2;
+}
+
+.calendar-list-event-content.is-pinned {
+  padding-right: 3rem;
+}
+
+.calendar-list-event-heading {
+  display: flex;
+  min-width: 0;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.calendar-list-event-time,
+.calendar-list-event-title,
+.calendar-list-event-course,
+.calendar-list-event-instructor {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.calendar-list-event-time {
+  flex: none;
+  color: hsl(0 0% 100% / 0.76);
+  font-size: var(--type-meta);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.calendar-list-event-title {
+  color: hsl(0 0% 100%);
+  font-size: var(--type-body);
+  font-weight: 700;
+}
+
+.calendar-list-event-course,
+.calendar-list-event-instructor {
+  color: hsl(0 0% 100% / 0.84);
+  font-size: var(--type-meta);
+  font-weight: 400;
+}
+
+.calendar-list-event-pin {
+  position: absolute;
+  top: 50%;
+  right: 0.875rem;
+  color: hsl(0 0% 100% / 0.8);
+  opacity: 0.3;
+  transform: translateY(-50%);
+}
+
+#Calendar
+  .fc
+  .fc-list-event-mobile.fc-event-pinned
+  .calendar-list-event-content {
+  background:
+    linear-gradient(hsl(0 0% 0% / 0.5), hsl(0 0% 0% / 0.5)),
+    var(--calendar-list-event-color, hsl(var(--primary)));
+}
+
+#Calendar .fc .fc-list-empty {
+  background: transparent;
+  color: hsl(var(--muted-foreground));
+  padding: 1rem 0;
+}
+
 #Calendar .fc .fc-event-pinned {
   border: 1px solid transparent !important;
   box-shadow: none !important;
@@ -110,17 +259,29 @@
 }
 
 #Calendar .fc .fc-event-conflict {
-  border: 2px solid #dc2626 !important;
-  box-shadow: 0 0 0 1px #dc2626;
+  border: 2px solid hsl(24 86% 52%) !important;
+  box-shadow: 0 0 0 1px hsl(24 86% 52%);
   outline: none;
-  background-image: repeating-linear-gradient(
-    45deg,
-    rgba(220, 38, 38, 0.28),
-    rgba(220, 38, 38, 0.28) 6px,
-    rgba(220, 38, 38, 0) 6px,
-    rgba(220, 38, 38, 0) 12px
-  );
+  background-image: none;
+  background-color: hsl(24 86% 52% / 0.2);
   z-index: 5;
+}
+
+#Calendar .fc .fc-list-event-mobile {
+  border: 0 !important;
+  background: transparent;
+  box-shadow: none;
+  overflow: visible;
+  outline: 0;
+}
+
+#Calendar
+  .fc
+  .fc-list-event-mobile.fc-event-conflict
+  .calendar-list-event-content {
+  box-shadow:
+    inset 0 0 0 1px hsl(0 0% 100% / 0.14),
+    0 0 0 2px hsl(24 86% 52%);
 }
 
 #Calendar .fc .fc-highlight {

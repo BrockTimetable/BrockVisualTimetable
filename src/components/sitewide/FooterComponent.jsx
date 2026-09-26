@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 export default function FooterComponent() {
   return (
     <footer className="w-full bg-transparent">
-      <div className="flex items-center justify-between px-4 py-4 text-sm text-muted-foreground">
+      <div className="flex items-center justify-between px-1 py-4 text-xs text-muted-foreground">
         <p>brocktimetable.com © 2026</p>
         <Button asChild variant="ghost" size="icon">
           <a

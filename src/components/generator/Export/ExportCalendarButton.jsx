@@ -52,21 +52,29 @@ const getDurationsWithMultipleVariants = (timetables, durations) => {
     .filter((entry) => entry.count > 1);
 };
 
-export default function ExportCalendarButton({ timetables, durations }) {
+export default function ExportCalendarButton({
+  timetables,
+  durations,
+  onExportComplete,
+}) {
   const [confirmOpen, setConfirmOpen] = useState(false);
 
   const durationsWithVariants = useMemo(
     () => getDurationsWithMultipleVariants(timetables, durations),
     [timetables, durations],
   );
+  const canExport =
+    timetables.length > 0 && (timetables[0]?.courses?.length ?? 0) > 0;
 
   const handleExport = () => {
+    if (!canExport) return;
     if (durationsWithVariants.length > 0) {
       setConfirmOpen(true);
       return;
     }
 
     exportCal({ durationCount: durations.length });
+    onExportComplete?.();
   };
 
   return (
@@ -74,9 +82,15 @@ export default function ExportCalendarButton({ timetables, durations }) {
       <Button
         variant="outline"
         onClick={handleExport}
-        className="transition-none"
+        disabled={!canExport}
+        className="w-full transition-none disabled:opacity-100"
+        title={
+          canExport
+            ? "Download this timetable as an .ics file"
+            : "Add a course before exporting"
+        }
       >
-        Export To Calendar App
+        Export .ics file
       </Button>
       <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
         <DialogContent>
@@ -87,7 +101,7 @@ export default function ExportCalendarButton({ timetables, durations }) {
               Exporting now might not reflect your final schedule.
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-2 text-sm">
+          <div className="workspace-body space-y-2">
             <div className="font-medium text-foreground">
               Terms with variants
             </div>
@@ -107,6 +121,7 @@ export default function ExportCalendarButton({ timetables, durations }) {
               onClick={() => {
                 setConfirmOpen(false);
                 exportCal({ durationCount: durations.length });
+                onExportComplete?.();
               }}
             >
               Export anyway
@@ -121,4 +136,5 @@ export default function ExportCalendarButton({ timetables, durations }) {
 ExportCalendarButton.propTypes = {
   timetables: PropTypes.array.isRequired,
   durations: PropTypes.arrayOf(PropTypes.string).isRequired,
+  onExportComplete: PropTypes.func,
 };

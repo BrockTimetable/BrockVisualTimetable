@@ -118,130 +118,148 @@ export default function FeedbackDialog({ open, onOpenChange }) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[480px]">
-        <DialogHeader>
-          <DialogTitle>Send feedback</DialogTitle>
-          <DialogDescription>
-            Report a bug, suggest a feature, or share general feedback about
-            brocktimetable.com.
+      <DialogContent
+        overlayClassName="bg-black/55"
+        className="flex max-h-[calc(100dvh-1.5rem)] w-[calc(100vw-1.5rem)] flex-col gap-0 overflow-hidden border-border/80 bg-card p-0 shadow-xl sm:max-w-[520px]"
+      >
+        <DialogHeader className="shrink-0 border-b border-border/70 px-5 py-5 pr-12 sm:px-6">
+          <DialogTitle className="workspace-section-title text-lg">
+            Send feedback
+          </DialogTitle>
+          <DialogDescription className="workspace-body mt-1">
+            Help us make timetable planning better.
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-1.5">
-            <label
-              className="text-sm font-medium text-foreground"
-              htmlFor="feedback-type"
-            >
-              Type
-            </label>
-            <Select
-              value={form.type}
-              onValueChange={(value) => updateField("type", value)}
-            >
-              <SelectTrigger id="feedback-type" aria-label="Feedback type">
-                <SelectValue placeholder="Select type" />
-              </SelectTrigger>
-              <SelectContent>
-                {FEEDBACK_TYPES.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
-                    {option.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="grid gap-4 sm:grid-cols-2">
+        <form onSubmit={handleSubmit} className="flex min-h-0 flex-1 flex-col">
+          <div className="min-h-0 flex-1 space-y-4 overflow-y-auto px-5 py-5 sm:px-6">
             <div className="space-y-1.5">
               <label
                 className="text-sm font-medium text-foreground"
-                htmlFor="feedback-name"
+                htmlFor="feedback-type"
               >
-                Name
+                Type
+              </label>
+              <Select
+                value={form.type}
+                onValueChange={(value) => updateField("type", value)}
+              >
+                <SelectTrigger id="feedback-type" aria-label="Feedback type">
+                  <SelectValue placeholder="Select type" />
+                </SelectTrigger>
+                <SelectContent>
+                  {FEEDBACK_TYPES.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="space-y-1.5">
+                <label
+                  className="flex items-center justify-between text-sm font-medium text-foreground"
+                  htmlFor="feedback-name"
+                >
+                  Name{" "}
+                  <span className="workspace-meta text-muted-foreground">
+                    Optional
+                  </span>
+                </label>
+                <Input
+                  id="feedback-name"
+                  value={form.name}
+                  onChange={(event) => updateField("name", event.target.value)}
+                  maxLength={100}
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label
+                  className="flex items-center justify-between text-sm font-medium text-foreground"
+                  htmlFor="feedback-email"
+                >
+                  Email{" "}
+                  <span className="workspace-meta text-muted-foreground">
+                    Optional
+                  </span>
+                </label>
+                <Input
+                  id="feedback-email"
+                  type="email"
+                  value={form.email}
+                  onChange={(event) => updateField("email", event.target.value)}
+                  aria-invalid={!!emailError}
+                  aria-describedby={
+                    emailError ? "feedback-email-helper" : undefined
+                  }
+                />
+                {emailError ? (
+                  <p
+                    id="feedback-email-helper"
+                    className="text-xs text-destructive"
+                  >
+                    {emailError}
+                  </p>
+                ) : null}
+              </div>
+            </div>
+
+            <div className="space-y-1.5">
+              <label
+                className="flex items-center justify-between text-sm font-medium text-foreground"
+                htmlFor="feedback-subject"
+              >
+                Subject{" "}
+                <span className="workspace-meta text-muted-foreground">
+                  Optional
+                </span>
               </label>
               <Input
-                id="feedback-name"
-                value={form.name}
-                onChange={(event) => updateField("name", event.target.value)}
-                placeholder="Optional"
-                maxLength={100}
+                id="feedback-subject"
+                value={form.subject}
+                onChange={(event) => updateField("subject", event.target.value)}
+                maxLength={200}
               />
             </div>
+
             <div className="space-y-1.5">
               <label
-                className="text-sm font-medium text-foreground"
-                htmlFor="feedback-email"
+                className="flex items-center justify-between text-sm font-medium text-foreground"
+                htmlFor="feedback-message"
               >
-                Email
+                Message{" "}
+                <span className="workspace-meta text-muted-foreground">
+                  Required
+                </span>
               </label>
-              <Input
-                id="feedback-email"
-                type="email"
-                value={form.email}
-                onChange={(event) => updateField("email", event.target.value)}
-                placeholder="Optional"
-                aria-invalid={!!emailError}
-                aria-describedby="feedback-email-helper"
+              <textarea
+                id="feedback-message"
+                value={form.message}
+                onChange={(event) => updateField("message", event.target.value)}
+                placeholder="Describe the issue or idea..."
+                rows={5}
+                maxLength={5000}
+                aria-invalid={!!messageError}
+                aria-describedby={
+                  messageError ? "feedback-message-helper" : undefined
+                }
+                className={cn(
+                  "flex min-h-[128px] w-full resize-y rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
+                )}
               />
-              {emailError ? (
+              {messageError ? (
                 <p
-                  id="feedback-email-helper"
+                  id="feedback-message-helper"
                   className="text-xs text-destructive"
                 >
-                  {emailError}
+                  {messageError}
                 </p>
               ) : null}
             </div>
           </div>
 
-          <div className="space-y-1.5">
-            <label
-              className="text-sm font-medium text-foreground"
-              htmlFor="feedback-subject"
-            >
-              Subject
-            </label>
-            <Input
-              id="feedback-subject"
-              value={form.subject}
-              onChange={(event) => updateField("subject", event.target.value)}
-              placeholder="Optional"
-              maxLength={200}
-            />
-          </div>
-
-          <div className="space-y-1.5">
-            <label
-              className="text-sm font-medium text-foreground"
-              htmlFor="feedback-message"
-            >
-              Message
-            </label>
-            <textarea
-              id="feedback-message"
-              value={form.message}
-              onChange={(event) => updateField("message", event.target.value)}
-              placeholder="What would you like to share?"
-              rows={4}
-              maxLength={5000}
-              aria-invalid={!!messageError}
-              aria-describedby="feedback-message-helper"
-              className={cn(
-                "flex min-h-[100px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
-              )}
-            />
-            <p
-              id="feedback-message-helper"
-              className={cn(
-                "text-xs",
-                messageError ? "text-destructive" : "text-muted-foreground",
-              )}
-            >
-              {messageError || "Required"}
-            </p>
-          </div>
-
-          <DialogFooter>
+          <DialogFooter className="shrink-0 gap-2 border-t border-border/70 px-5 py-4 sm:space-x-0 sm:px-6">
             <Button
               type="button"
               variant="outline"
@@ -250,7 +268,11 @@ export default function FeedbackDialog({ open, onOpenChange }) {
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={isSubmitting}>
+            <Button
+              type="submit"
+              className="bg-foreground text-background hover:bg-foreground/90"
+              disabled={isSubmitting}
+            >
               {isSubmitting ? "Sending..." : "Send feedback"}
             </Button>
           </DialogFooter>

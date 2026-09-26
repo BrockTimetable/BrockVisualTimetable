@@ -1,19 +1,18 @@
 import { useState, useEffect, useRef, useCallback, useContext } from "react";
 import { useSnackbar } from "notistack";
+import { Check } from "lucide-react";
 import {
   NavbarComponent,
   CalendarComponent,
   InputFormBottomComponent,
   InputFormTopComponent,
 } from "@/components/generator";
-import { useIsBelowMedium } from "@/lib/utils/screenSizeUtils";
 import { CourseDetailsProvider } from "@/lib/contexts/generator/CourseDetailsContext";
 import {
   CourseColorsProvider,
   CourseColorsContext,
 } from "@/lib/contexts/generator/CourseColorsContext";
 import { defaultColorForIndex } from "@/lib/contexts/generator/courseColorPalette";
-import IntroGuideWidget from "@/components/generator/Dialogs/IntroGuideWidget";
 import ConflictDialog from "@/components/generator/Dialogs/ConflictDialog";
 import MultiLineSnackbar from "@/components/sitewide/MultiLineSnackbar";
 import { trackPageView } from "@/lib/metrics";
@@ -104,11 +103,11 @@ function GeneratorPageContent() {
   const [timetableType, setTimetableType] = useState("UG");
   const [term, setTerm] = useState("FW");
   const [timeBlockVersion, setTimeBlockVersion] = useState(0);
+  const [shareComplete, setShareComplete] = useState(false);
   const [conflictInfo, setConflictInfo] = useState(null);
   const [conflictDialogOpen, setConflictDialogOpen] = useState(false);
   const conflictInfoRef = useRef(null);
   const acknowledgedRef = useRef(null);
-  const isBelowMedium = useIsBelowMedium();
 
   // Capture the shared-state param synchronously at first render. The URL sync
   // effect runs before the restore effect on mount and (with no courses yet)
@@ -128,6 +127,18 @@ function GeneratorPageContent() {
   );
 
   const currentTimetable = timetables[currentTimetableIndex] ?? null;
+
+  useEffect(() => {
+    setShareComplete(false);
+  }, [
+    addedCourses,
+    currentTimetable,
+    currentTimetableIndex,
+    selectedDuration,
+    timeBlockVersion,
+  ]);
+
+  const currentStep = addedCourses.length === 0 ? 0 : shareComplete ? 2 : 1;
 
   // WebMCP is a progressive enhancement: this hook is inert in browsers that
   // do not expose document.modelContext, while WebMCP-aware agents get the
@@ -408,13 +419,49 @@ function GeneratorPageContent() {
   }, []);
 
   return (
-    <div className="flex min-w-[350px] flex-col items-center">
-      <div className="w-full max-w-[1280px]">
+    <div className="min-h-screen bg-background">
+      <div className="mx-auto w-full max-w-[1440px] px-3 sm:px-5">
         <NavbarComponent />
         <ShareFeatureBanner />
-        <div className="grid grid-cols-1 justify-center md:grid-cols-12">
-          <div className="md:col-span-4">
-            <div className="mx-2 mt-2 md:mx-1">
+        <div className="pb-8 md:grid md:grid-cols-[minmax(280px,340px)_minmax(0,1fr)] md:items-start md:gap-4">
+          <aside>
+            <div className="workspace-surface mt-3 overflow-hidden md:mt-0">
+              <div className="border-b border-border/70 px-4 py-4">
+                <p className="workspace-page-title">Build your timetable</p>
+                <ol
+                  className="mt-4 flex items-center gap-2"
+                  aria-label="Timetable progress"
+                >
+                  {["Add courses", "Review", "Share"].map((step, index) => {
+                    const isComplete = index < currentStep;
+                    const isCurrent = index === currentStep;
+                    return (
+                      <li
+                        key={step}
+                        aria-current={isCurrent ? "step" : undefined}
+                        className={`workspace-meta flex min-w-0 items-center gap-1.5 ${isCurrent || isComplete ? "text-foreground" : "text-muted-foreground"}`}
+                      >
+                        <span
+                          className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border text-xs ${isComplete ? "border-primary bg-primary text-primary-foreground" : isCurrent ? "border-primary text-primary" : "border-border"}`}
+                        >
+                          {isComplete ? (
+                            <Check className="h-3 w-3" aria-hidden="true" />
+                          ) : (
+                            index + 1
+                          )}
+                        </span>
+                        <span className="truncate">{step}</span>
+                        {index < 2 && (
+                          <span
+                            className="mx-0.5 h-px w-3 shrink-0 bg-border sm:w-5"
+                            aria-hidden="true"
+                          />
+                        )}
+                      </li>
+                    );
+                  })}
+                </ol>
+              </div>
               <InputFormTopComponent
                 setTimetables={setTimetables}
                 setSelectedDuration={setSelectedDuration}
@@ -427,22 +474,22 @@ function GeneratorPageContent() {
                 term={term}
                 setTerm={setTerm}
               />
-              {!isBelowMedium && (
-                <div className="mt-4">
-                  <InputFormBottomComponent
-                    addedCourses={addedCourses}
-                    setAddedCourses={setAddedCourses}
-                    setTimetables={setTimetables}
-                    timetables={timetables}
-                    durations={durations}
-                    sortOption={sortOption}
-                  />
-                </div>
-              )}
+              <div className="mt-4">
+                <InputFormBottomComponent
+                  addedCourses={addedCourses}
+                  setAddedCourses={setAddedCourses}
+                  setTimetables={setTimetables}
+                  timetables={timetables}
+                  durations={durations}
+                  sortOption={sortOption}
+                  onShareComplete={() => setShareComplete(true)}
+                  onExportComplete={() => setShareComplete(true)}
+                />
+              </div>
             </div>
-          </div>
-          <div className="md:col-span-8">
-            <div className="mx-2 mt-0 sm:mt-2 md:mx-1">
+          </aside>
+          <main className="mt-3 min-w-0 md:mt-0">
+            <div className="workspace-surface overflow-hidden">
               <CalendarComponent
                 timetables={timetables}
                 setTimetables={setTimetables}
@@ -453,26 +500,11 @@ function GeneratorPageContent() {
                 currentTimetableIndex={currentTimetableIndex}
                 setCurrentTimetableIndex={setCurrentTimetableIndex}
                 onTimeBlockChange={onTimeBlockChange}
-                addedCourses={addedCourses}
+                term={term}
               />
             </div>
-          </div>
-          {isBelowMedium && (
-            <div className="md:col-span-12">
-              <div className="mx-2 mt-0 sm:mt-2">
-                <InputFormBottomComponent
-                  addedCourses={addedCourses}
-                  setAddedCourses={setAddedCourses}
-                  setTimetables={setTimetables}
-                  timetables={timetables}
-                  durations={durations}
-                  sortOption={sortOption}
-                />
-              </div>
-            </div>
-          )}
+          </main>
         </div>
-        <IntroGuideWidget />
         <ConflictDialog
           open={conflictDialogOpen}
           onClose={handlePinAndIgnoreConflict}

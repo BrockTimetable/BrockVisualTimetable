@@ -51,12 +51,12 @@ export default function CourseListComponent({
   );
 
   const handleOpenChange = useCallback((course, open) => {
-    setExpandedByCourse((prev) => ({ ...prev, [course]: open }));
+    setExpandedByCourse((previous) => ({ ...previous, [course]: open }));
   }, []);
 
   if (courses.length === 0) {
     return (
-      <p className="text-center text-sm text-muted-foreground">
+      <p className="workspace-body text-center text-muted-foreground">
         No courses added
       </p>
     );
@@ -64,7 +64,7 @@ export default function CourseListComponent({
 
   return (
     <Sortable value={courses} onValueChange={handleValueChange}>
-      <SortableContent className="space-y-3">
+      <SortableContent className="space-y-2">
         {courses.map((course) => (
           <SortableItem
             key={course}

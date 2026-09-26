@@ -8,7 +8,7 @@ export default function CourseList({
   setAddedCourses,
 }) {
   return (
-    <BorderBox title="Course List">
+    <BorderBox title="Your courses">
       <CourseListComponent
         courses={addedCourses}
         onRemoveCourse={removeCourse}

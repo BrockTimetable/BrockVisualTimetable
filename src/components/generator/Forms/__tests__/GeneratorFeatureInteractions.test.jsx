@@ -15,6 +15,7 @@ import InputFormTop from "../InputFormTopComponent";
 import InputFormBottom from "../InputFormBottomComponent";
 import CourseSearchComponent from "../CourseSearch/CourseSearchComponent";
 import ExportCalendarButton from "../../Export/ExportCalendarButton";
+import ShareTimetableButton from "../../Export/ShareTimetableButton";
 
 const mocks = vi.hoisted(() => ({
   enqueueSnackbar: vi.fn(),
@@ -177,6 +178,10 @@ describe("generator feature interactions", () => {
 
     window.ResizeObserver = ResizeObserver;
     window.HTMLElement.prototype.scrollIntoView = vi.fn();
+    Object.defineProperty(document, "execCommand", {
+      configurable: true,
+      value: vi.fn(() => true),
+    });
   });
 
   beforeEach(() => {
@@ -317,7 +322,7 @@ describe("generator feature interactions", () => {
 
     await userEvent.click(screen.getByRole("combobox"));
     await userEvent.type(
-      await screen.findByPlaceholderText("Search courses..."),
+      await screen.findByPlaceholderText("Search by code or course name..."),
       "data",
     );
     await userEvent.keyboard("{Enter}");
@@ -327,17 +332,37 @@ describe("generator feature interactions", () => {
   });
 
   it("exports the current calendar when there is a single timetable variant", async () => {
+    const onExportComplete = vi.fn();
     render(
       <ExportCalendarButton
         timetables={generatedTimetables}
         durations={[duration]}
+        onExportComplete={onExportComplete}
       />,
     );
 
     await userEvent.click(
-      screen.getByRole("button", { name: "Export To Calendar App" }),
+      screen.getByRole("button", { name: "Export .ics file" }),
     );
 
     expect(mocks.exportCal).toHaveBeenCalledWith({ durationCount: 1 });
+    expect(onExportComplete).toHaveBeenCalledOnce();
+  });
+
+  it("marks sharing complete after the timetable URL copies successfully", async () => {
+    const onShareComplete = vi.fn();
+    render(
+      <ShareTimetableButton
+        timetables={generatedTimetables}
+        onShareComplete={onShareComplete}
+      />,
+    );
+
+    await userEvent.click(
+      screen.getByRole("button", { name: "Copy timetable link" }),
+    );
+
+    expect(document.execCommand).toHaveBeenCalledWith("copy");
+    expect(onShareComplete).toHaveBeenCalledOnce();
   });
 });

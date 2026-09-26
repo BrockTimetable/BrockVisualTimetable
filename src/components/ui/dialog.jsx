@@ -26,9 +26,9 @@ const DialogOverlay = React.forwardRef(({ className, ...props }, ref) => (
 DialogOverlay.displayName = DialogPrimitive.Overlay.displayName;
 
 const DialogContent = React.forwardRef(
-  ({ className, children, ...props }, ref) => (
+  ({ className, overlayClassName, children, ...props }, ref) => (
     <DialogPortal>
-      <DialogOverlay />
+      <DialogOverlay className={overlayClassName} />
       <DialogPrimitive.Content
         ref={ref}
         className={cn(
@@ -98,6 +98,7 @@ const classNamePropTypes = {
 DialogOverlay.propTypes = classNamePropTypes;
 DialogContent.propTypes = {
   className: PropTypes.string,
+  overlayClassName: PropTypes.string,
   children: PropTypes.node,
 };
 DialogHeader.propTypes = classNamePropTypes;

@@ -26,7 +26,7 @@ const copyToClipboard = async (text) => {
   }
 };
 
-export default function ShareTimetableButton({ timetables }) {
+export default function ShareTimetableButton({ timetables, onShareComplete }) {
   const { enqueueSnackbar } = useSnackbar();
 
   // The URL only encodes a shareable snapshot once a real timetable exists.
@@ -36,11 +36,12 @@ export default function ShareTimetableButton({ timetables }) {
   const handleShare = async () => {
     try {
       await copyToClipboard(window.location.href);
+      onShareComplete?.();
       enqueueSnackbar(
         <MultiLineSnackbar
           className="text-center"
           message={
-            "Successfully copied link to clipboard!\nShare it with others or write it down to open this timetable again at a later time."
+            "Timetable link copied to your clipboard.\nOpen it later or send it to someone else."
           }
         />,
         { variant: "success" },
@@ -62,7 +63,8 @@ export default function ShareTimetableButton({ timetables }) {
     <Button
       onClick={handleShare}
       disabled={!canShare}
-      className="transition-none"
+      variant="outline"
+      className="w-full transition-none disabled:opacity-100"
       title={
         canShare
           ? "Copy a link to this exact timetable"
@@ -70,11 +72,12 @@ export default function ShareTimetableButton({ timetables }) {
       }
     >
       <Share2 />
-      Share / Save Timetable
+      Copy timetable link
     </Button>
   );
 }
 
 ShareTimetableButton.propTypes = {
   timetables: PropTypes.array.isRequired,
+  onShareComplete: PropTypes.func,
 };

@@ -158,20 +158,21 @@ export default function CourseSearchComponent({
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <Button
+          id="courseSearchTrigger"
           variant="outline"
           role="combobox"
           aria-expanded={open}
           aria-controls="course-search-list"
           className="w-full justify-between transition-none"
         >
-          {value ? value : "Add a course"}
+          {value ? value : "Search and add a course"}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
         <Command shouldFilter={false}>
           <CommandInput
-            placeholder="Search courses..."
+            placeholder="Search by code or course name..."
             value={value}
             onValueChange={(newValue) => {
               const nextValue = newValue || "";
@@ -205,7 +206,7 @@ export default function CourseSearchComponent({
                     <div className="min-w-0">
                       <div className="truncate">{option.label}</div>
                       {option.courseName && (
-                        <div className="truncate text-xs text-muted-foreground">
+                        <div className="workspace-meta truncate text-muted-foreground">
                           {option.courseName}
                         </div>
                       )}
