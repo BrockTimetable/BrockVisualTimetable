@@ -50,6 +50,8 @@ export const createCalendarEvents = (
       description: component.instructor,
       color: customColor,
       extendedProps: {
+        courseCode: course.courseCode,
+        componentId: component.id,
         courseName: course.courseName || "",
         isPinned: component.pinned,
         isMain: component.isMain ?? false,

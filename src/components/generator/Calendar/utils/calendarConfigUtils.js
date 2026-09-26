@@ -1,4 +1,5 @@
 import timeGridPlugin from "@fullcalendar/timegrid";
+import listPlugin from "@fullcalendar/list";
 import interactionPlugin from "@fullcalendar/interaction";
 import { renderEventContent } from "./calendarUtils.jsx";
 
@@ -16,19 +17,30 @@ export const getFullCalendarConfig = ({
   isMobile = false,
 }) => ({
   ref: calendarRef,
-  plugins: [timeGridPlugin, interactionPlugin],
-  initialView: "timeGridWeek",
+  plugins: [timeGridPlugin, listPlugin, interactionPlugin],
+  initialView: isMobile ? "listWeek" : "timeGridWeek",
   weekends: showWeekends,
   headerToolbar: false,
-  height: 835,
+  height: isMobile ? "auto" : 835,
   dayHeaderFormat: { weekday: "short" },
-  dayHeaderContent: (arg) => arg.text.toUpperCase(),
+  dayHeaderContent: (arg) => {
+    if (arg.view.type === "listWeek") {
+      return arg.date.toLocaleDateString(undefined, {
+        weekday: "long",
+      });
+    }
+    return arg.text.toUpperCase();
+  },
+  listDayFormat: { weekday: "long" },
+  listDaySideFormat: false,
+  noEventsContent: "No classes this week",
   slotMinTime: "08:00:00",
   slotMaxTime: "23:00:00",
   slotDuration: "00:30:00",
   allDaySlot: true,
   allDayText: "ONLINE",
-  eventContent: (eventInfo) => renderEventContent(eventInfo, isMobile),
+  eventContent: (eventInfo) =>
+    renderEventContent(eventInfo, isMobile, isMobile),
   eventClassNames: (arg) => {
     const classes = [];
     if (arg.event.extendedProps?.isPinned) classes.push("fc-event-pinned");
@@ -37,6 +49,14 @@ export const getFullCalendarConfig = ({
     return classes;
   },
   eventDidMount: (arg) => {
+    if (isMobile) {
+      const eventColor = arg.event.backgroundColor || arg.event.borderColor;
+      if (eventColor) {
+        arg.el.style.setProperty("--calendar-list-event-color", eventColor);
+      }
+      arg.el.classList.add("fc-list-event-mobile");
+    }
+
     if (arg.event.extendedProps?.isPinned) {
       arg.el.style.borderColor = "transparent";
       arg.el.style.borderWidth = "1px";
@@ -47,7 +67,7 @@ export const getFullCalendarConfig = ({
   eventMouseEnter: handleEventMouseEnter,
   eventMouseLeave: handleEventMouseLeave,
   datesSet: handleDatesSet,
-  selectable: true,
+  selectable: !isMobile,
   selectMinDistance: 25,
   select: handleSelect,
   selectAllow: handleSelectAllow,

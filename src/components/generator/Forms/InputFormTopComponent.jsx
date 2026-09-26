@@ -228,6 +228,7 @@ export default function InputFormTop({
     const updatedCourseCount = addedCourses.length + 1;
     setAddedCourses([...addedCourses, courseCodeLabel]);
     addPinnedComponent(`${cleanCourseCode} DURATION ${duration}`);
+    setSortOption(sortChoice);
     generateTimetables(sortChoice);
     const validTimetables = getValidTimetables();
     setTimetables(validTimetables);

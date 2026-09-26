@@ -7,10 +7,9 @@ import {
   useState,
 } from "react";
 import ColorModeContext from "@/lib/contexts/sitewide/ColorModeContext";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useIsMobile } from "@/lib/utils/screenSizeUtils";
 import {
-  AlertTriangle,
   BookOpen,
   Github,
   Home,
@@ -27,28 +26,16 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
-import { getCourseData } from "@/lib/generator/courseData";
 import FeedbackDialog from "@/components/sitewide/FeedbackDialog";
 
 const NavbarComponent = () => {
   const colorMode = useContext(ColorModeContext);
   const isMobile = useIsMobile();
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [guideWarningOpen, setGuideWarningOpen] = useState(false);
   const [feedbackOpen, setFeedbackOpen] = useState(false);
-  const [pendingGuidePath, setPendingGuidePath] = useState(null);
   const location = useLocation();
-  const navigate = useNavigate();
   const desktopNavRef = useRef(null);
   const desktopItemRefs = useRef([]);
   const [indicatorStyle, setIndicatorStyle] = useState(null);
@@ -76,28 +63,23 @@ const NavbarComponent = () => {
   };
 
   const activeIndex = navItems.findIndex((item) => isActiveRoute(item));
-  const hasAddedCourses = () => Object.keys(getCourseData()).length > 0;
-  const shouldWarnBeforeGuide = (item) =>
-    location.pathname === "/" && item.to === "/guide" && hasAddedCourses();
-
-  const handleNavItemClick = (event, item) => {
-    if (!shouldWarnBeforeGuide(item)) {
-      setDrawerOpen(false);
-      return;
+  const getNavTarget = (item) => {
+    if (item.to === "/guide" && location.pathname === "/") {
+      return "/guide";
     }
-
-    event.preventDefault();
-    setPendingGuidePath(item.to);
-    setGuideWarningOpen(true);
+    if (item.to === "/" && location.pathname === "/guide") {
+      return location.state?.generatorLocation || "/";
+    }
+    return item.to;
   };
 
-  const handleConfirmGuideNavigation = () => {
-    if (pendingGuidePath) {
-      navigate(pendingGuidePath);
+  const getNavState = (item) => {
+    if (item.to === "/guide" && location.pathname === "/") {
+      return {
+        generatorLocation: `${location.pathname}${location.search}${location.hash}`,
+      };
     }
-    setGuideWarningOpen(false);
-    setPendingGuidePath(null);
-    setDrawerOpen(false);
+    return undefined;
   };
 
   const updateIndicatorFromIndex = useCallback((index) => {
@@ -163,11 +145,12 @@ const NavbarComponent = () => {
               asChild
             >
               <Link
-                to={item.to}
+                to={getNavTarget(item)}
+                state={getNavState(item)}
                 target={item.newTab ? "_blank" : undefined}
                 rel={item.newTab ? "noopener noreferrer" : undefined}
                 aria-current={isActive ? "page" : undefined}
-                onClick={(event) => handleNavItemClick(event, item)}
+                onClick={() => setDrawerOpen(false)}
               >
                 <Icon className="mr-2 h-4 w-4" />
                 {item.label}
@@ -205,9 +188,9 @@ const NavbarComponent = () => {
   );
 
   return (
-    <div className="mt-2 flex h-[70px] w-full items-center bg-transparent px-4">
+    <div className="flex h-16 w-full items-center bg-transparent px-1">
       <div className="flex w-full items-center justify-between">
-        <div className="text-lg font-semibold sm:text-2xl">
+        <div className="text-base font-semibold tracking-tight sm:text-lg">
           📚 brocktimetable.com
         </div>
         {isMobile ? (
@@ -277,7 +260,8 @@ const NavbarComponent = () => {
                   asChild
                 >
                   <Link
-                    to={item.to}
+                    to={getNavTarget(item)}
+                    state={getNavState(item)}
                     target={item.newTab ? "_blank" : undefined}
                     rel={item.newTab ? "noopener noreferrer" : undefined}
                     aria-current={isActive ? "page" : undefined}
@@ -286,7 +270,6 @@ const NavbarComponent = () => {
                     }}
                     onMouseEnter={() => updateIndicatorFromIndex(index)}
                     onFocus={() => updateIndicatorFromIndex(index)}
-                    onClick={(event) => handleNavItemClick(event, item)}
                   >
                     {item.label}
                   </Link>
@@ -319,31 +302,6 @@ const NavbarComponent = () => {
           </div>
         )}
       </div>
-      <Dialog open={guideWarningOpen} onOpenChange={setGuideWarningOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <div className="flex items-center gap-2">
-              <AlertTriangle className="h-5 w-5 text-amber-600" />
-              <DialogTitle>Leave the timetable?</DialogTitle>
-            </div>
-            <DialogDescription>
-              Your current timetable will be lost if you open the guide.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => setGuideWarningOpen(false)}
-            >
-              Cancel
-            </Button>
-            <Button type="button" onClick={handleConfirmGuideNavigation}>
-              Continue to guide
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
       <FeedbackDialog open={feedbackOpen} onOpenChange={setFeedbackOpen} />
     </div>
   );

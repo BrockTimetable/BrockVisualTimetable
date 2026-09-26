@@ -8,10 +8,19 @@ import React, {
 import PropTypes from "prop-types";
 import FullCalendar from "@fullcalendar/react";
 import { useSnackbar } from "notistack";
+import { CalendarDays, Plus } from "lucide-react";
 import CalendarNavBar from "./CalendarNavBar";
 import BorderBox from "../UI/BorderBox";
-import CourseTimelineComponent from "./CourseTimelineComponent";
 import RenameBlockedSlotDialog from "../Dialogs/RenameBlockedSlotDialog";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import "@/styles/generator/Calendar.css";
 import "@/styles/generator/CustomCalendar.css";
 import {
@@ -35,7 +44,6 @@ import {
 } from "./utils/eventHandlerUtils.js";
 import { useTouchEvents } from "./hooks/useTouchEvents.js";
 import { useEventBusHandlers } from "./hooks/useEventBusHandlers.js";
-import { prepareCoursesForTimeline } from "./utils/courseTimelineUtils.js";
 import {
   calculateNavigationDate,
   getCalendarViewNotificationMessage,
@@ -45,8 +53,6 @@ import { buildSelectionPreviewEvents } from "./utils/selectionUtils.js";
 import { getFullCalendarConfig } from "./utils/calendarConfigUtils.js";
 import MultiLineSnackbar from "@/components/sitewide/MultiLineSnackbar";
 import { useIsMobile } from "@/lib/utils/screenSizeUtils";
-
-const EMPTY_ADDED_COURSES = [];
 
 export default function CalendarComponent({
   timetables,
@@ -58,7 +64,7 @@ export default function CalendarComponent({
   currentTimetableIndex,
   setCurrentTimetableIndex,
   onTimeBlockChange,
-  addedCourses = EMPTY_ADDED_COURSES,
+  term,
 }) {
   const { enqueueSnackbar } = useSnackbar();
   const calendarRef = React.useRef(null);
@@ -73,14 +79,14 @@ export default function CalendarComponent({
   const [isTruncated, setIsTruncated] = useState(false);
   const [noTimetablesGenerated, setNoTimetablesGenerated] = useState(false);
   const [conflictPresent, setConflictPresent] = useState(false);
-  const [, setNoCourses] = useState(true);
+  const [noCourses, setNoCourses] = useState(true);
   const [timeslotsOverridden, setTimeslotsOverridden] = useState(false);
   const [showWeekends, setShowWeekends] = useState(false);
   const [renameDialogOpen, setRenameDialogOpen] = useState(false);
   const [blockToRename, setBlockToRename] = useState(null);
+  const [blockToRemove, setBlockToRemove] = useState(null);
   const [renameAnchorEl, setRenameAnchorEl] = useState(null);
   const [renameAnchorPosition, setRenameAnchorPosition] = useState(null);
-  const [coursesForTimeline, setCoursesForTimeline] = useState([]);
   const [selectionPreviewEvents, setSelectionPreviewEvents] = useState([]);
   const selectionPreviewKeyRef = React.useRef("");
 
@@ -97,6 +103,25 @@ export default function CalendarComponent({
 
   // Screen size detection
   const isMobile = useIsMobile();
+
+  useEffect(() => {
+    const calendarApi = calendarRef.current?.getApi?.();
+    const desiredView = isMobile ? "listWeek" : "timeGridWeek";
+    if (
+      calendarApi &&
+      calendarApi.view?.type !== desiredView &&
+      typeof calendarApi.changeView === "function"
+    ) {
+      let cancelled = false;
+      queueMicrotask(() => {
+        if (!cancelled) calendarApi.changeView(desiredView);
+      });
+      return () => {
+        cancelled = true;
+      };
+    }
+    return undefined;
+  }, [isMobile]);
 
   // Touch event handling
   useTouchEvents();
@@ -188,9 +213,7 @@ export default function CalendarComponent({
       );
       setCourseDetails([]);
       setEvents(newEvents);
-      if (Object.keys(getCourseData()).length > 0) {
-        setNoTimetablesGenerated(true);
-      }
+      setNoTimetablesGenerated(Object.keys(getCourseData()).length > 0);
     }
   }, [
     getDefaultColorForCourse,
@@ -249,9 +272,21 @@ export default function CalendarComponent({
   }, [setCalendarUpdateHandler, updateCalendarEvents]);
 
   const handleDatesSet = useCallback((dateInfo) => {
-    setViewRange({
-      start: dateInfo.start,
-      end: dateInfo.end,
+    const start = dateInfo.start;
+    const end = dateInfo.end;
+
+    // FullCalendar invokes datesSet during its own commit. Defer the parent
+    // update so React doesn't warn about a flushSync during that lifecycle.
+    queueMicrotask(() => {
+      setViewRange((current) => {
+        if (
+          current?.start?.getTime() === start.getTime() &&
+          current?.end?.getTime() === end.getTime()
+        ) {
+          return current;
+        }
+        return { start, end };
+      });
     });
   }, []);
 
@@ -370,14 +405,25 @@ export default function CalendarComponent({
         sortOption,
       );
     } else {
-      handleTimeBlockRemoval(
-        clickInfo,
-        setCurrentTimetableIndex,
-        setTimetables,
-        sortOption,
-        onTimeBlockChange,
+      const blockId = clickInfo.event.id.replace("block-", "");
+      const blockEvent = getTimeBlockEvents().find(
+        (block) => block.id === blockId,
       );
+      if (blockEvent) setBlockToRemove(blockEvent);
     }
+  };
+
+  const handleBlockRemovalConfirm = () => {
+    if (!blockToRemove) return;
+
+    handleTimeBlockRemoval(
+      { event: { id: `block-${blockToRemove.id}` } },
+      setCurrentTimetableIndex,
+      setTimetables,
+      sortOption,
+      onTimeBlockChange,
+    );
+    setBlockToRemove(null);
   };
 
   const handleNext = () => {
@@ -432,6 +478,9 @@ export default function CalendarComponent({
   const handleFirst = () => {
     setCurrentTimetableIndex(0);
   };
+
+  const showBlankState =
+    noCourses && !noTimetablesGenerated && getTimeBlockEvents().length === 0;
 
   const handleSelect = (selectInfo) => {
     clearSelectionPreview();
@@ -494,81 +543,77 @@ export default function CalendarComponent({
     clearSelectionPreview();
   }, [clearSelectionPreview]);
 
-  // Function to navigate the calendar to a specific date
-  const navigateToDate = useCallback(
-    (date) => {
-      if (calendarRef.current && calendarRef.current.getApi) {
-        try {
-          const calendarApi = calendarRef.current.getApi();
-          // Defer gotoDate to avoid flushSync warning during React render
-          queueMicrotask(() => {
-            calendarApi.gotoDate(date);
-          });
-        } catch (error) {
-          // Error handling silently ignored
-        }
-      }
-    },
-    [calendarRef],
-  );
-
-  // Prepare courses for timeline
-  useEffect(() => {
-    const courses = prepareCoursesForTimeline(
-      visibleTimetables,
-      currentTimetableIndex,
-      addedCourses,
-    );
-    setCoursesForTimeline(courses);
-  }, [visibleTimetables, currentTimetableIndex, addedCourses]);
-
   return (
     <div id="Calendar">
-      <BorderBox title="Calendar">
-        {/* Course Timeline Visualization - moved to the very top */}
-        <CourseTimelineComponent
-          addedCourses={coursesForTimeline}
-          setSelectedDuration={setSelectedDuration}
-          durations={durations}
-          navigateToDate={navigateToDate}
-          selectedDuration={selectedDuration}
-        />
+      <BorderBox title="Schedule">
+        {showBlankState ? (
+          <div className="calendar-shell flex min-h-64 flex-col items-center justify-center px-5 py-10 text-center">
+            <CalendarDays
+              className="mb-3 h-8 w-8 text-muted-foreground"
+              aria-hidden="true"
+            />
+            <h3 className="text-base font-semibold text-foreground">
+              Your week is clear
+            </h3>
+            <p className="mt-1 max-w-sm text-sm text-muted-foreground">
+              Add a course to see its class times here.
+            </p>
+            <Button
+              type="button"
+              variant="outline"
+              className="mt-4"
+              onClick={() => {
+                const trigger = document.getElementById("courseSearchTrigger");
+                trigger?.scrollIntoView({
+                  behavior: "smooth",
+                  block: "center",
+                });
+                trigger?.click();
+              }}
+            >
+              <Plus aria-hidden="true" />
+              Add a course
+            </Button>
+          </div>
+        ) : (
+          <div className="calendar-shell">
+            <CalendarNavBar
+              isTruncated={isTruncated}
+              noTimetablesGenerated={noTimetablesGenerated}
+              timeslotsOverridden={timeslotsOverridden}
+              conflictPresent={conflictPresent}
+              handleFirst={handleFirst}
+              handlePrevious={handlePrevious}
+              handleNext={handleNext}
+              handleLast={handleLast}
+              currentTimetableIndex={currentTimetableIndex}
+              timetables={visibleTimetables}
+              selectedDuration={selectedDuration}
+              setSelectedDuration={setSelectedDuration}
+              durations={durations}
+              sortByBracketContent={sortByBracketContent}
+              term={term}
+              isMobile={isMobile}
+            />
+            <div className="calendar-shell-divider" aria-hidden="true" />
 
-        <div className="calendar-shell">
-          <CalendarNavBar
-            isTruncated={isTruncated}
-            noTimetablesGenerated={noTimetablesGenerated}
-            timeslotsOverridden={timeslotsOverridden}
-            conflictPresent={conflictPresent}
-            handleFirst={handleFirst}
-            handlePrevious={handlePrevious}
-            handleNext={handleNext}
-            handleLast={handleLast}
-            currentTimetableIndex={currentTimetableIndex}
-            timetables={visibleTimetables}
-            selectedDuration={selectedDuration}
-            setSelectedDuration={setSelectedDuration}
-            durations={durations}
-            sortByBracketContent={sortByBracketContent}
-          />
-          <div className="calendar-shell-divider" aria-hidden="true" />
-
-          <FullCalendar
-            {...getFullCalendarConfig({
-              calendarRef,
-              showWeekends,
-              events: calendarEvents,
-              handleDatesSet,
-              handleEventClick,
-              handleSelect,
-              handleSelectAllow,
-              handleUnselect,
-              handleEventMouseEnter,
-              handleEventMouseLeave,
-              isMobile,
-            })}
-          />
-        </div>
+            <FullCalendar
+              {...getFullCalendarConfig({
+                calendarRef,
+                showWeekends,
+                events: calendarEvents,
+                handleDatesSet,
+                handleEventClick,
+                handleSelect,
+                handleSelectAllow,
+                handleUnselect,
+                handleEventMouseEnter,
+                handleEventMouseLeave,
+                isMobile,
+              })}
+            />
+          </div>
+        )}
 
         <RenameBlockedSlotDialog
           open={renameDialogOpen}
@@ -580,6 +625,40 @@ export default function CalendarComponent({
           anchorEl={renameAnchorEl}
           forceAnchorPosition={renameAnchorPosition}
         />
+
+        <Dialog
+          open={Boolean(blockToRemove)}
+          onOpenChange={(open) => {
+            if (!open) setBlockToRemove(null);
+          }}
+        >
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Remove blocked time?</DialogTitle>
+              <DialogDescription>
+                {blockToRemove?.title
+                  ? `“${blockToRemove.title}” will be removed and this time will become available again.`
+                  : "This time will become available again."}
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setBlockToRemove(null)}
+              >
+                Keep blocked
+              </Button>
+              <Button
+                type="button"
+                variant="destructive"
+                onClick={handleBlockRemovalConfirm}
+              >
+                Remove time
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </BorderBox>
     </div>
   );
@@ -595,5 +674,5 @@ CalendarComponent.propTypes = {
   currentTimetableIndex: PropTypes.number.isRequired,
   setCurrentTimetableIndex: PropTypes.func.isRequired,
   onTimeBlockChange: PropTypes.func.isRequired,
-  addedCourses: PropTypes.arrayOf(PropTypes.string),
+  term: PropTypes.string,
 };

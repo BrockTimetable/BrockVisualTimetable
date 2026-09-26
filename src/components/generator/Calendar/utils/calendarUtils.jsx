@@ -2,8 +2,26 @@ import { Ban, Pin } from "lucide-react";
 import { isEventPinned } from "@/lib/generator/createCalendarEvents";
 import { getCourseData } from "@/lib/generator/courseData";
 
+const formatListEventTitle = (title = "") =>
+  title
+    .replace(/^([A-Z]{2,})(\d)/, "$1 $2")
+    .replace(/\s+(LEC|LAB|TUT|SEM)\s+/i, " · $1 ");
+
+const formatListEventTime = (start, end) => {
+  if (!start || !end) return "";
+  const formatter = new Intl.DateTimeFormat(undefined, {
+    hour: "numeric",
+    minute: "2-digit",
+  });
+  return `${formatter.format(start)} – ${formatter.format(end)}`;
+};
+
 // Event rendering function
-export const renderEventContent = (eventInfo, isMobile = false) => {
+export const renderEventContent = (
+  eventInfo,
+  isMobile = false,
+  isListView = false,
+) => {
   // Calculate the event duration in minutes
   const startTime = eventInfo.event.start;
   const endTime = eventInfo.event.end;
@@ -16,6 +34,21 @@ export const renderEventContent = (eventInfo, isMobile = false) => {
     const blockTitle = eventInfo.event.title || "";
     const truncatedTitle =
       blockTitle.length > 25 ? `${blockTitle.substring(0, 25)}...` : blockTitle;
+
+    if (isListView) {
+      return (
+        <div className="calendar-list-event-content">
+          <div className="calendar-list-event-heading">
+            <span className="calendar-list-event-title">
+              {truncatedTitle || "Blocked time"}
+            </span>
+            <span className="calendar-list-event-time">
+              {formatListEventTime(startTime, endTime)}
+            </span>
+          </div>
+        </div>
+      );
+    }
 
     return (
       <div
@@ -61,6 +94,36 @@ export const renderEventContent = (eventInfo, isMobile = false) => {
     const shouldShowCourseName = Boolean(courseNameText);
     const shouldShowInstructor =
       !!instructorText && instructorText.toLowerCase() !== "no instructor";
+
+    if (isListView) {
+      return (
+        <div
+          className={`calendar-list-event-content${isPinned ? " is-pinned" : ""}`}
+        >
+          <div className="calendar-list-event-heading">
+            <span className="calendar-list-event-title">
+              {formatListEventTitle(eventInfo.event.title)}
+            </span>
+            <span className="calendar-list-event-time">
+              {formatListEventTime(startTime, endTime)}
+            </span>
+          </div>
+          {shouldShowCourseName && (
+            <span className="calendar-list-event-course">{courseNameText}</span>
+          )}
+          {shouldShowInstructor && (
+            <span className="calendar-list-event-instructor">
+              {instructorText}
+            </span>
+          )}
+          {isPinned && (
+            <span className="calendar-list-event-pin" title="Pinned section">
+              <Pin className="h-5 w-5" />
+            </span>
+          )}
+        </div>
+      );
+    }
 
     return (
       <div

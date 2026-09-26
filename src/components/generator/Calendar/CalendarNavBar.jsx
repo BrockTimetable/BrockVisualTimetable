@@ -23,11 +23,20 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-// Helper function to format duration display text from Unix timestamps
-const formatDurationText = (duration) => {
+// Keep the stored duration value unchanged; these are display-only labels.
+const formatDurationText = (duration, term) => {
   const [startUnix, endUnix, dur] = duration.split("-");
   const startDate = new Date(parseInt(startUnix, 10) * 1000);
   const endDate = new Date(parseInt(endUnix, 10) * 1000);
+
+  if (term === "FW") {
+    const fallWinterLabels = {
+      1: `Full year ${startDate.getFullYear()}–${String(endDate.getFullYear()).slice(-2)}`,
+      2: `Fall ${startDate.getFullYear()}`,
+      3: `Winter ${endDate.getFullYear()}`,
+    };
+    if (fallWinterLabels[dur]) return fallWinterLabels[dur];
+  }
 
   const startMonth = startDate.toLocaleString("default", { month: "short" });
   const endMonth = endDate.toLocaleString("default", { month: "short" });
@@ -50,16 +59,23 @@ export default function CalendarNavBar({
   setSelectedDuration,
   durations,
   sortByBracketContent,
+  term,
+  isMobile,
 }) {
+  const hasMultipleTimetables = timetables.length > 1;
+  const showStepButtons = !isMobile || hasMultipleTimetables;
+  const showJumpButtons = !isMobile;
   const navButtonClassName =
-    "bg-red-600 text-white hover:bg-red-700 disabled:bg-red-600/40 transition-none";
+    "border border-border bg-background text-foreground hover:bg-accent disabled:opacity-40 transition-none";
   const infoButtonBaseClassName =
     "transition-colors disabled:opacity-50 focus-visible:ring-0 focus-visible:ring-offset-0 hover:bg-accent/60";
 
   return (
     <div
       id="calendarNavBar"
-      className="flex h-auto items-center px-3 py-3 sm:px-4"
+      className={`flex h-auto items-center gap-3 px-3 py-3 sm:px-4 ${
+        isMobile ? "calendar-nav-mobile" : ""
+      }`}
     >
       <div
         id="infoButtonBox"
@@ -79,7 +95,7 @@ export default function CalendarNavBar({
               </Button>
             </PopoverTrigger>
             <PopoverContent align="start" sideOffset={8}>
-              <div className="space-y-2 text-sm">
+              <div className="workspace-body space-y-2">
                 <div className="font-medium">Truncated Results</div>
                 <p className="text-muted-foreground">
                   The generated schedule results are truncated because the input
@@ -100,14 +116,14 @@ export default function CalendarNavBar({
                 type="button"
                 variant="ghost"
                 size="icon"
-                className={`${infoButtonBaseClassName} text-red-600 hover:text-red-600`}
+                className={`${infoButtonBaseClassName} text-amber-700 hover:text-amber-700 dark:text-amber-400 dark:hover:text-amber-400`}
                 aria-label="View no timetables generated info"
               >
                 <CircleX className="h-4 w-4" />
               </Button>
             </PopoverTrigger>
             <PopoverContent align="start" sideOffset={8}>
-              <div className="space-y-2 text-sm">
+              <div className="workspace-body space-y-2">
                 <div className="font-medium">No Timetables Generated</div>
                 <p className="text-muted-foreground">
                   This can happen if a course is not offered for this duration
@@ -126,7 +142,7 @@ export default function CalendarNavBar({
             type="button"
             variant="ghost"
             size="icon"
-            className={`${infoButtonBaseClassName} text-red-600 hover:text-red-600`}
+            className={`${infoButtonBaseClassName} text-destructive hover:text-destructive`}
             aria-label="View schedule conflict details"
             onClick={() => eventBus.emit("openConflictDialog")}
           >
@@ -147,7 +163,7 @@ export default function CalendarNavBar({
               </Button>
             </PopoverTrigger>
             <PopoverContent align="start" sideOffset={8}>
-              <div className="space-y-2 text-sm">
+              <div className="workspace-body space-y-2">
                 <div className="font-medium">
                   Time Block Constraint Course Overlap
                 </div>
@@ -163,64 +179,84 @@ export default function CalendarNavBar({
           </Popover>
         )}
       </div>
-      <div
-        id="calendarNavButtons"
-        className="order-2 flex flex-none items-center justify-center whitespace-nowrap sm:flex-1"
-      >
-        <div className="mr-1">
-          <Button
-            onClick={handleFirst}
-            disabled={timetables.length <= 1}
-            size="icon"
-            className={navButtonClassName}
-          >
-            <ChevronsLeft className="h-5 w-5" />
-          </Button>
-        </div>
-        <div className="mr-2">
-          <Button
-            onClick={handlePrevious}
-            disabled={timetables.length <= 1}
-            size="icon"
-            className={navButtonClassName}
-          >
-            <ChevronLeft className="h-5 w-5" />
-          </Button>
-        </div>
+      {(!isMobile || hasMultipleTimetables) && (
         <div
-          id="calendarTimetableNumber"
-          className="min-w-[80px] flex-[0_1_auto] text-center text-sm font-medium text-foreground"
+          id="calendarNavButtons"
+          className="order-2 flex flex-none items-center justify-center whitespace-nowrap sm:flex-1"
         >
-          {currentTimetableIndex + 1} of {timetables.length}
-        </div>
-        <div className="ml-2">
-          <Button
-            onClick={handleNext}
-            disabled={timetables.length <= 1}
-            size="icon"
-            className={navButtonClassName}
+          {showJumpButtons && (
+            <div>
+              <Button
+                aria-label="First schedule"
+                onClick={handleFirst}
+                disabled={timetables.length <= 1}
+                size="icon"
+                variant="outline"
+                className={navButtonClassName}
+              >
+                <ChevronsLeft className="h-5 w-5" />
+              </Button>
+            </div>
+          )}
+          {showStepButtons && (
+            <div>
+              <Button
+                aria-label="Previous schedule"
+                onClick={handlePrevious}
+                disabled={timetables.length <= 1}
+                size="icon"
+                variant="outline"
+                className={navButtonClassName}
+              >
+                <ChevronLeft className="h-5 w-5" />
+              </Button>
+            </div>
+          )}
+          <div
+            id="calendarTimetableNumber"
+            className="workspace-body min-w-[80px] flex-[0_1_auto] text-center font-medium text-foreground"
           >
-            <ChevronRight className="h-5 w-5" />
-          </Button>
+            {timetables.length > 0
+              ? `${currentTimetableIndex + 1} of ${timetables.length}`
+              : "No schedules yet"}
+          </div>
+          {showStepButtons && (
+            <div>
+              <Button
+                aria-label="Next schedule"
+                onClick={handleNext}
+                disabled={timetables.length <= 1}
+                size="icon"
+                variant="outline"
+                className={navButtonClassName}
+              >
+                <ChevronRight className="h-5 w-5" />
+              </Button>
+            </div>
+          )}
+          {showJumpButtons && (
+            <div>
+              <Button
+                aria-label="Last schedule"
+                onClick={handleLast}
+                disabled={timetables.length <= 1}
+                size="icon"
+                variant="outline"
+                className={navButtonClassName}
+              >
+                <ChevronsRight className="h-5 w-5" />
+              </Button>
+            </div>
+          )}
         </div>
-        <div className="ml-1">
-          <Button
-            onClick={handleLast}
-            disabled={timetables.length <= 1}
-            size="icon"
-            className={navButtonClassName}
-          >
-            <ChevronsRight className="h-5 w-5" />
-          </Button>
-        </div>
-      </div>
+      )}
       <div
         id="durationFormBox"
-        className="order-3 flex flex-none justify-center py-1 sm:flex-1 sm:justify-end sm:pr-1"
+        className="order-3 flex flex-none justify-center sm:flex-1 sm:justify-end"
       >
         <Select value={selectedDuration} onValueChange={setSelectedDuration}>
           <SelectTrigger
-            className="duration-select w-auto"
+            className="duration-select w-auto gap-4"
             aria-label="Duration"
           >
             <SelectValue placeholder="Duration" />
@@ -228,7 +264,7 @@ export default function CalendarNavBar({
           <SelectContent>
             {sortByBracketContent(durations).map((duration, index) => (
               <SelectItem key={index} value={duration}>
-                {formatDurationText(duration)}
+                {formatDurationText(duration, term)}
               </SelectItem>
             ))}
           </SelectContent>
@@ -253,4 +289,6 @@ CalendarNavBar.propTypes = {
   setSelectedDuration: PropTypes.func.isRequired,
   durations: PropTypes.arrayOf(PropTypes.string).isRequired,
   sortByBracketContent: PropTypes.func.isRequired,
+  term: PropTypes.string,
+  isMobile: PropTypes.bool,
 };

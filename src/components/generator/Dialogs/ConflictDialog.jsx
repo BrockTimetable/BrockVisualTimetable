@@ -227,7 +227,7 @@ export default function ConflictDialog({
     <>
       <div className="space-y-1">
         <div className="flex items-center gap-2 text-base font-semibold">
-          <AlertTriangle className="h-5 w-5 shrink-0 text-red-600" />
+          <AlertTriangle className="h-5 w-5 shrink-0 text-amber-600" />
           Unavoidable Schedule Conflict
         </div>
         <p className="text-sm text-muted-foreground">
@@ -237,14 +237,14 @@ export default function ConflictDialog({
         </p>
       </div>
 
-      <div className="rounded-md border border-red-200 bg-red-50 p-2.5 dark:border-red-900/50 dark:bg-red-950/30">
+      <div className="rounded-md border border-amber-200 bg-amber-50 p-2.5 dark:border-amber-900/50 dark:bg-amber-950/30">
         <ul className="space-y-2 text-sm text-muted-foreground">
           {pairs.map((pair, index) => (
             <li key={index} className="leading-snug">
               <div className="font-medium text-foreground">
                 {formatComponent(pair.a)}
               </div>
-              <div className="text-xs uppercase tracking-wide text-red-600 dark:text-red-400">
+              <div className="text-xs font-medium tracking-wide text-amber-700 dark:text-amber-400">
                 overlaps
               </div>
               <div className="font-medium text-foreground">
@@ -295,7 +295,7 @@ export default function ConflictDialog({
             width: anchor.width + 8,
             height: anchor.height + 8,
             boxShadow: "0 0 0 9999px rgba(0, 0, 0, 0.7)",
-            border: "2px solid #dc2626",
+            border: "2px solid hsl(24 86% 52%)",
           }}
         />
       ) : (

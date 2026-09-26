@@ -17,8 +17,8 @@ export default function CourseOptions({
   selectsDisabled,
 }) {
   return (
-    <BorderBox title="Course Options">
-      <div className="space-y-3">
+    <BorderBox title="Add courses">
+      <div className="space-y-2">
         <TimeTableSelectComponent
           timetable={timetableType}
           onTableChange={handleTableChange}

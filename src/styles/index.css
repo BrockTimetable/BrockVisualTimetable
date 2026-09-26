@@ -4,50 +4,55 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 47.4% 11.2%;
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --type-page-title: 1.125rem;
+    --type-section-title: 1rem;
+    --type-body: 0.875rem;
+    --type-meta: 0.75rem;
+    --type-calendar-compact: 0.6875rem;
+    --background: 220 20% 97%;
+    --foreground: 222 32% 14%;
+    --muted: 220 16% 94%;
+    --muted-foreground: 220 10% 44%;
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 47.4% 11.2%;
-    --card: 0 0% 96%;
-    --card-foreground: 222.2 47.4% 11.2%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --primary: 0 72% 50%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-    --ring: 215 20.2% 65.1%;
-    --radius: 0.5rem;
+    --popover-foreground: 222 32% 14%;
+    --card: 0 0% 100%;
+    --card-foreground: 222 32% 14%;
+    --border: 220 14% 88%;
+    --input: 220 14% 84%;
+    --primary: 4 66% 46%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 220 16% 94%;
+    --secondary-foreground: 222 32% 14%;
+    --accent: 220 18% 92%;
+    --accent-foreground: 222 32% 14%;
+    --destructive: 0 68% 48%;
+    --destructive-foreground: 0 0% 100%;
+    --ring: 4 66% 46%;
+    --radius: 0.625rem;
     --theme-divider-color: hsl(var(--border));
     --theme-outline-color: hsl(var(--ring));
   }
 
   .dark {
-    --background: 0 0% 10%;
-    --foreground: 0 0% 95%;
-    --muted: 0 0% 18%;
-    --muted-foreground: 0 0% 65%;
-    --popover: 0 0% 12%;
-    --popover-foreground: 0 0% 95%;
-    --card: 0 0% 12%;
-    --card-foreground: 0 0% 95%;
-    --border: 0 0% 24%;
-    --input: 0 0% 24%;
-    --primary: 0 72% 50%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 0 0% 20%;
-    --secondary-foreground: 0 0% 92%;
-    --accent: 0 0% 24%;
-    --accent-foreground: 0 0% 92%;
-    --destructive: 0 65% 38%;
-    --destructive-foreground: 0 0% 98%;
-    --ring: 0 0% 45%;
+    --background: 30 7% 9%;
+    --foreground: 36 22% 92%;
+    --muted: 30 6% 14%;
+    --muted-foreground: 30 8% 65%;
+    --popover: 30 7% 12%;
+    --popover-foreground: 36 22% 92%;
+    --card: 30 7% 12%;
+    --card-foreground: 36 22% 92%;
+    --border: 30 8% 23%;
+    --input: 30 8% 27%;
+    --primary: 4 58% 58%;
+    --primary-foreground: 30 7% 9%;
+    --secondary: 30 7% 17%;
+    --secondary-foreground: 36 22% 92%;
+    --accent: 30 8% 20%;
+    --accent-foreground: 36 22% 92%;
+    --destructive: 3 52% 57%;
+    --destructive-foreground: 30 7% 9%;
+    --ring: 4 58% 58%;
     --theme-divider-color: hsl(var(--border));
     --theme-outline-color: hsl(var(--ring));
   }
@@ -59,6 +64,58 @@
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground antialiased;
+    font-family:
+      Inter,
+      ui-sans-serif,
+      system-ui,
+      -apple-system,
+      BlinkMacSystemFont,
+      "Segoe UI",
+      sans-serif;
+  }
+}
+
+@layer components {
+  .workspace-surface {
+    @apply rounded-xl border border-border/80 bg-card shadow-sm;
+  }
+
+  .workspace-section {
+    @apply border-b border-border/70 px-4 py-4 last:border-b-0;
+  }
+
+  .workspace-section-body {
+    @apply mt-3;
+  }
+
+  .workspace-section-title {
+    font-size: var(--type-section-title);
+    @apply leading-5 font-semibold tracking-tight text-foreground;
+  }
+
+  .workspace-section-description {
+    font-size: var(--type-body);
+    @apply m-0 leading-5 text-muted-foreground;
+  }
+
+  .workspace-page-title {
+    font-size: var(--type-page-title);
+    @apply leading-6 font-semibold tracking-tight text-foreground;
+  }
+
+  .workspace-card-title {
+    font-size: var(--type-body);
+    @apply leading-5 font-semibold text-foreground;
+  }
+
+  .workspace-body {
+    font-size: var(--type-body);
+    @apply leading-5;
+  }
+
+  .workspace-meta {
+    font-size: var(--type-meta);
+    @apply leading-4;
   }
 }
