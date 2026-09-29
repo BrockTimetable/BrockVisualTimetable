@@ -34,9 +34,10 @@ export default function ShareTimetableButton({ timetables, onShareComplete }) {
     timetables.length > 0 && (timetables[0]?.courses?.length ?? 0) > 0;
 
   const handleShare = async () => {
+    const timetableUrl = window.location.href;
     try {
-      await copyToClipboard(window.location.href);
-      onShareComplete?.();
+      await copyToClipboard(timetableUrl);
+      onShareComplete?.(timetableUrl);
       enqueueSnackbar(
         <MultiLineSnackbar
           className="text-center"

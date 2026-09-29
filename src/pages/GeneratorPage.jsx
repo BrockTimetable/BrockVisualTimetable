@@ -108,6 +108,7 @@ function GeneratorPageContent() {
   const [conflictDialogOpen, setConflictDialogOpen] = useState(false);
   const conflictInfoRef = useRef(null);
   const acknowledgedRef = useRef(null);
+  const copiedTimetableStateRef = useRef(null);
 
   // Capture the shared-state param synchronously at first render. The URL sync
   // effect runs before the restore effect on mount and (with no courses yet)
@@ -127,6 +128,32 @@ function GeneratorPageContent() {
   );
 
   const currentTimetable = timetables[currentTimetableIndex] ?? null;
+
+  // Suppress the close warning after a successful button copy while the copied
+  // link still matches the live timetable state. The URL's `s` parameter is the
+  // shared snapshot; manual copying from the address bar can't be detected.
+  useEffect(() => {
+    if (!currentTimetable?.courses?.length) return undefined;
+
+    const handleBeforeUnload = (event) => {
+      const currentTimetableState = new URL(
+        window.location.href,
+      ).searchParams.get("s");
+      const copiedTimetableState = copiedTimetableStateRef.current;
+      if (
+        copiedTimetableState !== null &&
+        copiedTimetableState === currentTimetableState
+      ) {
+        return;
+      }
+
+      event.preventDefault();
+      event.returnValue = "";
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [currentTimetable]);
 
   useEffect(() => {
     setShareComplete(false);
@@ -486,7 +513,12 @@ function GeneratorPageContent() {
                   timetables={timetables}
                   durations={durations}
                   sortOption={sortOption}
-                  onShareComplete={() => setShareComplete(true)}
+                  onShareComplete={(timetableUrl) => {
+                    copiedTimetableStateRef.current = new URL(
+                      timetableUrl,
+                    ).searchParams.get("s");
+                    setShareComplete(true);
+                  }}
                   onExportComplete={() => setShareComplete(true)}
                 />
               </div>
