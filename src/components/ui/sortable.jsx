@@ -121,9 +121,6 @@ function Sortable(props) {
   const onDragStart = React.useCallback(
     (event) => {
       onDragStartProp?.(event);
-
-      if (event.activatorEvent.defaultPrevented) return;
-
       setActiveId(event.active.id);
     },
     [onDragStartProp],
@@ -132,8 +129,6 @@ function Sortable(props) {
   const onDragEnd = React.useCallback(
     (event) => {
       onDragEndProp?.(event);
-
-      if (event.activatorEvent.defaultPrevented) return;
 
       const { active, over } = event;
       if (over && active.id !== over?.id) {
@@ -158,9 +153,6 @@ function Sortable(props) {
   const onDragCancel = React.useCallback(
     (event) => {
       onDragCancelProp?.(event);
-
-      if (event.activatorEvent.defaultPrevented) return;
-
       setActiveId(null);
     },
     [onDragCancelProp],
