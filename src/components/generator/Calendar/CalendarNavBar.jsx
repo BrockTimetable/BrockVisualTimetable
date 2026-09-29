@@ -1,6 +1,7 @@
 import PropTypes from "prop-types";
 import {
   AlertTriangle,
+  CalendarPlus,
   ChevronLeft,
   ChevronRight,
   ChevronsLeft,
@@ -61,6 +62,7 @@ export default function CalendarNavBar({
   sortByBracketContent,
   term,
   isMobile,
+  onBlockTime,
 }) {
   const hasMultipleTimetables = timetables.length > 1;
   const showStepButtons = !isMobile || hasMultipleTimetables;
@@ -269,6 +271,17 @@ export default function CalendarNavBar({
             ))}
           </SelectContent>
         </Select>
+        {isMobile && (
+          <Button
+            type="button"
+            variant="outline"
+            className="mobile-block-time-button h-10 shrink-0 gap-1.5 px-3"
+            onClick={onBlockTime}
+          >
+            <CalendarPlus aria-hidden="true" className="h-4 w-4" />
+            <span>Block time</span>
+          </Button>
+        )}
       </div>
     </div>
   );
@@ -291,4 +304,5 @@ CalendarNavBar.propTypes = {
   sortByBracketContent: PropTypes.func.isRequired,
   term: PropTypes.string,
   isMobile: PropTypes.bool,
+  onBlockTime: PropTypes.func,
 };

@@ -8,8 +8,9 @@ import React, {
 import PropTypes from "prop-types";
 import FullCalendar from "@fullcalendar/react";
 import { useSnackbar } from "notistack";
-import { CalendarDays, Plus } from "lucide-react";
+import { CalendarDays, CalendarPlus, Plus } from "lucide-react";
 import CalendarNavBar from "./CalendarNavBar";
+import MobileTimeBlockSheet from "./MobileTimeBlockSheet";
 import BorderBox from "../UI/BorderBox";
 import RenameBlockedSlotDialog from "../Dialogs/RenameBlockedSlotDialog";
 import { Button } from "@/components/ui/button";
@@ -40,6 +41,8 @@ import {
   handleCourseComponentClick,
   handleTimeBlockRemoval,
   handleCalendarSelection,
+  handleTimeBlockCreation,
+  handleTimeBlockUpdate,
   handleBlockedSlotRename,
 } from "./utils/eventHandlerUtils.js";
 import { useTouchEvents } from "./hooks/useTouchEvents.js";
@@ -88,6 +91,8 @@ export default function CalendarComponent({
   const [renameDialogOpen, setRenameDialogOpen] = useState(false);
   const [blockToRename, setBlockToRename] = useState(null);
   const [blockToRemove, setBlockToRemove] = useState(null);
+  const [blockToEdit, setBlockToEdit] = useState(null);
+  const [blockSheetOpen, setBlockSheetOpen] = useState(false);
   const [renameAnchorEl, setRenameAnchorEl] = useState(null);
   const [renameAnchorPosition, setRenameAnchorPosition] = useState(null);
   const [selectionPreviewEvents, setSelectionPreviewEvents] = useState([]);
@@ -482,8 +487,60 @@ export default function CalendarComponent({
       const blockEvent = getTimeBlockEvents().find(
         (block) => block.id === blockId,
       );
-      if (blockEvent) setBlockToRemove(blockEvent);
+      if (!blockEvent) return;
+
+      if (isMobile) {
+        setBlockToEdit(blockEvent);
+        setBlockSheetOpen(true);
+      } else {
+        setBlockToRemove(blockEvent);
+      }
     }
+  };
+
+  const handleMobileTimeBlockSave = (block) => {
+    if (blockToEdit) {
+      handleTimeBlockUpdate(
+        blockToEdit.id,
+        block,
+        setCurrentTimetableIndex,
+        setTimetables,
+        sortOption,
+        onTimeBlockChange,
+      );
+      enqueueSnackbar("Weekly time updated", { variant: "success" });
+      return;
+    }
+
+    handleTimeBlockCreation(
+      block,
+      setCurrentTimetableIndex,
+      setTimetables,
+      sortOption,
+      onTimeBlockChange,
+    );
+    enqueueSnackbar("Weekly time blocked", { variant: "success" });
+  };
+
+  const handleMobileTimeBlockDelete = (block) => {
+    handleTimeBlockRemoval(
+      { event: { id: `block-${block.id}` } },
+      setCurrentTimetableIndex,
+      setTimetables,
+      sortOption,
+      onTimeBlockChange,
+    );
+    enqueueSnackbar("Blocked time removed", { variant: "success" });
+  };
+
+  const openCreateBlockSheet = () => {
+    setBlockToEdit(null);
+    setBlockSheetOpen(true);
+  };
+
+  const handleBlockSheetOpenChange = (open) => {
+    setBlockSheetOpen(open);
+    if (!open) setBlockToEdit(null);
   };
 
   const handleBlockRemovalConfirm = () => {
@@ -647,6 +704,17 @@ export default function CalendarComponent({
               <Plus aria-hidden="true" />
               Add a course
             </Button>
+            {isMobile && (
+              <Button
+                type="button"
+                variant="ghost"
+                className="mt-2"
+                onClick={openCreateBlockSheet}
+              >
+                <CalendarPlus aria-hidden="true" />
+                Block time
+              </Button>
+            )}
           </div>
         ) : (
           <div className="calendar-shell">
@@ -667,6 +735,7 @@ export default function CalendarComponent({
               sortByBracketContent={sortByBracketContent}
               term={term}
               isMobile={isMobile}
+              onBlockTime={openCreateBlockSheet}
             />
             <div className="calendar-shell-divider" aria-hidden="true" />
 
@@ -686,6 +755,16 @@ export default function CalendarComponent({
               })}
             />
           </div>
+        )}
+
+        {isMobile && (
+          <MobileTimeBlockSheet
+            open={blockSheetOpen}
+            block={blockToEdit}
+            onOpenChange={handleBlockSheetOpenChange}
+            onSubmit={handleMobileTimeBlockSave}
+            onDelete={handleMobileTimeBlockDelete}
+          />
         )}
 
         <RenameBlockedSlotDialog

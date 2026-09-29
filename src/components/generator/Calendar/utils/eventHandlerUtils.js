@@ -114,6 +114,135 @@ export const handleBlockedSlotRename = (
   onTimeBlockChange?.();
 };
 
+const getSlotFromTime = (time) => {
+  const [hours, minutes] = time.split(":").map(Number);
+  return (hours - 8) * 2 + minutes / 30;
+};
+
+const formatTimeFromSlot = (slot) =>
+  `${Math.floor(slot / 2) + 8}:${slot % 2 === 0 ? "00" : "30"}`;
+
+const addTimeBlocks = (
+  days,
+  slotStart,
+  slotEnd,
+  title = "",
+  uniqueIds = false,
+) => {
+  const newBlockIds = [];
+
+  days.forEach((day) => {
+    const existingBlocks = getTimeBlockEvents();
+    let combinedSlotStart = slotStart;
+    let combinedSlotEnd = slotEnd;
+    const blocksToRemove = [];
+
+    for (const block of existingBlocks) {
+      if (block.daysOfWeek.trim() !== day) continue;
+
+      const existingSlotStart = getSlotFromTime(block.startTime);
+      const existingSlotEnd = getSlotFromTime(block.endTime);
+      if (!(slotStart >= existingSlotEnd || slotEnd <= existingSlotStart)) {
+        combinedSlotStart = Math.min(combinedSlotStart, existingSlotStart);
+        combinedSlotEnd = Math.max(combinedSlotEnd, existingSlotEnd);
+        blocksToRemove.push(block.id);
+      }
+    }
+
+    const slotsToBlock = Array.from(
+      { length: combinedSlotEnd - combinedSlotStart },
+      (_, index) => combinedSlotStart + index,
+    );
+    setBlockedTimeSlots({ [day]: slotsToBlock });
+    blocksToRemove.forEach(removeTimeBlockEvent);
+
+    const blockId = uniqueIds
+      ? `${Date.now()}-${day}-${Math.random().toString(36).slice(2, 8)}`
+      : `${Date.now()}-${day}`;
+    addTimeBlockEvent({
+      id: blockId,
+      title,
+      daysOfWeek: day,
+      startTime: formatTimeFromSlot(combinedSlotStart),
+      endTime: formatTimeFromSlot(combinedSlotEnd),
+      startRecur: "1970-01-01",
+      endRecur: "9999-12-31",
+    });
+    newBlockIds.push(blockId);
+  });
+
+  return newBlockIds;
+};
+
+export const handleTimeBlockCreation = (
+  { days, startTime, endTime, title = "" },
+  setCurrentTimetableIndex,
+  setTimetables,
+  sortOption,
+  onTimeBlockChange,
+) => {
+  const slotStart = getSlotFromTime(startTime);
+  const slotEnd = getSlotFromTime(endTime);
+  if (
+    !days?.length ||
+    !Number.isFinite(slotStart) ||
+    !Number.isFinite(slotEnd) ||
+    slotStart < 0 ||
+    slotEnd > 28 ||
+    slotEnd <= slotStart
+  ) {
+    return;
+  }
+
+  addTimeBlocks(days, slotStart, slotEnd, title.trim(), true);
+  setCurrentTimetableIndex(0);
+  generateTimetables(sortOption);
+  setTimetables(getValidTimetables());
+  onTimeBlockChange?.();
+};
+
+export const handleTimeBlockUpdate = (
+  blockId,
+  { days, startTime, endTime, title = "" },
+  setCurrentTimetableIndex,
+  setTimetables,
+  sortOption,
+  onTimeBlockChange,
+) => {
+  const block = getTimeBlockEvents().find(
+    (timeBlock) => timeBlock.id === blockId,
+  );
+  const slotStart = getSlotFromTime(startTime);
+  const slotEnd = getSlotFromTime(endTime);
+  if (
+    !block ||
+    !days?.length ||
+    !Number.isFinite(slotStart) ||
+    !Number.isFinite(slotEnd) ||
+    slotStart < 0 ||
+    slotEnd > 28 ||
+    slotEnd <= slotStart
+  ) {
+    return;
+  }
+
+  const previousStart = getSlotFromTime(block.startTime);
+  const previousEnd = getSlotFromTime(block.endTime);
+  setOpenTimeSlots({
+    [block.daysOfWeek.trim()]: Array.from(
+      { length: previousEnd - previousStart },
+      (_, index) => previousStart + index,
+    ),
+  });
+  removeTimeBlockEvent(blockId);
+  addTimeBlocks(days, slotStart, slotEnd, title.trim(), true);
+
+  setCurrentTimetableIndex(0);
+  generateTimetables(sortOption);
+  setTimetables(getValidTimetables());
+  onTimeBlockChange?.();
+};
+
 // Extract the complex logic for handling calendar selection
 export const handleCalendarSelection = (
   selectInfo,
@@ -143,69 +272,7 @@ export const handleCalendarSelection = (
   const days = getSelectionDayCodes(startDateTime, endDateTime);
 
   if (days.length > 0) {
-    const slotsToBlock = [];
-    for (let i = slotStart; i <= slotEnd - 1; i++) {
-      slotsToBlock.push(i);
-    }
-
-    // Track all newly created block IDs
-    const newBlockIds = [];
-
-    // Handle each day separately
-    days.forEach((day) => {
-      const existingBlocks = getTimeBlockEvents();
-      let combinedSlotStart = slotStart;
-      let combinedSlotEnd = slotEnd;
-      let blocksToRemove = [];
-
-      for (let block of existingBlocks) {
-        if (block.daysOfWeek.trim() === day) {
-          const existingStartParts = block.startTime.split(":");
-          const existingSlotStart =
-            (parseInt(existingStartParts[0]) - 8) * 2 +
-            parseInt(existingStartParts[1]) / 30;
-          const existingEndParts = block.endTime.split(":");
-          const existingSlotEnd =
-            (parseInt(existingEndParts[0]) - 8) * 2 +
-            parseInt(existingEndParts[1]) / 30;
-
-          if (!(slotStart >= existingSlotEnd || slotEnd <= existingSlotStart)) {
-            combinedSlotStart = Math.min(combinedSlotStart, existingSlotStart);
-            combinedSlotEnd = Math.max(combinedSlotEnd, existingSlotEnd);
-            blocksToRemove.push(block.id);
-          }
-        }
-      }
-
-      const combinedSlots = [];
-      for (let i = combinedSlotStart; i < combinedSlotEnd; i++) {
-        combinedSlots.push(i);
-      }
-
-      const combinedSlotsObject = { [day]: combinedSlots };
-      setBlockedTimeSlots(combinedSlotsObject);
-
-      for (let blockId of blocksToRemove) {
-        removeTimeBlockEvent(blockId);
-      }
-
-      const blockId = Date.now().toString() + "-" + day;
-      const block = {
-        id: blockId,
-        title: "", // Empty title initially, will be set by rename dialog
-        daysOfWeek: day,
-        startTime: `${Math.floor(combinedSlotStart / 2) + 8}:${
-          combinedSlotStart % 2 === 0 ? "00" : "30"
-        }`,
-        endTime: `${Math.floor(combinedSlotEnd / 2) + 8}:${
-          combinedSlotEnd % 2 === 0 ? "00" : "30"
-        }`,
-        startRecur: "1970-01-01",
-        endRecur: "9999-12-31",
-      };
-      addTimeBlockEvent(block);
-      newBlockIds.push(blockId);
-    });
+    const newBlockIds = addTimeBlocks(days, slotStart, slotEnd);
 
     // Show rename dialog once for all newly created blocks
     if (newBlockIds.length > 0) {
