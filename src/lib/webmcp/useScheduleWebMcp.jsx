@@ -242,15 +242,15 @@ export function useScheduleWebMcp({
   const rankVisibleCandidates = (candidates, preferences) =>
     visibleCandidates(rankScheduleOptions(candidates, preferences));
 
-  const syncSelectedTimetable = (timetable) => {
+  const syncSelectedTimetable = (currentTimetableIndex) => {
     syncUrlToState({
-      currentTimetable: timetable,
       addedCourses: stateRef.current.addedCourses,
       sortOption: stateRef.current.sortOption,
+      currentTimetableIndex,
       timetableType: stateRef.current.timetableType,
       term: stateRef.current.term,
       timeBlockEvents: getTimeBlockEvents(),
-      selectedDuration: "",
+      selectedDuration: stateRef.current.selectedDuration,
       courseColors: courseColorsRef.current,
     });
   };
@@ -265,7 +265,7 @@ export function useScheduleWebMcp({
     setTimetables(visible);
     setCurrentTimetableIndex(0);
     selectedIdRef.current = ranked[0]?.id || null;
-    if (ranked[0]) syncSelectedTimetable(ranked[0].timetable);
+    if (ranked[0]) syncSelectedTimetable(0);
     return ranked;
   };
 
@@ -899,7 +899,7 @@ export function useScheduleWebMcp({
           );
           setTimetables(stateRef.current.timetables);
           setCurrentTimetableIndex(visibleIndex);
-          syncSelectedTimetable(candidate.timetable);
+          syncSelectedTimetable(visibleIndex);
           return {
             selectedOption: describeOption(
               optionId,
@@ -954,8 +954,25 @@ export function useScheduleWebMcp({
             candidateById(optionId || selectedIdRef.current) ||
             candidatesRef.current[0];
           if (!candidate) throw new Error("There is no schedule to export.");
-          syncSelectedTimetable(candidate.timetable);
           if (format === "shareLink") {
+            const visible = rankVisibleCandidates(
+              candidatesRef.current,
+              preferencesRef.current,
+            );
+            const visibleIndex = visible.findIndex(
+              (option) => option.id === candidate.id,
+            );
+            if (visibleIndex < 0)
+              throw new Error(
+                "That option is not distinct in the current calendar view. Search again.",
+              );
+            stateRef.current.timetables = visible.map(
+              (option) => option.timetable,
+            );
+            setTimetables(stateRef.current.timetables);
+            setCurrentTimetableIndex(visibleIndex);
+            selectedIdRef.current = candidate.id;
+            syncSelectedTimetable(visibleIndex);
             return {
               exportedOptionId: candidate.id,
               shareLink: window.location.href,

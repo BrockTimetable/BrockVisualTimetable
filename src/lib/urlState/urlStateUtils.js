@@ -1,27 +1,23 @@
 import { encodeState } from "./urlEncoder";
 import { defaultColorForIndex } from "@/lib/contexts/generator/courseColorPalette";
+import { getPinnedComponents } from "@/lib/generator/pinnedComponents";
 
 /*
 Helpers that bridge the live generator state (singletons + React) and the URL
-codec. The URL always encodes a "fully pinned" snapshot of the currently
-displayed timetable so that every shared link is deterministic.
+codec. Shared links preserve the user's constraints and selected timetable
+position, allowing the recipient to browse the same sorted set of options.
 */
 
-// Section IDs that uniquely identify the currently displayed timetable. The
-// -1/-2 suffixes that exist only for FullCalendar event uniqueness are stripped,
-// and a Set dedupes the shared base id of multi-main sections.
-export function extractCurrentTimetablePinIds(timetable) {
-  if (!timetable?.courses) return [];
+// Persist only explicit section pins. Course duration requirements are already
+// represented by the course labels (e.g. "COSC 1P02 D2").
+export function extractPinnedSectionIds(
+  pinnedComponents = getPinnedComponents(),
+) {
+  const sectionPinTypes = new Set(["MAIN", "LAB", "TUT", "SEM"]);
   const ids = new Set();
-  timetable.courses.forEach((course) => {
-    course.mainComponents?.forEach((c) => {
-      const baseId = c.id.includes("-") ? c.id.split("-")[0] : c.id;
-      ids.add(baseId);
-    });
-    const sec = course.secondaryComponents;
-    if (sec?.lab) ids.add(sec.lab.id);
-    if (sec?.tutorial) ids.add(sec.tutorial.id);
-    if (sec?.seminar) ids.add(sec.seminar.id);
+  pinnedComponents.forEach((pin) => {
+    const [, type, id] = pin.trim().split(/\s+/);
+    if (sectionPinTypes.has(type) && /^\d+$/.test(id || "")) ids.add(id);
   });
   return [...ids];
 }
@@ -86,9 +82,9 @@ export function buildDurationLabel(courseData, durationCode) {
 // are no courses. Uses history.replaceState (never pushState) so the back button
 // never walks through timetable states.
 export function syncUrlToState({
-  currentTimetable,
   addedCourses,
   sortOption,
+  currentTimetableIndex,
   timetableType,
   term,
   timeBlockEvents,
@@ -126,11 +122,12 @@ export function syncUrlToState({
   });
 
   const state = {
-    v: 2,
+    v: 3,
     tt: timetableType,
     term,
     c: addedCourses,
-    p: extractCurrentTimetablePinIds(currentTimetable),
+    p: extractPinnedSectionIds(),
+    i: currentTimetableIndex,
     sort: sortMap[sortOption],
     tb: timeBlockEvents.map((b) => ({
       d: b.daysOfWeek.trim(),

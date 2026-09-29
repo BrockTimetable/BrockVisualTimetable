@@ -97,7 +97,7 @@ function GeneratorPageContent() {
   const [timetables, setTimetables] = useState([]);
   const [selectedDuration, setSelectedDuration] = useState("");
   const [durations, setDurations] = useState([]);
-  const [sortOption, setSortOption] = useState("");
+  const [sortOption, setSortOption] = useState("default");
   const [addedCourses, setAddedCourses] = useState([]);
   const [currentTimetableIndex, setCurrentTimetableIndex] = useState(0);
   const [timetableType, setTimetableType] = useState("UG");
@@ -239,17 +239,16 @@ function GeneratorPageContent() {
       setTimetables([]);
       setSelectedDuration("");
       setDurations([]);
-      setSortOption("");
+      setSortOption("default");
     };
   }, []);
 
-  // Keep the URL in sync with the currently displayed timetable. The URL always
-  // encodes a fully pinned snapshot, so every shared link is deterministic.
+  // Keep the URL in sync with the current constraints and selected option.
   useEffect(() => {
     syncUrlToState({
-      currentTimetable,
       addedCourses,
       sortOption,
+      currentTimetableIndex,
       timetableType,
       term,
       timeBlockEvents: getTimeBlockEvents(),
@@ -257,9 +256,9 @@ function GeneratorPageContent() {
       courseColors,
     });
   }, [
-    currentTimetable,
     addedCourses,
     sortOption,
+    currentTimetableIndex,
     timetableType,
     term,
     timeBlockVersion,
@@ -284,7 +283,8 @@ function GeneratorPageContent() {
     restoreCourseColors({});
     setAddedCourses([]);
     setTimetables([]);
-    setSortOption("");
+    setCurrentTimetableIndex(0);
+    setSortOption("default");
     setTimetableType("UG");
     setTerm("FW");
     setSelectedDuration("");
@@ -406,6 +406,9 @@ function GeneratorPageContent() {
       restoreCourseColors(restoredColors);
 
       setTimetables(result);
+      setCurrentTimetableIndex(
+        Math.min(state.i ?? 0, Math.max(0, result.length - 1)),
+      );
     },
     [resetToBlankSlate, showError, restoreCourseColors],
   );
@@ -466,6 +469,7 @@ function GeneratorPageContent() {
                 setTimetables={setTimetables}
                 setSelectedDuration={setSelectedDuration}
                 setDurations={setDurations}
+                sortOption={sortOption}
                 setSortOption={setSortOption}
                 addedCourses={addedCourses}
                 setAddedCourses={setAddedCourses}

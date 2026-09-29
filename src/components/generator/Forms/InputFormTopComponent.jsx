@@ -20,6 +20,7 @@ export default function InputFormTop({
   setTimetables,
   setSelectedDuration,
   setDurations,
+  sortOption = "default",
   setSortOption,
   addedCourses,
   setAddedCourses,
@@ -31,7 +32,6 @@ export default function InputFormTop({
   const { enqueueSnackbar } = useSnackbar();
   const [courseValue, setCourseValue] = useState("");
   const [courseOptions, setCourseOptions] = useState([]);
-  const [sortChoice, setSortChoice] = useState("default");
   const requestBlock = useRef(false);
 
   useEffect(() => {
@@ -228,8 +228,7 @@ export default function InputFormTop({
     const updatedCourseCount = addedCourses.length + 1;
     setAddedCourses([...addedCourses, courseCodeLabel]);
     addPinnedComponent(`${cleanCourseCode} DURATION ${duration}`);
-    setSortOption(sortChoice);
-    generateTimetables(sortChoice);
+    generateTimetables(sortOption);
     const validTimetables = getValidTimetables();
     setTimetables(validTimetables);
 
@@ -253,7 +252,7 @@ export default function InputFormTop({
       trigger: "course_added",
       courseCount: updatedCourseCount,
       resultCount: validTimetables.length,
-      sortOption: sortChoice,
+      sortOption,
       hasResults: validTimetables.length > 0,
     });
   };
@@ -282,7 +281,6 @@ export default function InputFormTop({
   };
 
   const handleSortChange = (value) => {
-    setSortChoice(value);
     setSortOption(value);
     generateTimetables(value);
     setTimetables(getValidTimetables());
@@ -303,7 +301,7 @@ export default function InputFormTop({
         selectsDisabled={addedCourses.length > 0}
       />
       <SortOptions
-        sortChoice={sortChoice}
+        sortChoice={sortOption}
         handleSortChange={handleSortChange}
       />
     </div>
@@ -314,6 +312,7 @@ InputFormTop.propTypes = {
   setTimetables: PropTypes.func.isRequired,
   setSelectedDuration: PropTypes.func.isRequired,
   setDurations: PropTypes.func.isRequired,
+  sortOption: PropTypes.string,
   setSortOption: PropTypes.func.isRequired,
   addedCourses: PropTypes.arrayOf(PropTypes.string).isRequired,
   setAddedCourses: PropTypes.func.isRequired,
