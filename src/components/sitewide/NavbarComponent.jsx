@@ -7,7 +7,7 @@ import {
   useState,
 } from "react";
 import ColorModeContext from "@/lib/contexts/sitewide/ColorModeContext";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useIsMobile } from "@/lib/utils/screenSizeUtils";
 import {
   BookOpen,
@@ -36,6 +36,7 @@ const NavbarComponent = () => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [feedbackOpen, setFeedbackOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
   const desktopNavRef = useRef(null);
   const desktopItemRefs = useRef([]);
   const [indicatorStyle, setIndicatorStyle] = useState(null);
@@ -73,13 +74,28 @@ const NavbarComponent = () => {
     return item.to;
   };
 
-  const getNavState = (item) => {
-    if (item.to === "/guide" && location.pathname === "/") {
-      return {
-        generatorLocation: `${location.pathname}${location.search}${location.hash}`,
-      };
+  const navigateToItem = (item, event) => {
+    if (
+      item.to !== "/guide" ||
+      location.pathname !== "/" ||
+      event.defaultPrevented ||
+      event.button !== 0 ||
+      event.metaKey ||
+      event.altKey ||
+      event.ctrlKey ||
+      event.shiftKey
+    ) {
+      return;
     }
-    return undefined;
+
+    // The generator updates ?s= with history.replaceState, which does not
+    // update React Router's location object. Read the live browser URL at click
+    // time so the guide can return to the latest timetable snapshot.
+    const { pathname, search, hash } = window.location;
+    event.preventDefault();
+    navigate("/guide", {
+      state: { generatorLocation: `${pathname}${search}${hash}` },
+    });
   };
 
   const updateIndicatorFromIndex = useCallback((index) => {
@@ -146,11 +162,13 @@ const NavbarComponent = () => {
             >
               <Link
                 to={getNavTarget(item)}
-                state={getNavState(item)}
                 target={item.newTab ? "_blank" : undefined}
                 rel={item.newTab ? "noopener noreferrer" : undefined}
                 aria-current={isActive ? "page" : undefined}
-                onClick={() => setDrawerOpen(false)}
+                onClick={(event) => {
+                  navigateToItem(item, event);
+                  setDrawerOpen(false);
+                }}
               >
                 <Icon className="mr-2 h-4 w-4" />
                 {item.label}
@@ -261,7 +279,6 @@ const NavbarComponent = () => {
                 >
                   <Link
                     to={getNavTarget(item)}
-                    state={getNavState(item)}
                     target={item.newTab ? "_blank" : undefined}
                     rel={item.newTab ? "noopener noreferrer" : undefined}
                     aria-current={isActive ? "page" : undefined}
@@ -270,6 +287,7 @@ const NavbarComponent = () => {
                     }}
                     onMouseEnter={() => updateIndicatorFromIndex(index)}
                     onFocus={() => updateIndicatorFromIndex(index)}
+                    onClick={(event) => navigateToItem(item, event)}
                   >
                     {item.label}
                   </Link>
