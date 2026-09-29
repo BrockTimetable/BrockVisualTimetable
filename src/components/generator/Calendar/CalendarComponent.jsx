@@ -70,6 +70,9 @@ export default function CalendarComponent({
   const calendarRef = React.useRef(null);
   const timetablesRef = React.useRef(timetables);
   const currentTimetableIndexRef = React.useRef(0);
+  const durationNavigationPendingRef = React.useRef(false);
+  const pendingDurationStartRef = React.useRef("");
+  const navigatedDurationRef = React.useRef("");
   const courseColorsRef = React.useRef({});
   const [events, setEvents] = useState([]);
   const [viewRange, setViewRange] = useState(null);
@@ -142,16 +145,40 @@ export default function CalendarComponent({
     currentTimetableIndexRef.current = currentTimetableIndex;
   }, [currentTimetableIndex]);
 
+  // A restored timetable index belongs to the saved duration's calendar view.
+  // Let FullCalendar finish moving there before validating it against the
+  // visible option count for that view.
   useEffect(() => {
-    if (visibleTimetables.length === 0) return;
+    if (!selectedDuration) {
+      pendingDurationStartRef.current = "";
+      durationNavigationPendingRef.current = false;
+      return;
+    }
+
+    const [startUnix] = selectedDuration.split("-");
+    const startDate = new Date(Number(startUnix) * 1000);
+    const targetDate = calculateNavigationDate(startDate);
+    const targetKey = `${targetDate.getFullYear()}-${targetDate.getMonth()}-${targetDate.getDate()}`;
+    pendingDurationStartRef.current = targetKey;
+
+    const activeStart = calendarRef.current?.getApi?.().view?.activeStart;
+    const activeKey = activeStart
+      ? `${activeStart.getFullYear()}-${activeStart.getMonth()}-${activeStart.getDate()}`
+      : "";
+    durationNavigationPendingRef.current = activeKey !== targetKey;
+  }, [selectedDuration, noCourses, visibleTimetables.length]);
+
+  useEffect(() => {
+    if (
+      visibleTimetables.length === 0 ||
+      durationNavigationPendingRef.current
+    ) {
+      return;
+    }
     if (currentTimetableIndex >= visibleTimetables.length) {
       setCurrentTimetableIndex(0);
     }
-  }, [
-    currentTimetableIndex,
-    visibleTimetables.length,
-    setCurrentTimetableIndex,
-  ]);
+  }, [currentTimetableIndex, visibleTimetables, setCurrentTimetableIndex]);
 
   const handleLast = useCallback(() => {
     if (visibleTimetables.length === 0) return;
@@ -161,7 +188,13 @@ export default function CalendarComponent({
   const updateCalendarEvents = useCallback(() => {
     const currentTimetables = timetablesRef.current;
     const currentIndex = currentTimetableIndexRef.current;
+    const selectedIndex =
+      currentIndex >= currentTimetables.length ? 0 : currentIndex;
     const currentColors = { ...courseColorsRef.current };
+
+    if (selectedIndex !== currentIndex) {
+      setCurrentTimetableIndex(selectedIndex);
+    }
 
     // Ensure all courses have colors
     if (
@@ -177,17 +210,11 @@ export default function CalendarComponent({
     }
 
     if (
-      currentIndex >= currentTimetables.length &&
-      currentTimetables.length > 0
-    ) {
-      handleLast();
-    }
-    if (
       currentTimetables.length > 0 &&
       currentTimetables[0].courses.length > 0
     ) {
       setNoCourses(false);
-      const timetable = currentTimetables[currentIndex];
+      const timetable = currentTimetables[selectedIndex];
 
       // Check if any courses have weekend classes
       const hasWeekendClasses = checkForWeekendClasses(timetable);
@@ -221,7 +248,7 @@ export default function CalendarComponent({
     setEvents,
     setNoCourses,
     setNoTimetablesGenerated,
-    handleLast,
+    setCurrentTimetableIndex,
   ]);
 
   const handleCalendarViewClick = useCallback(
@@ -234,12 +261,34 @@ export default function CalendarComponent({
       const startDate = new Date(parseInt(startUnix, 10) * 1000);
       const navigationDate = calculateNavigationDate(startDate);
 
+      const targetStart = new Date(
+        navigationDate.getFullYear(),
+        navigationDate.getMonth(),
+        navigationDate.getDate(),
+      );
+      const currentStart = calendarApi.view?.activeStart;
+      const alreadyOnTargetWeek =
+        currentStart &&
+        currentStart.getFullYear() === targetStart.getFullYear() &&
+        currentStart.getMonth() === targetStart.getMonth() &&
+        currentStart.getDate() === targetStart.getDate();
+      if (alreadyOnTargetWeek) {
+        durationNavigationPendingRef.current = false;
+      }
+
       // Defer gotoDate to avoid flushSync warning during React render
       queueMicrotask(() => {
         calendarApi.gotoDate(navigationDate);
+        const activeStart = calendarApi.view?.activeStart;
+        if (
+          activeStart &&
+          activeStart.getFullYear() === targetStart.getFullYear() &&
+          activeStart.getMonth() === targetStart.getMonth() &&
+          activeStart.getDate() === targetStart.getDate()
+        ) {
+          durationNavigationPendingRef.current = false;
+        }
       });
-
-      setCurrentTimetableIndex(0);
 
       setSelectedDuration(durationLabel);
 
@@ -249,7 +298,15 @@ export default function CalendarComponent({
         variant: "info",
       });
     },
-    [enqueueSnackbar, setSelectedDuration, setCurrentTimetableIndex],
+    [enqueueSnackbar, setSelectedDuration],
+  );
+
+  const handleDurationChange = useCallback(
+    (durationLabel) => {
+      setCurrentTimetableIndex(0);
+      setSelectedDuration(durationLabel);
+    },
+    [setCurrentTimetableIndex, setSelectedDuration],
   );
 
   useEffect(() => {
@@ -262,10 +319,22 @@ export default function CalendarComponent({
   }, [currentTimetableIndex, visibleTimetables, updateCalendarEvents]);
 
   useEffect(() => {
-    if (selectedDuration) {
-      handleCalendarViewClick(selectedDuration);
+    if (!selectedDuration) {
+      navigatedDurationRef.current = "";
+      durationNavigationPendingRef.current = false;
+      return;
     }
-  }, [selectedDuration, handleCalendarViewClick]);
+    if (navigatedDurationRef.current === selectedDuration) return;
+    if (!calendarRef.current?.getApi?.()) return;
+
+    navigatedDurationRef.current = selectedDuration;
+    handleCalendarViewClick(selectedDuration);
+  }, [
+    selectedDuration,
+    noCourses,
+    visibleTimetables.length,
+    handleCalendarViewClick,
+  ]);
 
   useEffect(() => {
     setCalendarUpdateHandler(updateCalendarEvents);
@@ -278,6 +347,10 @@ export default function CalendarComponent({
     // FullCalendar invokes datesSet during its own commit. Defer the parent
     // update so React doesn't warn about a flushSync during that lifecycle.
     queueMicrotask(() => {
+      const startKey = `${start.getFullYear()}-${start.getMonth()}-${start.getDate()}`;
+      if (startKey === pendingDurationStartRef.current) {
+        durationNavigationPendingRef.current = false;
+      }
       setViewRange((current) => {
         if (
           current?.start?.getTime() === start.getTime() &&
@@ -589,7 +662,7 @@ export default function CalendarComponent({
               currentTimetableIndex={currentTimetableIndex}
               timetables={visibleTimetables}
               selectedDuration={selectedDuration}
-              setSelectedDuration={setSelectedDuration}
+              setSelectedDuration={handleDurationChange}
               durations={durations}
               sortByBracketContent={sortByBracketContent}
               term={term}

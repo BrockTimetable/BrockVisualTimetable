@@ -1,7 +1,7 @@
 import { deflateSync, inflateSync } from "fflate";
 
 /*
-URL state codec (format v2).
+URL state codec (format v3).
 
 Pipeline:
   state object -> binary pack -> deflate (fflate) -> base64url -> ?s=<string>
@@ -17,10 +17,11 @@ The format is tuned for short URLs:
     clustered IDs of a single term pack into ~1 byte each.
   - sd holds only the selected duration *code* ("2"); the date range is rebuilt
     from course data on restore.
+  - i holds the zero-based selected timetable position (v3 only).
   - col holds only user-customized colors; defaults are re-derived from order.
 */
 
-const SCHEMA_VERSION = 2;
+const SCHEMA_VERSION = 3;
 
 const textEncoder = new TextEncoder();
 const textDecoder = new TextDecoder();
@@ -111,8 +112,10 @@ const writeBinary = (state) => {
     bytes.push(n & 0x7f);
   };
 
-  // [1 byte] version
-  bytes.push(SCHEMA_VERSION);
+  // [1 byte] version. Preserve explicit older versions for callers that need
+  // to produce legacy links; current callers use v3.
+  const version = state.v ?? SCHEMA_VERSION;
+  bytes.push(version);
 
   // tt + term enums
   pushEnum(state.tt || "UG", TT_TABLE);
@@ -165,6 +168,9 @@ const writeBinary = (state) => {
     bytes.push(b & 0xff);
   });
 
+  // v3: zero-based selected timetable position. Old v2 links omit it.
+  if (version >= 3) pushVarint(Math.max(0, Math.trunc(state.i ?? 0)));
+
   return new Uint8Array(bytes);
 };
 
@@ -210,8 +216,9 @@ const readBinary = (bytes) => {
     return result >>> 0;
   };
 
-  // version (read for completeness; only v2 is produced)
-  readByte();
+  // v2 links remain readable. v3 adds the selected timetable index after
+  // colors, so the version is needed to know whether another field follows.
+  const version = readByte();
 
   // tt + term
   const tt = readEnum(TT_TABLE, "UG");
@@ -263,10 +270,13 @@ const readBinary = (bytes) => {
     if (label) col[courseLabelToCode(label)] = rgbToHex(r, g, b);
   }
 
-  const state = { v: SCHEMA_VERSION, tt, term, c, p, tb };
+  const selectedIndex = version >= 3 ? readVarint() : undefined;
+
+  const state = { v: version, tt, term, c, p, tb };
   if (sort) state.sort = sort;
   if (sd) state.sd = sd;
   if (Object.keys(col).length) state.col = col;
+  if (selectedIndex !== undefined) state.i = selectedIndex;
   return state;
 };
 
