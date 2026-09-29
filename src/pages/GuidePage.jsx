@@ -112,7 +112,7 @@ function GuidePage() {
 
   return (
     <div className="flex min-h-screen flex-col items-center">
-      <div className="w-full max-w-[1280px]">
+      <div className="mx-auto w-full max-w-[1440px] px-3 sm:px-5">
         <NavbarComponent />
         <div className="mx-auto w-full max-w-[960px] px-2 py-4 sm:px-4">
           <div className="space-y-4">
