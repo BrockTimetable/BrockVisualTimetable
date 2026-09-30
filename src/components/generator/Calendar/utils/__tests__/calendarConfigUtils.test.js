@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { renderToStaticMarkup } from "react-dom/server";
 import { getFullCalendarConfig } from "../calendarConfigUtils";
 
 describe("getFullCalendarConfig mobile views", () => {
@@ -32,26 +33,73 @@ describe("getFullCalendarConfig mobile views", () => {
     expect(content.props.className).toBe("calendar-list-event-content");
   });
 
-  it("clamps mobile calendar event titles to fit their time block", () => {
-    const config = getFullCalendarConfig({ isMobile: true });
-    const content = config.eventContent({
-      event: {
-        start: new Date("2026-09-28T09:00:00"),
-        end: new Date("2026-09-28T10:00:00"),
-        title: "COSC1P02 LEC 1",
-        extendedProps: {
-          courseName: "Introduction to Computer Science",
-          description: "Nishat, Rahnuma Islam",
+  it.each([30, 60, 90, 120])(
+    "renders %i-minute course events identically on mobile and desktop",
+    (duration) => {
+      const eventInfo = {
+        event: {
+          start: new Date("2026-09-28T09:00:00"),
+          end: new Date(
+            new Date("2026-09-28T09:00:00").getTime() + duration * 60000,
+          ),
+          title: "COSC1P02 LEC 1",
+          extendedProps: {
+            courseName: "Introduction to Computer Science",
+            description: "Nishat, Rahnuma Islam",
+            isPinned: true,
+          },
         },
-      },
-      view: { type: "timeGridWeek" },
-      timeText: "9:00am - 10:00am",
-    });
+        view: { type: "timeGridWeek" },
+        timeText: "9:00am - 10:00am",
+      };
+      const mobile = renderToStaticMarkup(
+        getFullCalendarConfig({ isMobile: true }).eventContent(eventInfo),
+      );
+      const desktop = renderToStaticMarkup(
+        getFullCalendarConfig({ isMobile: false }).eventContent(eventInfo),
+      );
 
-    expect(content.props.className).toBe("calendar-grid-event-content");
-    expect(content.props.children.props.className).toContain(
-      "calendar-grid-event-title--double",
-    );
-    expect(content.props.title).toContain("Nishat, Rahnuma Islam");
-  });
+      expect(mobile).toBe(desktop);
+      expect(mobile).toContain(eventInfo.timeText);
+      expect(mobile).toContain(eventInfo.event.title);
+      expect(mobile).toContain("lucide-pin");
+      expect(mobile.includes(eventInfo.event.extendedProps.courseName)).toBe(
+        duration >= 90,
+      );
+      expect(mobile.includes(eventInfo.event.extendedProps.description)).toBe(
+        duration >= 90,
+      );
+    },
+  );
+
+  it.each([30, 90])(
+    "renders %i-minute blocked events identically on mobile and desktop",
+    (duration) => {
+      const eventInfo = {
+        event: {
+          start: new Date("2026-09-28T09:00:00"),
+          end: new Date(
+            new Date("2026-09-28T09:00:00").getTime() + duration * 60000,
+          ),
+          title: "A blocked time label longer than twenty-five characters",
+          extendedProps: { isBlocked: true },
+        },
+        view: { type: "timeGridWeek" },
+        timeText: "9:00am - 10:30am",
+      };
+      const mobile = renderToStaticMarkup(
+        getFullCalendarConfig({ isMobile: true }).eventContent(eventInfo),
+      );
+      const desktop = renderToStaticMarkup(
+        getFullCalendarConfig({ isMobile: false }).eventContent(eventInfo),
+      );
+
+      expect(mobile).toBe(desktop);
+      expect(mobile).toContain("lucide-ban");
+      expect(mobile.includes(eventInfo.timeText)).toBe(duration >= 90);
+      expect(mobile.includes(`${eventInfo.event.title.slice(0, 25)}...`)).toBe(
+        duration >= 90,
+      );
+    },
+  );
 });

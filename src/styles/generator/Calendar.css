@@ -114,11 +114,6 @@
     display: none;
   }
 
-  .fc-event-main {
-    font-size: var(--type-calendar-compact);
-    text-wrap: wrap;
-  }
-
   #calendarNavBar.calendar-nav-mobile {
     display: grid;
     grid-template-columns: minmax(0, 1fr);
