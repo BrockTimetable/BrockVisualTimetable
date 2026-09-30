@@ -55,7 +55,7 @@ export default function CourseListItemComponent({
   return (
     <Card
       className={cn(
-        "overflow-hidden rounded-lg border-border/70 bg-transparent shadow-none transition-colors hover:bg-muted/25",
+        "workspace-course-row overflow-hidden rounded-lg border-border/70 bg-transparent shadow-none transition-colors hover:bg-muted/25",
         isDragOverlay && "shadow-lg ring-1 ring-ring/30",
       )}
     >
