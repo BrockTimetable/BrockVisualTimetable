@@ -17,11 +17,7 @@ const formatListEventTime = (start, end) => {
 };
 
 // Event rendering function
-export const renderEventContent = (
-  eventInfo,
-  isMobile = false,
-  isListView = false,
-) => {
+export const renderEventContent = (eventInfo, isListView = false) => {
   // Calculate the event duration in minutes
   const startTime = eventInfo.event.start;
   const endTime = eventInfo.event.end;
@@ -46,17 +42,6 @@ export const renderEventContent = (
               {formatListEventTime(startTime, endTime)}
             </span>
           </div>
-        </div>
-      );
-    }
-
-    if (isMobile) {
-      return (
-        <div
-          className="calendar-grid-event-content calendar-grid-event-content--blocked"
-          title={truncatedTitle || "Blocked time"}
-        >
-          <Ban aria-hidden="true" className="calendar-grid-event-block-icon" />
         </div>
       );
     }
@@ -136,28 +121,6 @@ export const renderEventContent = (
       );
     }
 
-    if (isMobile) {
-      const titleLines = eventDuration <= 30 ? "single" : "double";
-      const fullEventDetails = [
-        eventInfo.event.title,
-        eventInfo.timeText,
-        courseNameText,
-        instructorText,
-      ]
-        .filter(Boolean)
-        .join(" · ");
-
-      return (
-        <div className="calendar-grid-event-content" title={fullEventDetails}>
-          <span
-            className={`calendar-grid-event-title calendar-grid-event-title--${titleLines}`}
-          >
-            {eventInfo.event.title}
-          </span>
-        </div>
-      );
-    }
-
     return (
       <div
         style={{
@@ -189,38 +152,36 @@ export const renderEventContent = (
         <div style={{ position: "relative", zIndex: 1 }}>
           <b style={{ display: "block" }}>{eventInfo.timeText}</b>
           <span style={{ display: "block" }}>{eventInfo.event.title}</span>
-          {(isMobile || eventDuration >= minDurationToShowTime) &&
-            shouldShowCourseName && (
-              <span
-                style={{
-                  display: "block",
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                  whiteSpace: "nowrap",
-                  maxWidth: "100%",
-                  lineHeight: "1.2",
-                }}
-                title={courseNameText}
-              >
-                {courseNameText}
-              </span>
-            )}
-          {(isMobile || eventDuration >= minDurationToShowTime) &&
-            shouldShowInstructor && (
-              <span
-                style={{
-                  display: "block",
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                  whiteSpace: "nowrap",
-                  maxWidth: "100%",
-                  lineHeight: "1.2",
-                }}
-                title={instructorText}
-              >
-                {instructorText}
-              </span>
-            )}
+          {eventDuration >= minDurationToShowTime && shouldShowCourseName && (
+            <span
+              style={{
+                display: "block",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+                maxWidth: "100%",
+                lineHeight: "1.2",
+              }}
+              title={courseNameText}
+            >
+              {courseNameText}
+            </span>
+          )}
+          {eventDuration >= minDurationToShowTime && shouldShowInstructor && (
+            <span
+              style={{
+                display: "block",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+                maxWidth: "100%",
+                lineHeight: "1.2",
+              }}
+              title={instructorText}
+            >
+              {instructorText}
+            </span>
+          )}
         </div>
       </div>
     );

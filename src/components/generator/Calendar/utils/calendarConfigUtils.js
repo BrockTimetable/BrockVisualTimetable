@@ -41,7 +41,7 @@ export const getFullCalendarConfig = ({
   allDaySlot: true,
   allDayText: "ONLINE",
   eventContent: (eventInfo) =>
-    renderEventContent(eventInfo, isMobile, eventInfo.view.type === "listWeek"),
+    renderEventContent(eventInfo, eventInfo.view.type === "listWeek"),
   eventClassNames: (arg) => {
     const classes = [];
     if (arg.event.extendedProps?.isPinned) classes.push("fc-event-pinned");
