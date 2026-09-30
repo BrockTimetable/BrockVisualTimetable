@@ -50,6 +50,17 @@ export const renderEventContent = (
       );
     }
 
+    if (isMobile) {
+      return (
+        <div
+          className="calendar-grid-event-content calendar-grid-event-content--blocked"
+          title={truncatedTitle || "Blocked time"}
+        >
+          <Ban aria-hidden="true" className="calendar-grid-event-block-icon" />
+        </div>
+      );
+    }
+
     return (
       <div
         style={{
@@ -121,6 +132,28 @@ export const renderEventContent = (
               <Pin className="h-5 w-5" />
             </span>
           )}
+        </div>
+      );
+    }
+
+    if (isMobile) {
+      const titleLines = eventDuration <= 30 ? "single" : "double";
+      const fullEventDetails = [
+        eventInfo.event.title,
+        eventInfo.timeText,
+        courseNameText,
+        instructorText,
+      ]
+        .filter(Boolean)
+        .join(" · ");
+
+      return (
+        <div className="calendar-grid-event-content" title={fullEventDetails}>
+          <span
+            className={`calendar-grid-event-title calendar-grid-event-title--${titleLines}`}
+          >
+            {eventInfo.event.title}
+          </span>
         </div>
       );
     }

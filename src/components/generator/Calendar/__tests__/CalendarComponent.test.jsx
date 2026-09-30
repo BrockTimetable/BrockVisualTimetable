@@ -31,6 +31,8 @@ const mocks = vi.hoisted(() => ({
   enqueueSnackbar: vi.fn(),
 }));
 
+let isMobileViewport = false;
+
 vi.mock("notistack", () => ({
   useSnackbar: () => ({
     enqueueSnackbar: mocks.enqueueSnackbar,
@@ -46,14 +48,27 @@ vi.mock("@fullcalendar/react", async () => {
   const React = await import("react");
 
   const MockFullCalendar = React.forwardRef(function MockFullCalendar(
-    { events = [], eventClick, datesSet, select },
+    { events = [], eventClick, datesSet, select, initialView },
     ref,
   ) {
-    React.useImperativeHandle(ref, () => ({
-      getApi: () => ({
-        gotoDate: vi.fn(),
+    const [viewType, setViewType] = React.useState(
+      initialView || "timeGridWeek",
+    );
+    const changeView = React.useCallback((nextView) => {
+      setViewType(nextView);
+    }, []);
+
+    React.useImperativeHandle(
+      ref,
+      () => ({
+        getApi: () => ({
+          gotoDate: vi.fn(),
+          view: { type: viewType },
+          changeView,
+        }),
       }),
-    }));
+      [changeView, viewType],
+    );
 
     React.useEffect(() => {
       datesSet?.({
@@ -63,7 +78,7 @@ vi.mock("@fullcalendar/react", async () => {
     }, [datesSet]);
 
     return (
-      <div aria-label="Calendar events">
+      <div aria-label="Calendar events" data-view-type={viewType}>
         <button
           type="button"
           onClick={() =>
@@ -97,6 +112,7 @@ vi.mock("@fullcalendar/react", async () => {
 
   MockFullCalendar.propTypes = {
     events: PropTypes.array,
+    initialView: PropTypes.string,
     eventClick: PropTypes.func,
     datesSet: PropTypes.func,
     select: PropTypes.func,
@@ -258,7 +274,7 @@ describe("CalendarComponent user interactions", () => {
     Object.defineProperty(window, "matchMedia", {
       writable: true,
       value: vi.fn().mockImplementation((query) => ({
-        matches: false,
+        matches: query === "(max-width: 639px)" && isMobileViewport,
         media: query,
         onchange: null,
         addListener: vi.fn(),
@@ -271,6 +287,7 @@ describe("CalendarComponent user interactions", () => {
   });
 
   beforeEach(() => {
+    isMobileViewport = false;
     clearAllPins();
     getTimeBlockEvents().forEach((block) => removeTimeBlockEvent(block.id));
     vi.clearAllMocks();
@@ -322,6 +339,33 @@ describe("CalendarComponent user interactions", () => {
     const previousButton = navButtons[1];
     await userEvent.click(previousButton);
     await waitFor(() => expect(screen.getByText("1 of 2")).toBeTruthy());
+  });
+
+  it("toggles between calendar and schedule views on mobile", async () => {
+    isMobileViewport = true;
+    renderCalendar();
+
+    expect(screen.getByLabelText("Calendar events").dataset.viewType).toBe(
+      "timeGridWeek",
+    );
+
+    await userEvent.click(
+      screen.getByRole("button", { name: "Switch to schedule view" }),
+    );
+    await waitFor(() => {
+      expect(screen.getByLabelText("Calendar events").dataset.viewType).toBe(
+        "listWeek",
+      );
+    });
+
+    await userEvent.click(
+      screen.getByRole("button", { name: "Switch to calendar view" }),
+    );
+    await waitFor(() => {
+      expect(screen.getByLabelText("Calendar events").dataset.viewType).toBe(
+        "timeGridWeek",
+      );
+    });
   });
 
   it("creates a blocked time slot when the user selects time on the calendar", async () => {

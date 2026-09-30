@@ -183,6 +183,11 @@
     font-size: var(--type-meta);
   }
 
+  .calendar-nav-mobile #durationFormBox .mobile-calendar-view-button {
+    width: 2.5rem;
+    padding: 0;
+  }
+
   .calendar-nav-mobile #calendarTimetableNumber {
     margin: 0;
     color: hsl(var(--muted-foreground));
