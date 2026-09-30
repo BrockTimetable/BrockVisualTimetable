@@ -336,3 +336,59 @@
   border-color: hsl(var(--background) / 0.2);
   box-shadow: 0 1px 2px hsl(var(--foreground) / 0.16);
 }
+
+@media (max-width: 639px) {
+  #Calendar .fc .fc-scrollgrid-section > :is(td, th) {
+    border-left: 0;
+    border-right: 0;
+  }
+
+  #Calendar .fc .fc-scrollgrid-section > :is(td, th) tr > :first-child {
+    border-left: 0;
+  }
+
+  #Calendar .fc .fc-scrollgrid-section > :is(td, th) tr > :last-child {
+    border-right: 0;
+  }
+
+  #Calendar .fc .fc-timegrid-event {
+    overflow: hidden;
+  }
+
+  .calendar-grid-event-content {
+    box-sizing: border-box;
+    height: 100%;
+    overflow: hidden;
+    padding: 0.125rem 0.2rem;
+  }
+
+  .calendar-grid-event-content--blocked {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+  }
+
+  .calendar-grid-event-block-icon {
+    width: 1rem;
+    height: 1rem;
+  }
+
+  .calendar-grid-event-title {
+    display: -webkit-box;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    overflow-wrap: anywhere;
+    line-height: 1.1;
+  }
+
+  .calendar-grid-event-title--single {
+    -webkit-line-clamp: 1;
+    line-clamp: 1;
+  }
+
+  .calendar-grid-event-title--double {
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+  }
+}

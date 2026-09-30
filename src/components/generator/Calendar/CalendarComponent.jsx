@@ -78,6 +78,7 @@ export default function CalendarComponent({
   const navigatedDurationRef = React.useRef("");
   const courseColorsRef = React.useRef({});
   const [events, setEvents] = useState([]);
+  const [calendarView, setCalendarView] = useState("timeGridWeek");
   const [viewRange, setViewRange] = useState(null);
   const { setCourseDetails } = useContext(CourseDetailsContext);
   const { courseColors, setCalendarUpdateHandler, getDefaultColorForCourse } =
@@ -114,7 +115,7 @@ export default function CalendarComponent({
 
   useEffect(() => {
     const calendarApi = calendarRef.current?.getApi?.();
-    const desiredView = isMobile ? "listWeek" : "timeGridWeek";
+    const desiredView = isMobile ? calendarView : "timeGridWeek";
     if (
       calendarApi &&
       calendarApi.view?.type !== desiredView &&
@@ -129,7 +130,13 @@ export default function CalendarComponent({
       };
     }
     return undefined;
-  }, [isMobile]);
+  }, [calendarView, isMobile]);
+
+  const handleMobileViewToggle = useCallback(() => {
+    setCalendarView((currentView) =>
+      currentView === "timeGridWeek" ? "listWeek" : "timeGridWeek",
+    );
+  }, []);
 
   // Touch event handling
   useTouchEvents();
@@ -736,6 +743,8 @@ export default function CalendarComponent({
               term={term}
               isMobile={isMobile}
               onBlockTime={openCreateBlockSheet}
+              calendarView={calendarView}
+              onToggleMobileView={handleMobileViewToggle}
             />
             <div className="calendar-shell-divider" aria-hidden="true" />
 
@@ -752,6 +761,7 @@ export default function CalendarComponent({
                 handleEventMouseEnter,
                 handleEventMouseLeave,
                 isMobile,
+                calendarView,
               })}
             />
           </div>

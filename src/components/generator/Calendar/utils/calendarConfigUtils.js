@@ -15,13 +15,14 @@ export const getFullCalendarConfig = ({
   handleEventMouseEnter,
   handleEventMouseLeave,
   isMobile = false,
+  calendarView = "timeGridWeek",
 }) => ({
   ref: calendarRef,
   plugins: [timeGridPlugin, listPlugin, interactionPlugin],
-  initialView: isMobile ? "listWeek" : "timeGridWeek",
+  initialView: "timeGridWeek",
   weekends: showWeekends,
   headerToolbar: false,
-  height: isMobile ? "auto" : 835,
+  height: isMobile && calendarView === "listWeek" ? "auto" : 835,
   dayHeaderFormat: { weekday: "short" },
   dayHeaderContent: (arg) => {
     if (arg.view.type === "listWeek") {
@@ -40,7 +41,7 @@ export const getFullCalendarConfig = ({
   allDaySlot: true,
   allDayText: "ONLINE",
   eventContent: (eventInfo) =>
-    renderEventContent(eventInfo, isMobile, isMobile),
+    renderEventContent(eventInfo, isMobile, eventInfo.view.type === "listWeek"),
   eventClassNames: (arg) => {
     const classes = [];
     if (arg.event.extendedProps?.isPinned) classes.push("fc-event-pinned");
@@ -49,7 +50,7 @@ export const getFullCalendarConfig = ({
     return classes;
   },
   eventDidMount: (arg) => {
-    if (isMobile) {
+    if (isMobile && arg.view.type === "listWeek") {
       const eventColor = arg.event.backgroundColor || arg.event.borderColor;
       if (eventColor) {
         arg.el.style.setProperty("--calendar-list-event-color", eventColor);

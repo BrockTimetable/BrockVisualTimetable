@@ -1,6 +1,7 @@
 import PropTypes from "prop-types";
 import {
   AlertTriangle,
+  CalendarDays,
   CalendarPlus,
   ChevronLeft,
   ChevronRight,
@@ -8,6 +9,7 @@ import {
   ChevronsRight,
   CircleX,
   Info,
+  List,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -63,6 +65,8 @@ export default function CalendarNavBar({
   term,
   isMobile,
   onBlockTime,
+  calendarView = "timeGridWeek",
+  onToggleMobileView,
 }) {
   const hasMultipleTimetables = timetables.length > 1;
   const showStepButtons = !isMobile || hasMultipleTimetables;
@@ -275,6 +279,26 @@ export default function CalendarNavBar({
           <Button
             type="button"
             variant="outline"
+            size="icon"
+            className="mobile-calendar-view-button h-10 w-10 shrink-0"
+            aria-label={
+              calendarView === "timeGridWeek"
+                ? "Switch to schedule view"
+                : "Switch to calendar view"
+            }
+            onClick={onToggleMobileView}
+          >
+            {calendarView === "timeGridWeek" ? (
+              <List aria-hidden="true" />
+            ) : (
+              <CalendarDays aria-hidden="true" />
+            )}
+          </Button>
+        )}
+        {isMobile && (
+          <Button
+            type="button"
+            variant="outline"
             className="mobile-block-time-button h-10 shrink-0 gap-1.5 px-3"
             onClick={onBlockTime}
           >
@@ -305,4 +329,6 @@ CalendarNavBar.propTypes = {
   term: PropTypes.string,
   isMobile: PropTypes.bool,
   onBlockTime: PropTypes.func,
+  calendarView: PropTypes.oneOf(["timeGridWeek", "listWeek"]),
+  onToggleMobileView: PropTypes.func,
 };
