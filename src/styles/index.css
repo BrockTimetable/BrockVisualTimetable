@@ -118,4 +118,27 @@
     font-size: var(--type-meta);
     @apply leading-4;
   }
+
+  @media (max-width: 767px) {
+    .generator-page .workspace-surface {
+      @apply rounded-none border-0 bg-transparent shadow-none;
+    }
+
+    .generator-page .workspace-header,
+    .generator-page .workspace-section {
+      @apply px-0;
+    }
+
+    .generator-page main {
+      @apply border-t border-border/70;
+    }
+
+    .generator-page .workspace-course-row {
+      @apply rounded-none border-0 border-b border-border/70;
+    }
+
+    .generator-page #Calendar .calendar-shell {
+      @apply rounded-none border-0 bg-transparent shadow-none;
+    }
+  }
 }

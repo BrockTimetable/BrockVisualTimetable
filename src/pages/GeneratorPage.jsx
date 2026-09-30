@@ -449,14 +449,14 @@ function GeneratorPageContent() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="generator-page min-h-screen bg-background">
       <div className="mx-auto w-full max-w-[1440px] px-3 sm:px-5">
         <NavbarComponent />
         <ShareFeatureBanner />
         <div className="pb-8 md:grid md:grid-cols-[minmax(280px,340px)_minmax(0,1fr)] md:items-start md:gap-4">
           <aside>
             <div className="workspace-surface mt-3 overflow-hidden md:mt-0">
-              <div className="border-b border-border/70 px-4 py-4">
+              <div className="workspace-header border-b border-border/70 px-4 py-4">
                 <p className="workspace-page-title">Build your timetable</p>
                 <ol
                   className="mt-4 flex items-center gap-2"
